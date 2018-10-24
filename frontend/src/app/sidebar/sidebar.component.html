@@ -1,0 +1,28 @@
+<header class="titan-drawer-header" *ngIf="character">
+  <img [src]="characterPortrait" class="titan-avatar">
+  <div class="titan-avatar-dropdown">
+    <span>{{ character.name }}</span>
+    <div class="mdl-layout-spacer"></div>
+    <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+      <i class="material-icons" role="presentation">arrow_drop_down</i>
+      <span class="visuallyhidden">Accounts</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn" *ngIf="corporation">
+      <li class="mdl-menu__item" *ngFor="let member of corporation.members">{{ member.name }}</li>
+    </ul>
+  </div>
+  <span>{{ character.corporationName }}</span>
+</header>
+<header class="titan-drawer-header">
+  <a href="/auth/login">
+    <img src="assets/EVE_SSO_Login_Buttons_Small_Black.png" />
+  </a>
+</header>
+<nav class="titan-navigation mdl-navigation mdl-color--blue-grey-800">
+  <a class="mdl-navigation__link" routerLink='home'><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
+  <a class="mdl-navigation__link" routerLink='manufacturing'><i class="mdl-color-text--blue-grey-400 material-icons"
+      role="presentation">inbox</i>Manufacturing</a>
+  <div class="mdl-layout-spacer"></div>
+  <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i><span
+      class="visuallyhidden">Help</span></a>
+</nav>

@@ -1,0 +1,37 @@
+<ul class="mdl-list">
+  <div>
+    <label for="sortBy">Sort By</label>
+    <select id="sortBy" [(ngModel)]="sortBy" (ngModelChange)="onSortByChanged($event)">
+      <option *ngFor="let option of sortByOptions">{{ option }}</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="nameFilter">Filter</label>
+    <input type="text" id="nameFilter" [(ngModel)]="nameFilter" (ngModelChange)="onSortByChanged($event)" />
+  </div>
+
+  <div>
+    <label for="maxProductionCosts">Maximum Production Costs</label>
+    <input type="text" id="maxProductionCosts" [(ngModel)]="maxProductionCosts" (ngModelChange)="onSortByChanged($event)" /> ISK
+  </div>
+
+  <div *ngFor="let category of categories" style="float: left">
+    <input type="checkbox" id="categoryID:{{category.categoryID}}" value="{{category.categoryID}}" [(ngModel)]="selectedCategories[category.categoryID]" (ngModelChange)="onSortByChanged($event)" />
+    <label for="categoryID:{{category.categoryID}}">{{category.name.en}}</label>
+  </div>
+
+  <div style="clear: both"></div>
+
+  <li class="mdl-list__item mdl-list__item--two-line" *ngFor="let product of products">
+    <span class="mdl-list__item-primary-content">
+      <img class="blueprint-avatar mdl-list__item-avatar" src="https://image.eveonline.com/Type/{{ product.typeID }}_64.png" />
+      <span><a [routerLink]="['/manufacturing', product.typeID ]">{{ product.name.en }}</a></span>
+      <span class="mdl-list__item-sub-title">{{ product.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK Profit per Day (based on buy price) / {{ product.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK Profit per Day (based on sell price)</span>
+    </span>
+    <span class="mdl-list__item-secondary-content">
+      <span class="mdl-list__item-secondary-info">Owned</span>
+      <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+    </span>
+  </li>
+</ul>

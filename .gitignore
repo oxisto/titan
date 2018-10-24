@@ -4,9 +4,24 @@
 *.dll
 *.so
 *.dylib
+server
 
 # Test binary, build with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# The SDE
+sde
+sde.zip
+
+# Config files
+config*.yaml
+
+# Other
+.DS_Store
+
+# Binary stuff
+vendor
+node_modules

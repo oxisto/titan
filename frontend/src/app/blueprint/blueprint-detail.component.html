@@ -1,0 +1,306 @@
+<div class="mdl-grid">
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--6-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">{{ manufacturing.product.name.en }}</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <img src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png" style="float: left">
+      <p>The <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.product.name.en
+          }}</a> is a <b>{{ manufacturing.product.group.name.en }}</b>
+        manufactured from a <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.blueprintType.name.en
+          }}</a>.
+        <span *ngIf="manufacturing.isTech2 && manufacturing.invention">It is a Tech II component and needs invention
+          from
+          a <a href="javascript:void(0)" (click)="openMarketView(manufacturing.invetion.blueprintType.typeID)">{{
+            manufacturing.invention.blueprintType.name.en }}</a>.</span></p>
+      <p>Manufacturing will take {{ manufacturing.time }} seconds.</p>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--3-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Options</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      Station Type:
+      <select>
+        <option>Engineering Complex</option>
+        <option>POS</option>
+        <option>Station</option>
+      </select><br />
+
+      System: <input type="text" value="Ikuchi" /><br />
+
+      Blueprint ME:
+      <select [disabled]="manufacturing.isTech2">
+        <option *ngFor="let me of possibleME" [selected]="manufacturing.me == me">{{ me }}</option>
+      </select><br />
+
+      Blueprint TE:
+      <select [disabled]="manufacturing.isTech2">
+        <option *ngFor="let te of possibleTE" [selected]="manufacturing.te == te">{{ te }}</option>
+      </select><br />
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--3-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Job Duration Modifiers</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <ul>
+        <li *ngFor="let key of manufacturing.jobDurationModifiers | keys">
+          {{ key }}: {{manufacturing.materialConsumptionModifiers[key] | percent:'.1'}}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--5-col" *ngIf="manufacturing && manufacturing.isTech2 === true">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Invention Materials</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <table>
+        <thead>
+          <tr>
+            <td>Material</td>
+            <td style="text-align: right; padding-right: 20px">Amount</td>
+            <td style="text-align: right">Cost</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let material of manufacturing.invention.materials | values">
+            <td>
+              <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
+              <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ material.typeName.en }}</a>
+            </td>
+            <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
+            <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
+          </tr>
+          <tr>
+            <td>Total per Invention</td>
+            <td></td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
+              manufacturing.invention.costsPerRun | number:'1.2-2'}} ISK</td>
+          </tr>
+          <tr>
+            <td>Invention Chance</td>
+            <td></td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
+              manufacturing.invention.inventionChance | percent: '.2' }}</td>
+          </tr>
+          <tr>
+            <td>Average Tries for Full Manufacturing Run</td>
+            <td></td>
+            <td style="text-align: right">{{ manufacturing.invention.triesForManufacturing | number:'1.2-2' }}</td>
+          </tr>
+          <tr>
+            <td style="border: 0px solid black; border-top-width: 2px">Average Invention Costs</td>
+            <td style="border: 0px solid black; border-top-width: 2px"></td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--4-col" *ngIf="manufacturing && manufacturing.isTech2 === true">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Invention Skills</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <table>
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Required Level</td>
+            <td>Skill Level</td>
+            <td>Learned</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let skill of manufacturing.invention.requiredSkills | values">
+            <td>
+              <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
+              <a href="javascript:void(0)" (click)="openMarketView(skill.skillID)">{{ skill.skillName.en }}</a>
+            </td>
+            <td>{{ skill.requiredLevel }}</td>
+            <td>{{ skill.skillLevel }}</td>
+            <td><i class="material-icons" *ngIf="skill.hasLearned">star</i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--3-col" *ngIf="manufacturing && manufacturing.isTech2 === true">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Success Probability Modifiers</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <ul>
+        <li *ngFor="let key of manufacturing.invention.successProbabilityModifiers | keys">
+          {{ key }}: {{ manufacturing.invention.successProbabilityModifiers[key] | percent:'.1' }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--5-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Manufacturing Materials</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <table>
+        <thead>
+          <tr>
+            <td>Material</td>
+            <td style="text-align: right; padding-right: 20px">PPU</td>
+            <td style="text-align: right; padding-right: 20px">Amount</td>
+            <td style="text-align: right">Cost</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let material of manufacturing.materials | values">
+            <td>
+              <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
+              <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ material.typeName.en }}</a>
+            </td>
+            <td style="text-align: right; padding-right: 20px">{{ material.pricePerUnit | number:'1.2-2'}} ISK</td>
+            <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
+            <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
+          </tr>
+          <tr>
+            <td>Material Costs</td>
+            <td></td>
+            <td></td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.costs.totalMaterials | number:'1.0-0' }} ISK</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--4-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Manufacturing Skills</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <table>
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Required Level</td>
+            <td>Skill Level</td>
+            <td>Learned</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let skill of manufacturing.requiredSkills | values">
+            <td>
+              <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
+              <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ skill.skillName.en }}</a>
+            </td>
+            <td>{{ skill.requiredLevel }}</td>
+            <td>{{ skill.skillLevel }}</td>
+            <td><i class="material-icons" *ngIf="skill.hasLearned">star</i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--3-col" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Material Consumption Modifiers</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <ul>
+        <li *ngFor="let key of manufacturing.materialConsumptionModifiers | keys">
+          {{ key }}: {{manufacturing.materialConsumptionModifiers[key] | percent:'.1'}}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="titan-updates mdl-card mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop" *ngIf="manufacturing">
+    <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
+      <h2 class="mdl-card__title-text">Profit Calculation</h2>
+    </div>
+    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      <table>
+        <tbody>
+          <tr>
+            <td style="width: 250px">Material Costs</td>
+            <td style="text-align: right; width: 150px">{{ manufacturing.costs.totalMaterials | number:'1.0-0' }} ISK</td>
+          </tr>
+          <tr *ngIf="manufacturing && manufacturing.invention">
+            <td>Average Invention Costs</td>
+            <td style="text-align: right">{{ manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
+          </tr>
+          <tr>
+            <td>Total Manufacturing Costs</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.costs.total
+              | number:'1.0-0' }} ISK</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <tbody>
+          <tr>
+            <td style="width: 250px">Costs per Item</td>
+            <td style="text-align: right; width: 150px">{{ manufacturing.costs.perItem | number:'1.0-0' }} ISK</td>
+            <td style="width: 250px">
+            <td>
+            <td style="text-align: right; width: 150px"></td>
+          </tr>
+          <tr>
+            <td>Sell Price (Jita)</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.revenue.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+            <td>Buy Price (Jita)</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.revenue.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+          </tr>
+          <tr>
+            <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+            <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+          </tr>
+          <tr>
+            <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.margin.basedOnSellPrice | percent:'.2' }}</td>
+            <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.margin.basedOnBuyPrice | percent:'.2' }}</td>
+          </tr>
+          <tr>
+            <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
+              Slots used)</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.itemsPerDay
+              | number:'1.2-2' }}</td>
+            <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
+              Slots used)</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.itemsPerDay
+              | number:'1.2-2' }}</td>
+          </tr>
+          <tr>
+            <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+            <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
+            <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+              manufacturing.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
