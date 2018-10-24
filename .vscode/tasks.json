@@ -16,6 +16,18 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "go: build server",
+            "type": "shell",
+            "command": "go build cmd/server/server.go",
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
