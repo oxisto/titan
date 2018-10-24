@@ -59,7 +59,7 @@ jobs:
           name: Set image to current build
           command: |
             TAG=${CIRCLE_SHA1:0:8}
-            ./kubectl set image deployment titan titan=oxisto/titan:$TAG
+            ./kubectl set image deployment titan titan=oxisto/titan:$TAG -n titan
 workflows:
   version: 2
   build-test-and-deploy:

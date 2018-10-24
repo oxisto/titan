@@ -17,7 +17,7 @@ sde
 sde.zip
 
 # Config files
-config*.yaml
+config
 
 # Other
 .DS_Store

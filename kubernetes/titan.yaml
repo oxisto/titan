@@ -21,7 +21,7 @@ spec:
         name: titan
         volumeMounts:
         - name: config
-          mountPath: /usr/titan/config.yaml
+          mountPath: /usr/titan/config
           readOnly: true
         ports:
         - containerPort: 4300
@@ -30,6 +30,9 @@ spec:
       - name: config
         secret:
           secretName: config-secret
+          items:
+          - key: config-production.yaml
+            path: config.yaml
 ---
 apiVersion: v1
 kind: Service
