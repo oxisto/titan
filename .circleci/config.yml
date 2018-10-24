@@ -9,6 +9,9 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
+          name: Load cached image
+          command: docker pull oxisto/titan
+      - run:
           name: Update greenkeeper lockfile
           command: |
             apk add --no-cache nodejs yarn git

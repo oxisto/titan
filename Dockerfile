@@ -10,9 +10,9 @@ ADD frontend/. .
 RUN yarn run lint
 RUN yarn run build --prod
 
-FROM golang:stretch AS build-server
+FROM golang AS build-server
 
-WORKDIR /go/src/github.com/oxisto/titan
+WORKDIR /build
 
 RUN apt update && apt -y install unzip
 
@@ -20,12 +20,9 @@ RUN apt update && apt -y install unzip
 COPY sde.* ./
 RUN ./sde.sh
 
-# install dep utility
-RUN go get -u github.com/golang/dep/cmd/dep
-
 # copy dependency information and fetch them
-COPY Gopkg.* ./
-RUN dep ensure --vendor-only
+COPY go.mod ./
+RUN go mod download
 
 # copy sources
 COPY . .
@@ -33,12 +30,12 @@ COPY . .
 # build and install (without C-support, otherwise there issue because of the musl glibc replacement on Alpine)
 RUN CGO_ENABLED=0 GOOS=linux go build -a cmd/server/server.go
 
-FROM debian:9-slim
+FROM alpine
 # update CA certificates
-RUN apt update && apt install -y ca-certificates
+RUN apk update && apk add ca-certificates
 WORKDIR /usr/titan
 COPY --from=build-frontend /tmp/dist ./frontend/dist
-COPY --from=build-server /go/src/github.com/oxisto/titan/server .
-COPY --from=build-server /go/src/github.com/oxisto/titan/sde.version .
-COPY --from=build-server /go/src/github.com/oxisto/titan/sde/ sde
+COPY --from=build-server /build/server .
+COPY --from=build-server /build/sde.version .
+COPY --from=build-server /build/sde/ sde
 CMD ["./server"]
