@@ -1,0 +1,73 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker
+    working_directory: /titan
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Update greenkeeper lockfile
+          command: |
+            apk add --no-cache nodejs yarn git
+            yarn global add greenkeeper-lockfile@2.4.0
+            cd frontend && greenkeeper-lockfile-update
+      - run:
+          name: Build Docker image
+          command: |
+            echo "{\"version\": \"${CIRCLE_SHA1:0:8}\"}" > frontend/src/assets/config.json
+            docker build -t titan .
+      - run :
+          name: Upload greenkeeper lockfile
+          command: |
+            cd frontend && greenkeeper-lockfile-upload
+      - deploy:
+          name: Push Docker image
+          command: |
+            TAG=${CIRCLE_SHA1:0:8}
+            DOCKER_HUB_IMAGE=oxisto/titan
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker tag titan $DOCKER_HUB_IMAGE
+            docker tag titan $DOCKER_HUB_IMAGE:$TAG
+            docker push $DOCKER_HUB_IMAGE:$TAG
+            docker push $DOCKER_HUB_IMAGE
+  deploy_kubernetes:
+    docker:
+      - image: circleci/python
+    steps:
+      - checkout
+      - run:
+          name: Download kubectl
+          command: curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl
+      - run:
+          name: Retrieve kubeconfig from ENV
+          command: mkdir -p ~/.kube && echo $KUBECONFIG_BASE64 | base64 -d > ~/.kube/config
+      - run:
+          name: Install titan
+          command: ./kubectl apply -f kubernetes/titan.yaml
+      - run:
+          name: Install MongoDB and REDIS
+          command: |
+            ./kubectl apply -f kubernetes/mongodb.yaml
+            ./kubectl apply -f kubernetes/redis.yaml
+      - run:
+          name: Set image to current build
+          command: |
+            TAG=${CIRCLE_SHA1:0:8}
+            ./kubectl set image deployment titan titan=oxisto/titan:$TAG
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build:          
+          context: org-global
+      - deploy_kubernetes:
+          filters:
+            branches:
+              only:
+                - master      
+          context: org-global
+          requires:
+            - build

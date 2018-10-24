@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: titan
+  name: titan
+  namespace: titan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: titan
+  template:
+    metadata:
+      labels:
+        app: titan
+    spec:
+      containers:
+      - image: oxisto/titan
+        imagePullPolicy: Always
+        name: titan
+        volumeMounts:
+        - name: config
+          mountPath: /usr/titan/config.yaml
+          readOnly: true
+        ports:
+        - containerPort: 4300
+          protocol: TCP
+      volumes:
+      - name: config
+        secret:
+          secretName: config-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: titan
+  namespace: titan
+spec:
+  ports:
+  - port: 4300
+    protocol: TCP
+    targetPort: 4300
+  selector:
+    app: titan
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: titan-api
+  namespace: titan
+spec:
+  rules:
+  - host: eve.aybaze.com
+    http:
+      paths:
+      - backend:
+          serviceName: titan
+          servicePort: 4300
+        path: /
+  tls:
+  - hosts:
+    - eve.aybaze.com
+    secretName: eve-tls
