@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import 'rxjs/add/operator/map';
 import { AuthService } from '../auth/auth.service';
 import { ManufacturingService } from '../manufacturing/manufacturing.service';
-
-
 
 @Component({
   templateUrl: './blueprints.component.html',

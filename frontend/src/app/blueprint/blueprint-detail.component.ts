@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import 'rxjs/add/operator/map';
 import { AuthService } from '../auth/auth.service';
 import { MarketService } from '../market/market.service';
 import { BlueprintService } from './blueprint.service';
-
-
 
 @Component({
   templateUrl: './blueprint-detail.component.html',

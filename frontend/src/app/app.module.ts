@@ -13,12 +13,9 @@ import { BlueprintsComponent } from './blueprint/blueprints.component';
 import { CharacterService } from './character/character.service';
 import { CorporationService } from './corporation/corporation.service';
 import { HomeComponent } from './home/home.component';
-import { KeysPipe } from './keys.pipe';
 import { ManufacturingService } from './manufacturing/manufacturing.service';
 import { MarketService } from './market/market.service';
 import { ValuesPipe } from './values.pipe';
-
-
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -30,7 +27,6 @@ export function tokenGetter() {
     HomeComponent,
     BlueprintsComponent,
     BlueprintDetailComponent,
-    KeysPipe,
     ValuesPipe
   ],
   imports: [

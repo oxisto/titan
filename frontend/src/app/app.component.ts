@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import 'rxjs/add/operator/toPromise';
 import { Character } from './character/character';
 import { CharacterService } from './character/character.service';
 
