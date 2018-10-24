@@ -17,6 +17,8 @@ limitations under the License.
 package main
 
 import (
+	"time"
+	"github.com/oxisto/titan/manufacturing"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -24,12 +26,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 	"github.com/oxisto/titan/routes"
 	"github.com/oxisto/titan/slack"

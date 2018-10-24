@@ -17,11 +17,10 @@ limitations under the License.
 package db
 
 import (
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
 	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var mongo *mgo.Database
@@ -80,7 +79,21 @@ func GetProductTypeIDs() ([]int32, error) {
 
 	for _, v := range types {
 		if typeID, ok := v["_id"].(int); ok && !ProductTypeIDBlacklist[typeID] {
-			typeIDs = append(typeIDs, int32(typeID))
+			// lets filter out those tech2 blueprints that cannot be invented
+			if t, ok := v["type"].(map[string]interface{}); ok && t["metaGroupID"] == 2 {
+				tech2blueprint := GetBlueprint(int32(typeID), "activities.manufacturing.products.typeID")
+				// find the tech1 blueprint for tech2
+				tech1blueprint := GetBlueprint(tech2blueprint.BlueprintTypeID, "activities.invention.products.typeID")
+
+				if tech1blueprint.ObjectID != 0 {
+					typeIDs = append(typeIDs, int32(typeID))
+				} else {
+					// TODO: instead of removing it, we could mark it in a special way
+				}
+			} else {
+				// tech1 should be no problem
+				typeIDs = append(typeIDs, int32(typeID))
+			}
 		}
 	}
 
