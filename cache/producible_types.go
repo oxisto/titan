@@ -18,10 +18,8 @@ package cache
 
 import (
 	"math"
-
-	"strings"
-
 	"strconv"
+	"strings"
 
 	"github.com/go-redis/redis"
 	"github.com/oxisto/titan/db"
@@ -82,7 +80,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 	}
 
 	results := []string{}
-	results, err := cache.Sort("productTypeIDs", s).Result()
+	results, err := cache.Sort("productTypeIDs", &s).Result()
 	if err != nil {
 		return nil, err
 	}

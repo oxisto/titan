@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-
-
-
+import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
-
+import { Observable } from 'rxjs/Observable';
 import { AuthService } from '../auth/auth.service';
 import { Character } from './character';
+
+
+
+
 
 @Injectable()
 export class CharacterService {
@@ -29,8 +29,8 @@ export class CharacterService {
     this.character = this.get();
   }
 
-  getCharacterPortraitURL(characterID: number) {
-    return 'https://image.eveonline.com/Character/' + characterID + '_128.jpg';
+  getCharacterPortraitURL(characterID: number, size: number) {
+    return 'https://image.eveonline.com/Character/' + characterID + '_' + size + '.jpg';
   }
 
 }

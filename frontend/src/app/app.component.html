@@ -1,14 +1,32 @@
-<div class="titan-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-  <header class="titan-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
-    <div class="mdl-layout__header-row">
-      <span class="mdl-layout-title">Home</span>
-      <div class="mdl-layout-spacer"></div>
-    </div>
-  </header>
-  <div class="titan-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-    <app-sidebar></app-sidebar>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#" *ngIf="character">
+    <img [src]="characterPortrait">
+    {{ character.name }}<br />
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" routerLink='home'>Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink='manufacturing'>Manufacturing</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink='home'>Industry Jobs</a>
+      </li>
+    </ul>
   </div>
-  <main class="mdl-layout__content mdl-color--grey-100">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+
+  <a href="/auth/login">
+    <img src="assets/EVE_SSO_Login_Buttons_Small_Black.png" />
+  </a>
+</nav>
+
+<main class="p-2">
+  <router-outlet></router-outlet>
+</main>

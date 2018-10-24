@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Headers, Http } from '@angular/http';
-
 import 'rxjs/add/operator/map';
-
 import { AuthService } from '../auth/auth.service';
 import { ManufacturingService } from '../manufacturing/manufacturing.service';
+
+
 
 @Component({
   templateUrl: './blueprints.component.html',
@@ -14,11 +13,11 @@ export class BlueprintsComponent implements OnInit {
 
   products: any[];
 
-  sortByOptions = [ 'Profit.PerDay.BasedOnSellPrice:DESC', 'Profit.PerDay.BasedOnBuyPrice:DESC' ];
+  sortByOptions = ['Profit.PerDay.BasedOnSellPrice:DESC', 'Profit.PerDay.BasedOnBuyPrice:DESC'];
 
   sortBy: string;
 
-  categories: any[];
+  categories: Map<number, any>;
 
   selectedCategories: any = {};
 
@@ -27,8 +26,8 @@ export class BlueprintsComponent implements OnInit {
   maxProductionCosts: number;
 
   constructor(private auth: AuthService,
-              private manufacturingService: ManufacturingService) {
-    if (!this.auth.isLoggedIn()) {
+    private manufacturingService: ManufacturingService) {
+    if (!this.auth.isLoggedIn()) {
       return;
     }
 
@@ -41,7 +40,7 @@ export class BlueprintsComponent implements OnInit {
     }
 
     this.manufacturingService.getManufacturingCategories().subscribe(categories => {
-      this.categories = categories;
+      this.categories = categories.reduce((map, category) => ({ ...map, [category.categoryID]: category }), {});
 
       // see, if there is something in localStorage, otherwise set all categories to true
       const json = localStorage.getItem('manufacturing:selectedCategories');
@@ -61,7 +60,7 @@ export class BlueprintsComponent implements OnInit {
   }
 
   fetchProducts() {
-    if (this.auth.isLoggedIn()) {
+    if (this.auth.isLoggedIn()) {
       const categoryIDs: number[] = [];
 
       for (const key of Object.keys(this.selectedCategories)) {
@@ -71,10 +70,12 @@ export class BlueprintsComponent implements OnInit {
         }
       }
 
-      this.manufacturingService.getManufacturingTypeIDs({ categoryIDs: categoryIDs,
-                                                          sortBy: this.sortBy,
-                                                          nameFilter: this.nameFilter,
-                                                          maxProductionCosts: this.maxProductionCosts}).subscribe(products => {
+      this.manufacturingService.getManufacturingTypeIDs({
+        categoryIDs: categoryIDs,
+        sortBy: this.sortBy,
+        nameFilter: this.nameFilter,
+        maxProductionCosts: this.maxProductionCosts
+      }).subscribe(products => {
         this.products = products;
       });
     }
