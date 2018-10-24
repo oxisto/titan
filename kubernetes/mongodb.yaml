@@ -20,6 +20,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb
+  namespace: titan
 spec:
   selector:
     app: mongodb

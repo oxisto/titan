@@ -50,7 +50,9 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: titan-api
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  name: titan
   namespace: titan
 spec:
   rules:
