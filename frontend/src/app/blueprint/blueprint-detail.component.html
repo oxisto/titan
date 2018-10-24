@@ -1,7 +1,7 @@
 <div *ngIf="manufacturing">
   <h2>{{ manufacturing.product.name.en }}</h2>
-  <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-    <img src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png" style="float: left">
+  <div>
+    <img class="pr-2" src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png" style="float: left">
     <p>The <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.product.name.en
         }}</a> is a <b>{{ manufacturing.product.group.name.en }}</b>
       manufactured from a <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.blueprintType.name.en
@@ -14,305 +14,295 @@
   </div>
 </div>
 
-<div class="card-columns">
-  <div class="card">
-    <div class="card-header">Options</div>
-    <div class="card-body">
-      <div class="form-group row">
-        <label for="stationType" class="col-sm-4 col-form-label">Station Type</label>
-        <div class="col-sm-8">
-          <select id="stationType" class="form-control">
-            <option>Engineering Complex</option>
-            <option>POS</option>
-            <option>Station</option>
-          </select>
+<ngb-tabset *ngIf="manufacturing">
+  <ngb-tab title="Profit">
+    <ng-template ngbTabContent>
+      <div class="row p-2">
+        <div class="col-7">
+          <h3>Profit Calculation</h3>
+          <table class="w-50 table table-sm">
+            <tbody>
+              <tr>
+                <td style="width: 250px">Material Costs</td>
+                <td style="text-align: right; width: 150px">{{ manufacturing.costs.totalMaterials | number:'1.0-0' }}
+                  ISK</td>
+              </tr>
+              <tr *ngIf="manufacturing && manufacturing.invention">
+                <td>Average Invention Costs</td>
+                <td style="text-align: right">{{ manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
+              </tr>
+              <tr>
+                <td>Total Manufacturing Costs</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.costs.total
+                  | number:'1.0-0' }} ISK</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="w-100 table table-sm">
+            <tbody>
+              <tr>
+                <td>Costs per Item</td>
+                <td style="text-align: right">{{ manufacturing.costs.perItem | number:'1.0-0' }} ISK</td>
+                <td>
+                <td>
+                <td style="text-align: right"></td>
+              </tr>
+              <tr>
+                <td>Sell Price (Jita)</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.revenue.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+                <td>Buy Price (Jita)</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.revenue.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+              </tr>
+              <tr>
+                <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+                <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+              </tr>
+              <tr>
+                <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.margin.basedOnSellPrice | percent:'.2' }}</td>
+                <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.margin.basedOnBuyPrice | percent:'.2' }}</td>
+              </tr>
+              <tr>
+                <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
+                  Slots used)</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.itemsPerDay
+                  | number:'1.2-2' }}</td>
+                <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
+                  Slots used)</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.itemsPerDay
+                  | number:'1.2-2' }}</td>
+              </tr>
+              <tr>
+                <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK</td>
+                <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-5">
+          <h3>Job Duration Modifiers</h3>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let item of manufacturing.jobDurationModifiers | keyvalue">
+              {{ item.key }}: {{ item.value | percent:'.1'}}
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="form-group row">
-        <label for="system" class="col-sm-4 col-form-label">System</label>
-        <div class="col-sm-8">
-          <input id="system" class="form-control" type="text" value="Ikuchi" />
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Manufacturing">
+    <ng-template ngbTabContent>
+      <div class="row p-2">
+        <div class="col-7">
+          <h3>Manufacturing Materials</h3>
+          <table class="w-100 table table-sm">
+            <thead>
+              <tr>
+                <td>Material</td>
+                <td style="text-align: right; padding-right: 20px">PPU</td>
+                <td style="text-align: right; padding-right: 20px">Amount</td>
+                <td style="text-align: right">Cost</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let material of manufacturing.materials | values">
+                <td>
+                  <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
+                  <a [routerLink]="['/manufacturing', material.typeID]">{{ material.typeName.en }}</a> <a href="javascript:void(0)"
+                    (click)="openMarketView(material.typeID)"><img style="width: 32px" src="assets/market.png"></a>
+                </td>
+                <td style="text-align: right; padding-right: 20px">{{ material.pricePerUnit | number:'1.2-2'}} ISK</td>
+                <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
+                <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
+              </tr>
+              <tr>
+                <td>Material Costs</td>
+                <td></td>
+                <td></td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.costs.totalMaterials | number:'1.0-0' }} ISK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-5">
+          <div>
+            <h3>Manufacturing Skills</h3>
+            <table class="w-100 table table-sm">
+              <thead>
+                <tr>
+                  <td>Name</td>
+                  <td>Required Level</td>
+                  <td>Skill Level</td>
+                  <td>Learned</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let skill of manufacturing.requiredSkills | values">
+                  <td>
+                    <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
+                    <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ skill.skillName.en }}</a>
+                  </td>
+                  <td>{{ skill.requiredLevel }}</td>
+                  <td>{{ skill.skillLevel }}</td>
+                  <td>
+                    <img style="height: 24px" src="assets/skill_points_64.png" *ngIf="skill.hasLearned">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pt-2">
+            <h3>Material Consumption Modifiers</h3>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" *ngFor="let item of manufacturing.materialConsumptionModifiers | keyvalue">
+                {{ item.key }}: {{ item.value | percent:'.1'}}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="form-group row">
-        <label for="blueprintME" class="col-sm-4 col-form-label">Blueprint ME</label>
-        <div class="col-sm-8">
-          <select id="blueprintME" class="form-control" [disabled]="manufacturing.isTech2">
-            <option *ngFor="let me of possibleME" [selected]="manufacturing.me == me">{{ me }}</option>
-          </select>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Invention" *ngIf="manufacturing.isTech2 === true">
+    <ng-template ngbTabContent>
+      <div class="row p-2">
+        <div class="col-7">
+          <h3>Invention Materials</h3>
+          <table class="w-100 table table-sm">
+            <thead>
+              <tr>
+                <td>Material</td>
+                <td style="text-align: right; padding-right: 20px">Amount</td>
+                <td style="text-align: right">Cost</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let material of manufacturing.invention.materials | values">
+                <td>
+                  <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
+                  <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ material.typeName.en }}</a>
+                </td>
+                <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
+                <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
+              </tr>
+              <tr>
+                <td>Total per Invention</td>
+                <td></td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
+                  manufacturing.invention.costsPerRun | number:'1.2-2'}} ISK</td>
+              </tr>
+              <tr>
+                <td>Invention Chance</td>
+                <td></td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
+                  manufacturing.invention.inventionChance | percent: '.2' }}</td>
+              </tr>
+              <tr>
+                <td>Average Tries for Full Manufacturing Run</td>
+                <td></td>
+                <td style="text-align: right">{{ manufacturing.invention.triesForManufacturing | number:'1.2-2' }}</td>
+              </tr>
+              <tr>
+                <td style="border: 0px solid black; border-top-width: 2px">Average Invention Costs</td>
+                <td style="border: 0px solid black; border-top-width: 2px"></td>
+                <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
+                  manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-5">
+          <div>
+            <h3>Invention Skills</h3>
+            <table>
+              <thead>
+                <tr>
+                  <td>Name</td>
+                  <td>Required Level</td>
+                  <td>Skill Level</td>
+                  <td>Learned</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let skill of manufacturing.invention.requiredSkills | values">
+                  <td>
+                    <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
+                    <a href="javascript:void(0)" (click)="openMarketView(skill.skillID)">{{ skill.skillName.en }}</a>
+                  </td>
+                  <td>{{ skill.requiredLevel }}</td>
+                  <td>{{ skill.skillLevel }}</td>
+                  <td>
+                    <img style="height: 24px" src="assets/skill_points_64.png" *ngIf="skill.hasLearned">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pt-2">
+            <h3>Success Probability Modifiers</h3>
+            <ul>
+              <li *ngFor="let item of manufacturing.invention.successProbabilityModifiers | keyvalue">
+                {{ item.key }}: {{ item.value | percent:'.1' }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="form-group row">
-        <label for="blueprintTE" class="col-sm-4 col-form-label">Blueprint TE</label>
-        <div class="col-sm-8">
-          <select id="blueprintTE" class="form-control" [disabled]="manufacturing.isTech2">
-            <option *ngFor="let te of possibleTE" [selected]="manufacturing.te == te">{{ te }}</option>
-          </select>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Options">
+    <ng-template ngbTabContent>
+      <form class="p-2">
+        <div class="form-group row">
+          <label for="stationType" class="col-sm-4 col-form-label">Station Type</label>
+          <div class="col-sm-8">
+            <select id="stationType" class="form-control">
+              <option>Engineering Complex</option>
+              <option>POS</option>
+              <option>Station</option>
+            </select>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">Job Duration Modifiers</div>
-    <div class="card-body">
-      <ul>
-        <li *ngFor="let key of manufacturing.jobDurationModifiers | keys">
-          {{ key }}: {{manufacturing.materialConsumptionModifiers[key] | percent:'.1'}}
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">Success Probability Modifiers</div>
-    <div class="card-body">
-      <ul>
-        <li *ngFor="let key of manufacturing.invention.successProbabilityModifiers | keys">
-          {{ key }}: {{ manufacturing.invention.successProbabilityModifiers[key] | percent:'.1' }}
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">Material Consumption Modifiers</div>
-    <div class="card-body">
-      <ul>
-        <li *ngFor="let key of manufacturing.materialConsumptionModifiers | keys">
-          {{ key }}: {{manufacturing.materialConsumptionModifiers[key] | percent:'.1'}}
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-6">
-    <div class="titan-updates mdl-card mdl-cell mdl-cell--5-col" *ngIf="manufacturing && manufacturing.isTech2 === true">
-      <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-        <h2 class="mdl-card__title-text">Invention Materials</h2>
-      </div>
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-        <table>
-          <thead>
-            <tr>
-              <td>Material</td>
-              <td style="text-align: right; padding-right: 20px">Amount</td>
-              <td style="text-align: right">Cost</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let material of manufacturing.invention.materials | values">
-              <td>
-                <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
-                <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ material.typeName.en }}</a>
-              </td>
-              <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
-              <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
-            </tr>
-            <tr>
-              <td>Total per Invention</td>
-              <td></td>
-              <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
-                manufacturing.invention.costsPerRun | number:'1.2-2'}} ISK</td>
-            </tr>
-            <tr>
-              <td>Invention Chance</td>
-              <td></td>
-              <td style="text-align: right; border: 0px solid black; border-top-width: 1px">{{
-                manufacturing.invention.inventionChance | percent: '.2' }}</td>
-            </tr>
-            <tr>
-              <td>Average Tries for Full Manufacturing Run</td>
-              <td></td>
-              <td style="text-align: right">{{ manufacturing.invention.triesForManufacturing | number:'1.2-2' }}</td>
-            </tr>
-            <tr>
-              <td style="border: 0px solid black; border-top-width: 2px">Average Invention Costs</td>
-              <td style="border: 0px solid black; border-top-width: 2px"></td>
-              <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-                manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="col-6">
-    <div class="titan-updates mdl-card mdl-cell mdl-cell--4-col" *ngIf="manufacturing && manufacturing.isTech2 === true">
-      <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-        <h2 class="mdl-card__title-text">Invention Skills</h2>
-      </div>
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-        <table>
-          <thead>
-            <tr>
-              <td>Name</td>
-              <td>Required Level</td>
-              <td>Skill Level</td>
-              <td>Learned</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let skill of manufacturing.invention.requiredSkills | values">
-              <td>
-                <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
-                <a href="javascript:void(0)" (click)="openMarketView(skill.skillID)">{{ skill.skillName.en }}</a>
-              </td>
-              <td>{{ skill.requiredLevel }}</td>
-              <td>{{ skill.skillLevel }}</td>
-              <td><i class="material-icons" *ngIf="skill.hasLearned">star</i></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-6">
-    <div class="titan-updates mdl-card mdl-cell mdl-cell--5-col" *ngIf="manufacturing">
-      <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-        <h2 class="mdl-card__title-text">Manufacturing Materials</h2>
-      </div>
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-        <table>
-          <thead>
-            <tr>
-              <td>Material</td>
-              <td style="text-align: right; padding-right: 20px">PPU</td>
-              <td style="text-align: right; padding-right: 20px">Amount</td>
-              <td style="text-align: right">Cost</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let material of manufacturing.materials | values">
-              <td>
-                <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
-                <a [routerLink]="['/manufacturing', material.typeID]">{{ material.typeName.en }}</a> <a href="javascript:void(0)"
-                  (click)="openMarketView(material.typeID)">x</a>
-              </td>
-              <td style="text-align: right; padding-right: 20px">{{ material.pricePerUnit | number:'1.2-2'}} ISK</td>
-              <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
-              <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
-            </tr>
-            <tr>
-              <td>Material Costs</td>
-              <td></td>
-              <td></td>
-              <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-                manufacturing.costs.totalMaterials | number:'1.0-0' }} ISK</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="col-6">
-    <div class="titan-updates mdl-card mdl-cell mdl-cell--4-col" *ngIf="manufacturing">
-      <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-        <h2 class="mdl-card__title-text">Manufacturing Skills</h2>
-      </div>
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-        <table>
-          <thead>
-            <tr>
-              <td>Name</td>
-              <td>Required Level</td>
-              <td>Skill Level</td>
-              <td>Learned</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let skill of manufacturing.requiredSkills | values">
-              <td>
-                <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
-                <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ skill.skillName.en }}</a>
-              </td>
-              <td>{{ skill.requiredLevel }}</td>
-              <td>{{ skill.skillLevel }}</td>
-              <td><i class="material-icons" *ngIf="skill.hasLearned">star</i></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="titan-updates mdl-card mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop" *ngIf="manufacturing">
-  <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-    <h2 class="mdl-card__title-text">Profit Calculation</h2>
-  </div>
-  <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-    <table>
-      <tbody>
-        <tr>
-          <td style="width: 250px">Material Costs</td>
-          <td style="text-align: right; width: 150px">{{ manufacturing.costs.totalMaterials | number:'1.0-0' }} ISK</td>
-        </tr>
-        <tr *ngIf="manufacturing && manufacturing.invention">
-          <td>Average Invention Costs</td>
-          <td style="text-align: right">{{ manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
-        </tr>
-        <tr>
-          <td>Total Manufacturing Costs</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.costs.total
-            | number:'1.0-0' }} ISK</td>
-        </tr>
-      </tbody>
-    </table>
-    <table>
-      <tbody>
-        <tr>
-          <td style="width: 250px">Costs per Item</td>
-          <td style="text-align: right; width: 150px">{{ manufacturing.costs.perItem | number:'1.0-0' }} ISK</td>
-          <td style="width: 250px">
-          <td>
-          <td style="text-align: right; width: 150px"></td>
-        </tr>
-        <tr>
-          <td>Sell Price (Jita)</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.revenue.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
-          <td>Buy Price (Jita)</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.revenue.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
-        </tr>
-        <tr>
-          <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.perItem.basedOnSellPrice | number:'1.0-0' }} ISK</td>
-          <td style="border: 0px solid black; border-top-width: 2px">Profit</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.perItem.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
-        </tr>
-        <tr>
-          <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.margin.basedOnSellPrice | percent:'.2' }}</td>
-          <td style="border: 0px solid black; border-top-width: 2px">Profit Margin</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.margin.basedOnBuyPrice | percent:'.2' }}</td>
-        </tr>
-        <tr>
-          <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
-            Slots used)</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.itemsPerDay
-            | number:'1.2-2' }}</td>
-          <td style="border: 0px solid black; border-top-width: 2px">Items per Day ({{ manufacturing.slotsUsed }}
-            Slots used)</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{ manufacturing.itemsPerDay
-            | number:'1.2-2' }}</td>
-        </tr>
-        <tr>
-          <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK</td>
-          <td style="border: 0px solid black; border-top-width: 2px">Daily Profit</td>
-          <td style="text-align: right; border: 0px solid black; border-top-width: 2px">{{
-            manufacturing.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+        <div class="form-group row">
+          <label for="system" class="col-sm-4 col-form-label">System</label>
+          <div class="col-sm-8">
+            <input id="system" class="form-control" type="text" value="Ikuchi" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="blueprintME" class="col-sm-4 col-form-label">Blueprint ME</label>
+          <div class="col-sm-8">
+            <select id="blueprintME" class="form-control" [disabled]="manufacturing.isTech2">
+              <option *ngFor="let me of possibleME" [selected]="manufacturing.me == me">{{ me }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="blueprintTE" class="col-sm-4 col-form-label">Blueprint TE</label>
+          <div class="col-sm-8">
+            <select id="blueprintTE" class="form-control" [disabled]="manufacturing.isTech2">
+              <option *ngFor="let te of possibleTE" [selected]="manufacturing.te == te">{{ te }}</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
