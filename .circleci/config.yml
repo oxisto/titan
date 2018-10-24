@@ -20,8 +20,9 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            DOCKER_HUB_IMAGE=oxisto/titan
             echo "{\"version\": \"${CIRCLE_SHA1:0:8}\"}" > frontend/src/assets/config.json
-            docker build -t titan .
+            docker build -t $DOCKER_HUB_IMAGE .
       - run :
           name: Upload greenkeeper lockfile
           command: |
@@ -31,8 +32,6 @@ jobs:
           command: |
             TAG=${CIRCLE_SHA1:0:8}
             DOCKER_HUB_IMAGE=oxisto/titan
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            docker tag titan $DOCKER_HUB_IMAGE
             docker tag titan $DOCKER_HUB_IMAGE:$TAG
             docker push $DOCKER_HUB_IMAGE:$TAG
             docker push $DOCKER_HUB_IMAGE
