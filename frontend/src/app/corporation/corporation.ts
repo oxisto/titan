@@ -4,11 +4,11 @@ export class Corporation {
 
   name: string;
 
-  corporationID: string;
+  corporationID: number;
 
-  allianceID: string;
+  allianceID: number;
 
-  CEOID: string;
+  CEOID: number;
 
   ticker: string;
 
@@ -16,7 +16,7 @@ export class Corporation {
 
   expiresOn: Date;
 
-  getId(): string {
+  getId(): number {
     return this.corporationID;
   }
 

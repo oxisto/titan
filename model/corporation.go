@@ -24,7 +24,7 @@ import (
 type Corporation struct {
 	expireDate      *time.Time
 	CorporationID   int32            `json:"corporationID"`
-	CorporationName string           `json:"Name"`
+	CorporationName string           `json:"name"`
 	AllianceID      int32            `json:"allianceID"`
 	CEOID           int32            `json:"CEOID"`
 	Ticker          string           `json:"ticker"`

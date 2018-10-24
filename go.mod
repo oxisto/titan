@@ -22,7 +22,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/nlopes/slack v0.4.0
 	github.com/onsi/gomega v1.4.2 // indirect
-	github.com/oxisto/evesso v0.0.0-20170909201301-9098c00abe23
+	github.com/oxisto/evesso v1.0.0
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/sirupsen/logrus v1.1.1
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect

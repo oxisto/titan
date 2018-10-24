@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Headers, Http } from '@angular/http';
-
-import 'rxjs/add/operator/map';
-
 import { AuthService } from '../auth/auth.service';
-import { CorporationService } from '../corporation/corporation.service';
-import { ManufacturingService } from '../manufacturing/manufacturing.service';
 import { Corporation } from '../corporation/corporation';
+import { CorporationService } from '../corporation/corporation.service';
 
 @Component({
   templateUrl: './home.component.html',
@@ -15,16 +10,19 @@ import { Corporation } from '../corporation/corporation';
 export class HomeComponent implements OnInit {
 
   corporation: Corporation;
+  corporationLogo: string;
 
   constructor(private auth: AuthService,
-              private corporationService: CorporationService,
-              private manufacturingService: ManufacturingService) {
+    private corporationService: CorporationService) {
 
   }
 
   ngOnInit() {
-    if (this.auth.isLoggedIn()) {
-      this.corporationService.corporation.subscribe(corporation => this.corporation = corporation);
+    if (this.auth.isLoggedIn()) {
+      this.corporationService.corporation.subscribe(corporation => {
+        this.corporation = corporation;
+        this.corporationLogo = this.corporationService.getCorporationLogo(corporation.corporationID);
+      });
     }
   }
 

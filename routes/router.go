@@ -46,7 +46,7 @@ func init() {
 func JsonResponse(w http.ResponseWriter, r *http.Request, object interface{}, err error) {
 	// uh-uh, we have an error
 	if err != nil {
-		log.Error("An error occured during processing of a REST request: %v", err)
+		log.Errorf("An error occured during processing of a REST request: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

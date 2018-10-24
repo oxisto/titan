@@ -31,7 +31,7 @@ func InitSSO(clientID string, secretKey string, redirectURI string) bool {
 		ClientID:    clientID,
 		SecretKey:   secretKey,
 		RedirectURI: redirectURI,
-		Server:      sso.LIVE_SERVER,
+		Server:      sso.LiveServer,
 	}
 
 	return true
