@@ -32,7 +32,7 @@ jobs:
           command: |
             TAG=${CIRCLE_SHA1:0:8}
             DOCKER_HUB_IMAGE=oxisto/titan
-            docker tag titan $DOCKER_HUB_IMAGE:$TAG
+            docker tag $DOCKER_HUB_IMAGE $DOCKER_HUB_IMAGE:$TAG
             docker push $DOCKER_HUB_IMAGE:$TAG
             docker push $DOCKER_HUB_IMAGE
   deploy_kubernetes:
