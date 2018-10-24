@@ -12,7 +12,7 @@ RUN yarn run build --prod
 
 FROM golang:stretch AS build-server
 
-WORKDIR /go/src/github.com/oxisto/titan/server
+WORKDIR /go/src/github.com/oxisto/titan
 
 RUN apt update && apt -y install unzip
 
