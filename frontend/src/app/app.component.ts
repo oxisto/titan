@@ -3,8 +3,6 @@ import 'rxjs/add/operator/toPromise';
 import { Character } from './character/character';
 import { CharacterService } from './character/character.service';
 
-
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
