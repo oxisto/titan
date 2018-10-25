@@ -17,11 +17,12 @@ limitations under the License.
 package main
 
 import (
-	"time"
-	"github.com/oxisto/titan/manufacturing"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/oxisto/titan/manufacturing"
 
 	"fmt"
 	"os"
@@ -190,7 +191,7 @@ func ImportSDE() {
 
 // ServerLoop takes care of reguarly caching prices and manufacturing.
 func ServerLoop() {
-	builderID := int32(92925923)
+	builderID := int32(90821267)
 	builder := model.Character{}
 	cache.GetCharacter(builderID, &builder)
 

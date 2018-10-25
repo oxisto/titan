@@ -2,14 +2,12 @@
   <h2>{{ manufacturing.product.name.en }}</h2>
   <div>
     <img class="pr-2" src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png" style="float: left">
-    <p>The <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.product.name.en
-        }}</a> is a <b>{{ manufacturing.product.group.name.en }}</b>
-      manufactured from a <a href="javascript:void(0)" (click)="openMarketView(manufacturing.product.typeID)">{{ manufacturing.blueprintType.name.en
-        }}</a>.
+    <p>The <app-type [type]="manufacturing.product"></app-type> is a <b>{{ manufacturing.product.group.name.en }}</b>
+      manufactured from a <app-type [type]="manufacturing.blueprintType" blueprint="true"></app-type>.
       <span *ngIf="manufacturing.isTech2 && manufacturing.invention">It is a Tech II component and needs invention
-        from
-        a <a href="javascript:void(0)" (click)="openMarketView(manufacturing.invetion.blueprintType.typeID)">{{
-          manufacturing.invention.blueprintType.name.en }}</a>.</span></p>
+        from a <app-type [type]="manufacturing.invention.blueprintType" blueprint="true"></app-type>.
+      </span>
+    </p>
     <p>Manufacturing will take {{ manufacturing.time }} seconds.</p>
   </div>
 </div>
@@ -123,9 +121,7 @@
             <tbody>
               <tr *ngFor="let material of manufacturing.materials | values">
                 <td>
-                  <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
-                  <a [routerLink]="['/manufacturing', material.typeID]">{{ material.typeName.en }}</a> <a href="javascript:void(0)"
-                    (click)="openMarketView(material.typeID)"><img style="width: 32px" src="assets/market.png"></a>
+                  <app-type [type]="material"></app-type>
                 </td>
                 <td style="text-align: right; padding-right: 20px">{{ material.pricePerUnit | number:'1.2-2'}} ISK</td>
                 <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
@@ -156,8 +152,7 @@
               <tbody>
                 <tr *ngFor="let skill of manufacturing.requiredSkills | values">
                   <td>
-                    <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
-                    <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ skill.skillName.en }}</a>
+                    <app-type [type]="skill" skill="true"></app-type>
                   </td>
                   <td>{{ skill.requiredLevel }}</td>
                   <td>{{ skill.skillLevel }}</td>
@@ -196,8 +191,7 @@
             <tbody>
               <tr *ngFor="let material of manufacturing.invention.materials | values">
                 <td>
-                  <img src="https://image.eveonline.com/Type/{{ material.typeID }}_32.png" />
-                  <a href="javascript:void(0)" (click)="openMarketView(material.typeID)">{{ material.typeName.en }}</a>
+                  <app-type [type]="material"></app-type>
                 </td>
                 <td style="text-align: right; padding-right: 20px">{{ material.quantity }}</td>
                 <td style="text-align: right">{{ material.cost | number:'1.2-2'}} ISK</td>
@@ -243,8 +237,7 @@
               <tbody>
                 <tr *ngFor="let skill of manufacturing.invention.requiredSkills | values">
                   <td>
-                    <img src="https://image.eveonline.com/Type/{{ skill.skillID }}_32.png" />
-                    <a href="javascript:void(0)" (click)="openMarketView(skill.skillID)">{{ skill.skillName.en }}</a>
+                    <app-type [type]="skill" skill="true"></app-type>
                   </td>
                   <td>{{ skill.requiredLevel }}</td>
                   <td>{{ skill.skillLevel }}</td>

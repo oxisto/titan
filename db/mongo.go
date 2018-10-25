@@ -126,10 +126,10 @@ func GetActivityMaterials(activity string, blueprint model.Blueprint, runs int, 
 			"as":           "type"}},
 		{"$project": bson.M{"_id": 0,
 			"typeID":   "$materials.typeID",
-			"typeName": "$type.name",
+			"name":     "$type.name",
 			"quantity": bson.M{"$ceil": bson.M{"$multiply": []interface{}{"$materials.quantity", runs, materialModifier}}}}},
-		{"$unwind": "$typeName"},
-		{"$sort": bson.M{"typeName": 1}},
+		{"$unwind": "$name"},
+		{"$sort": bson.M{"name": 1}},
 	})
 
 	if err := pipe.All(materials); err != nil {
@@ -150,11 +150,11 @@ func GetActivitySkills(activity string, blueprint model.Blueprint, skills interf
 			"foreignField": "_id",
 			"as":           "type"}},
 		{"$project": bson.M{"_id": 0,
-			"skillID":       "$skills.typeID",
-			"skillName":     "$type.name",
+			"typeID":       "$skills.typeID",
+			"name":     "$type.name",
 			"requiredLevel": "$skills.level"}},
-		{"$unwind": "$skillName"},
-		{"$sort": bson.M{"skillName": 1}},
+		{"$unwind": "$name"},
+		{"$sort": bson.M{"name": 1}},
 	})
 
 	if err := pipe.All(skills); err != nil {

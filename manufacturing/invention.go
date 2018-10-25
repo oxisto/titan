@@ -78,16 +78,16 @@ func NewInvention(tech2Blueprint model.Blueprint, inventor model.Character) (inv
 	skillMods := []float64{}
 	invention.RequiredSkills = map[string]ManufacturingSkill{}
 	for _, skill := range skills {
-		skill.SkillLevel = inventor.SkillLevel(skill.SkillID)
+		skill.SkillLevel = inventor.SkillLevel(skill.TypeID)
 		skill.HasLearned = skill.SkillLevel >= skill.RequiredLevel
 
-		if strings.Contains(skill.SkillName.EN, "Encryption") {
+		if strings.Contains(skill.Name.EN, "Encryption") {
 			skillMods = append(skillMods, float64(skill.SkillLevel)*0.0250)
 		} else {
 			skillMods = append(skillMods, float64(skill.SkillLevel)*0.0333)
 		}
 
-		invention.RequiredSkills[strconv.Itoa(int(skill.SkillID))] = skill
+		invention.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill
 	}
 
 	invention.CostsPerRun = 0

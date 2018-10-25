@@ -15,6 +15,7 @@ export class ManufacturingService {
     categoryIDs: number[],
     sortBy: string,
     nameFilter?: string,
+    hasRequiredSkillsOnly?: boolean,
     maxProductionCosts?: number,
     metaGroupID?: number
   }) {
@@ -32,6 +33,7 @@ export class ManufacturingService {
       params = params.set('maxProductionCosts', options.maxProductionCosts.toString());
     }
 
+    params = params.set('hasRequiredSkillsOnly', String(options.hasRequiredSkillsOnly));
     params = params.set('categoryIDs', options.categoryIDs.join(','));
 
     return this.http.get<any[]>('/api/manufacturing', { params: params });

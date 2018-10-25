@@ -51,14 +51,14 @@ var FacilityMaterialBonuses = map[string]float64{
 type ManufacturingMaterial struct {
 	TypeID       int32               `json:"typeID" bson:"typeID"`
 	Quantity     int                 `json:"quantity"`
-	TypeName     model.LocalizedName `json:"typeName" bson:"typeName,omitempty"`
+	Name         model.LocalizedName `json:"name" bson:"name,omitempty"`
 	PricePerUnit float64             `json:"pricePerUnit" bson:"pricePerUnit"`
 	Cost         float64             `json:"cost"`
 }
 
 type ManufacturingSkill struct {
-	SkillID       int32               `json:"skillID" bson:"skillID"`
-	SkillName     model.LocalizedName `json:"skillName" bson:"skillName"`
+	TypeID        int32               `json:"typeID" bson:"typeID"`
+	Name          model.LocalizedName `json:"name" bson:"name"`
 	RequiredLevel int                 `json:"requiredLevel" bson:"requiredLevel"`
 	SkillLevel    int                 `json:"skillLevel" bson:"skillLevel"`
 	HasLearned    bool                `json:"hasLearned" bson:"hasLearned"`
@@ -79,6 +79,7 @@ type Manufacturing struct {
 	MaterialModifier             float64                          `json:"materialModifier" bson:"materialModifier"`
 	Materials                    map[string]ManufacturingMaterial `json:"materials"`
 	RequiredSkills               map[string]ManufacturingSkill    `json:"requiredSkills" bson:"requiredSkills"`
+	HasRequiredSkills            bool                             `json:"hasRequiredSkills" bson:"hasRequiredSkills"`
 	Facility                     string                           `json:"facility"`
 	Costs                        struct {
 		TotalMaterials float64 `json:"totalMaterials" bson:"totalMaterials"`
@@ -219,11 +220,16 @@ func NewManufacturing(builder model.Character, productTypeId int32, object model
 	}
 
 	manufacturing.RequiredSkills = map[string]ManufacturingSkill{}
+	manufacturing.HasRequiredSkills = true
 	for _, skill := range skills {
-		skill.SkillLevel = builder.SkillLevel(skill.SkillID)
+		skill.SkillLevel = builder.SkillLevel(skill.TypeID)
 		skill.HasLearned = skill.SkillLevel >= skill.RequiredLevel
 
-		manufacturing.RequiredSkills[strconv.Itoa(int(skill.SkillID))] = skill
+		if !skill.HasLearned {
+			manufacturing.HasRequiredSkills = false
+		}
+
+		manufacturing.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill
 	}
 
 	manufacturing.Costs.Total = manufacturing.Costs.TotalMaterials // TODO: sales tax, factory tax, etc.

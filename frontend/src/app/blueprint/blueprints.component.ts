@@ -17,9 +17,8 @@ export class BlueprintsComponent implements OnInit {
   categories: Map<number, any>;
 
   selectedCategories: any = {};
-
   nameFilter: string;
-
+  hasRequiredSkillsOnly: boolean;
   maxProductionCosts: number;
 
   constructor(private auth: AuthService,
@@ -30,6 +29,7 @@ export class BlueprintsComponent implements OnInit {
 
     this.maxProductionCosts = +localStorage.getItem('manufacturing:maxProductionCosts');
     this.nameFilter = localStorage.getItem('manufacturing:nameFilter');
+    this.hasRequiredSkillsOnly = localStorage.getItem('manufacturing:hasRequiredSkillsOnly') === 'true';
     this.sortBy = localStorage.getItem('manufacturing:sortBy');
 
     if (!this.sortBy) {
@@ -71,6 +71,7 @@ export class BlueprintsComponent implements OnInit {
         categoryIDs: categoryIDs,
         sortBy: this.sortBy,
         nameFilter: this.nameFilter,
+        hasRequiredSkillsOnly: this.hasRequiredSkillsOnly,
         maxProductionCosts: this.maxProductionCosts
       }).subscribe(products => {
         this.products = products;
@@ -82,6 +83,7 @@ export class BlueprintsComponent implements OnInit {
     // save the selected options in local storage
     localStorage.setItem('manufacturing:maxProductionCosts', this.maxProductionCosts.toString());
     localStorage.setItem('manufacturing:nameFilter', this.nameFilter);
+    localStorage.setItem('manufacturing:hasRequiredSkillsOnly', String(this.hasRequiredSkillsOnly));
     localStorage.setItem('manufacturing:sortBy', this.sortBy);
     localStorage.setItem('manufacturing:selectedCategories', JSON.stringify(this.selectedCategories));
 

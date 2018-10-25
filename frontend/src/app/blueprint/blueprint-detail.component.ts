@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
-import { MarketService } from '../market/market.service';
 import { BlueprintService } from './blueprint.service';
 
 @Component({
@@ -17,13 +16,8 @@ export class BlueprintDetailComponent implements OnInit {
 
   constructor(private auth: AuthService,
     private blueprintService: BlueprintService,
-    private marketService: MarketService,
     private route: ActivatedRoute) {
 
-  }
-
-  openMarketView(typeID: number) {
-    this.marketService.postOpenMarketView(typeID).subscribe(resp => { });
   }
 
   ngOnInit() {

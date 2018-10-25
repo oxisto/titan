@@ -27,14 +27,15 @@ import (
 )
 
 type SearchOptions struct {
-	CategoryIDs        map[int]bool
-	SortByField        string
-	SortByDirection    string
-	NameFilter         string
-	MaxProductionCosts float64
-	MetaGroupID        int
-	Offset             int
-	Limit              int
+	CategoryIDs           map[int]bool
+	SortByField           string
+	SortByDirection       string
+	NameFilter            string
+	MaxProductionCosts    float64
+	MetaGroupID           int
+	Offset                int
+	Limit                 int
+	HasRequiredSkillsOnly bool
 }
 
 type ProfitValue struct {
@@ -52,6 +53,7 @@ type ProductTypeResult struct {
 	Costs struct {
 		Total float64 `json:"total"`
 	} `json:"costs"`
+	HasRequiredSkills bool `json:"hasRequiredSkills"`
 }
 
 func NewSearchOptions() *SearchOptions {
@@ -75,6 +77,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 			"manufacturing:*->Profit.PerDay.BasedOnSellPrice",
 			"manufacturing:*->Profit.PerDay.BasedOnBuyPrice",
 			"manufacturing:*->Costs.Total",
+			"manufacturing:*->HasRequiredSkills",
 		},
 		Order: options.SortByDirection,
 	}
@@ -98,6 +101,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 		t.Profit.PerDay.BasedOnSellPrice, err = strconv.ParseFloat(results[i*columns+3], 64)
 		t.Profit.PerDay.BasedOnBuyPrice, err = strconv.ParseFloat(results[i*columns+4], 64)
 		t.Costs.Total, err = strconv.ParseFloat(results[i*columns+5], 64)
+		t.HasRequiredSkills, err = strconv.ParseBool(results[i*columns+6])
 
 		if err != nil {
 			continue
@@ -112,6 +116,10 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 		}
 
 		if options.MaxProductionCosts != 0 && options.MaxProductionCosts < t.Costs.Total {
+			continue
+		}
+
+		if options.HasRequiredSkillsOnly && !t.HasRequiredSkills {
 			continue
 		}
 

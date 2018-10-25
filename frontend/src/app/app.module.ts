@@ -15,6 +15,7 @@ import { CorporationService } from './corporation/corporation.service';
 import { HomeComponent } from './home/home.component';
 import { ManufacturingService } from './manufacturing/manufacturing.service';
 import { MarketService } from './market/market.service';
+import { TypeComponent } from './type/type.component';
 import { ValuesPipe } from './values.pipe';
 
 export function tokenGetter() {
@@ -27,7 +28,8 @@ export function tokenGetter() {
     HomeComponent,
     BlueprintsComponent,
     BlueprintDetailComponent,
-    ValuesPipe
+    ValuesPipe,
+    TypeComponent
   ],
   imports: [
     NgbModule,

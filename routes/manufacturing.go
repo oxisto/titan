@@ -29,10 +29,11 @@ import (
 )
 
 const (
-	QueryParamCategoryIDs        = "categoryIDs"
-	QueryParamNameFilter         = "nameFilter"
-	QueryParamSortBy             = "sortBy"
-	QueryParamMaxProductionCosts = "maxProductionCosts"
+	QueryParamCategoryIDs           = "categoryIDs"
+	QueryParamNameFilter            = "nameFilter"
+	QueryParamSortBy                = "sortBy"
+	QueryParamMaxProductionCosts    = "maxProductionCosts"
+	QueryParamHasRequiredSkillsOnly = "hasRequiredSkillsOnly"
 
 	RouteVarsTypeID = "typeID"
 
@@ -88,6 +89,7 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 	options.NameFilter = r.URL.Query().Get(QueryParamNameFilter)
 	options.CategoryIDs = categoryIDs
 	options.MaxProductionCosts, _ = strconv.ParseFloat(r.URL.Query().Get(QueryParamMaxProductionCosts), 64)
+	options.HasRequiredSkillsOnly, _ = strconv.ParseBool(r.URL.Query().Get(QueryParamHasRequiredSkillsOnly))
 
 	if sortBy := r.URL.Query().Get(QueryParamSortBy); sortBy != "" {
 		array = strings.Split(sortBy, SeparatorSortBy)

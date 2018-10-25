@@ -11,9 +11,7 @@ export class CharacterService {
 
   constructor(private http: HttpClient,
     private authService: AuthService) {
-    if (authService.isLoggedIn()) {
-      this.fetch();
-    }
+    this.fetch();
   }
 
   get(): Observable<Character> {
