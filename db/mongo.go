@@ -78,21 +78,35 @@ func GetProductTypeIDs() ([]int32, error) {
 	typeIDs := []int32{}
 
 	for _, v := range types {
-		if typeID, ok := v["_id"].(int); ok && !ProductTypeIDBlacklist[typeID] {
-			// lets filter out those tech2 blueprints that cannot be invented
-			if t, ok := v["type"].(map[string]interface{}); ok && t["metaGroupID"] == 2 {
-				tech2blueprint := GetBlueprint(int32(typeID), "activities.manufacturing.products.typeID")
-				// find the tech1 blueprint for tech2
-				tech1blueprint := GetBlueprint(tech2blueprint.BlueprintTypeID, "activities.invention.products.typeID")
-
-				if tech1blueprint.ObjectID != 0 {
-					typeIDs = append(typeIDs, int32(typeID))
-				} else {
-					// TODO: instead of removing it, we could mark it in a special way
+		if typeID, ok := v["_id"].(int); ok /*&& !ProductTypeIDBlacklist[typeID]*/ {
+			if t, ok := v["type"].(map[string]interface{}); ok {
+				// ignore types that do not have a market group
+				if t["marketGroupID"] == 0 {
+					log.Infof("Ignoring %s (%v) because it has no market group", (t["name"].(map[string]interface{})["en"]), typeID)
+					continue
 				}
-			} else {
-				// tech1 should be no problem
-				typeIDs = append(typeIDs, int32(typeID))
+
+				if t["metaGroupID"] == 2 {
+					// lets filter out those tech2 blueprints that cannot be invented
+					tech2blueprint := GetBlueprint(int32(typeID), "activities.manufacturing.products.typeID")
+					// find the tech1 blueprint for tech2
+					tech1blueprint := GetBlueprint(tech2blueprint.BlueprintTypeID, "activities.invention.products.typeID")
+
+					if tech1blueprint.ObjectID != 0 {
+						typeIDs = append(typeIDs, int32(typeID))
+					} else {
+						log.Infof("Ignoring %s (%v) because its Tech2 blueprint cannot be invented", (t["name"].(map[string]interface{})["en"]), typeID)
+					}
+				} else {
+					// filter out tech1 blueprints, that cannot be bought in the market
+					blueprintType := GetType(GetBlueprint(int32(typeID), "activities.manufacturing.products.typeID").ObjectID)
+
+					if blueprintType.MarketGroupID != 0 {
+						typeIDs = append(typeIDs, int32(typeID))
+					} else {
+						log.Infof("Ignoring %s (%v) because its Tech1 blueprint cannot be bought on the market", (t["name"].(map[string]interface{})["en"]), typeID)
+					}
+				}
 			}
 		}
 	}

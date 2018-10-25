@@ -58,17 +58,18 @@ type RequiredSkill struct {
 }
 
 type Type struct {
-	TypeID      int32         `json:"typeID" bson:"_id"`
-	BasePrice   int           `json:"basePrice" bson:"basePrice" yaml:"basePrice"`
-	Description LocalizedName `json:"description,omitempty" bson:"description,omitempty"`
-	GroupID     int32         `json:"groupID" bson:"groupID" yaml:"groupID"`
-	Group       Group         `json:"group" bson:"group,omitempty"` // not part of SDE, but joined from mongo
-	Name        LocalizedName `json:"name"`
-	MetaGroupID int32         `json:"metaGroupID" bson:"metaGroupID" yaml:"metaGroupID"`
-	PortionSize int           `json:"portionSize" bson:"portionSize" yaml:"portionSize"`
-	Published   bool          `json:"published"`
-	RaceID      int32         `json:"raceID" bson:"raceID" yaml:"raceID"`
-	Volume      float32       `json:"volume"`
+	TypeID        int32         `json:"typeID" bson:"_id"`
+	BasePrice     int           `json:"basePrice" bson:"basePrice" yaml:"basePrice"`
+	Description   LocalizedName `json:"description,omitempty" bson:"description,omitempty"`
+	GroupID       int32         `json:"groupID" bson:"groupID" yaml:"groupID"`
+	MarketGroupID int32         `json:"marketGroupID" bson:"marketGroupID" yaml:"marketGroupID"`
+	Group         Group         `json:"group" bson:"group,omitempty"` // not part of SDE, but joined from mongo
+	Name          LocalizedName `json:"name"`
+	MetaGroupID   int32         `json:"metaGroupID" bson:"metaGroupID" yaml:"metaGroupID"`
+	PortionSize   int           `json:"portionSize" bson:"portionSize" yaml:"portionSize"`
+	Published     bool          `json:"published"`
+	RaceID        int32         `json:"raceID" bson:"raceID" yaml:"raceID"`
+	Volume        float32       `json:"volume"`
 }
 
 func (t Type) ID() int32 {
