@@ -29,6 +29,11 @@ export class BlueprintsComponent implements OnInit {
 
     this.maxProductionCosts = +localStorage.getItem('manufacturing:maxProductionCosts');
     this.nameFilter = localStorage.getItem('manufacturing:nameFilter');
+
+    if (!this.nameFilter) {
+      this.nameFilter = '';
+    }
+
     this.hasRequiredSkillsOnly = localStorage.getItem('manufacturing:hasRequiredSkillsOnly') === 'true';
     this.sortBy = localStorage.getItem('manufacturing:sortBy');
 
@@ -42,8 +47,8 @@ export class BlueprintsComponent implements OnInit {
       // see, if there is something in localStorage, otherwise set all categories to true
       const json = localStorage.getItem('manufacturing:selectedCategories');
       if (!json) {
-        this.categories.forEach(category => {
-          this.selectedCategories[category._id] = true;
+        Object.values(this.categories).forEach(category => {
+          this.selectedCategories[category.categoryID] = true;
         });
       } else {
         this.selectedCategories = JSON.parse(json);
