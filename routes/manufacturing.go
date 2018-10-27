@@ -47,6 +47,12 @@ func GetManufacturingCategories(w http.ResponseWriter, r *http.Request) {
 	JsonResponse(w, r, categories, err)
 }
 
+type ManufacturingResponse struct {
+	TypeID int32
+	Type model.Type
+	Manufacturing *manufacturing.Manufacturing
+}
+
 func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	var (
 		typeID int
@@ -62,11 +68,17 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 
 	log.Debugf("Calculating manufacturing information for typeID %d...", typeID)
 
+	resp := ManufacturingResponse{}	
 	m := manufacturing.Manufacturing{}
 
 	// calculate it fresh and update cache
-	if err = manufacturing.NewManufacturing(*character, int32(typeID), &m); err == nil {
-		cache.WriteCachedObject(m)
+	if err = manufacturing.NewManufacturing(*character, int32(typeID), &m); err != nil {
+		// ignore err, but the product should be set
+		err = nil
+		resp.Type = m.Product
+		// keep manufacturing to nil
+	} else {
+		resp.Manufacturing = &m
 	}
 
 	JsonResponse(w, r, m, err)

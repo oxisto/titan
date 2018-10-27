@@ -140,13 +140,13 @@ func NewManufacturing(builder model.Character, productTypeId int32, object model
 		return errors.New("passing invalid type to NewManufacturing function")
 	}
 
+	manufacturing.Product = db.GetType(productTypeId)
 	blueprint := db.GetBlueprint(productTypeId, "activities.manufacturing.products.typeID")
 
 	if blueprint.BlueprintTypeID == 0 {
-		return errors.New("invalid typeID")
+		return errors.New("Item cannot be manufactured")
 	}
 
-	manufacturing.Product = db.GetType(productTypeId)
 	manufacturing.BlueprintType = db.GetType(blueprint.BlueprintTypeID)
 
 	industrySkillLevel := builder.SkillLevel(SkillIdIndustry)
