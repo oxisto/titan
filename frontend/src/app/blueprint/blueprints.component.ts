@@ -16,7 +16,9 @@ export class BlueprintsComponent implements OnInit {
 
   categories: Map<number, any>;
 
+  // preferably this would be a Map<number, any>. However angular seems to have issues with two-way bindings of Maps
   selectedCategories: any = {};
+
   nameFilter: string;
   hasRequiredSkillsOnly: boolean;
   maxProductionCosts: number;
@@ -44,12 +46,12 @@ export class BlueprintsComponent implements OnInit {
     this.manufacturingService.getManufacturingCategories().subscribe(categories => {
       this.categories = categories.reduce((map, category) => ({ ...map, [category.categoryID]: category }), {});
 
+      console.log(this.categories);
+
       // see, if there is something in localStorage, otherwise set all categories to true
       const json = localStorage.getItem('manufacturing:selectedCategories');
       if (!json) {
-        Object.values(this.categories).forEach(category => {
-          this.selectedCategories[category.categoryID] = true;
-        });
+        this.selectAllCategories();
       } else {
         this.selectedCategories = JSON.parse(json);
       }
@@ -64,6 +66,8 @@ export class BlueprintsComponent implements OnInit {
   fetchProducts() {
     if (this.auth.isLoggedIn()) {
       const categoryIDs: number[] = [];
+
+      console.log(this.selectedCategories);
 
       for (const key of Object.keys(this.selectedCategories)) {
         const value = this.selectedCategories[key];
@@ -93,6 +97,26 @@ export class BlueprintsComponent implements OnInit {
     localStorage.setItem('manufacturing:selectedCategories', JSON.stringify(this.selectedCategories));
 
     this.fetchProducts();
+  }
+
+  selectAllCategories() {
+    Object.values(this.categories).forEach(category => {
+      this.selectedCategories[category.categoryID] = true;
+    });
+  }
+
+  onSelectAll() {
+    this.selectAllCategories();
+
+    this.onSortByChanged(null);
+  }
+
+  onDeselectAll() {
+    Object.values(this.categories).forEach(category => {
+      this.selectedCategories[category.categoryID] = false;
+    });
+
+    this.onSortByChanged(null);
   }
 
 }

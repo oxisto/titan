@@ -21,11 +21,16 @@
   ISK
 </div>
 
-<div *ngFor="let item of categories | keyvalue" style="float: left">
-  <input type="checkbox" id="categoryID:{{item.key}}" value="{{item.key}}" [(ngModel)]="selectedCategories[item.key]"
-    (ngModelChange)="onSortByChanged($event)" />
-  <label class="pr-1" for="categoryID:{{item.key}}">{{item.value.name.en}}</label>
-</div>
+<p>
+  <button class="btn btn-primary mr-2" (click)="onSelectAll()">Select All</button>
+  <button class="btn btn-primary" (click)="onDeselectAll()">Deselect All</button>
+</p>
+<ng-container *ngIf="categories">
+  <div *ngFor="let item of selectedCategories | keyvalue" style="float: left">
+    <input type="checkbox" id="categoryID:{{item.key}}" [(ngModel)]="this.selectedCategories[item.key]" (ngModelChange)="onSortByChanged($event)" />
+    <label class="pr-1" for="categoryID:{{item.key}}">{{ categories[item.key].name.en}}</label>
+  </div>
+</ng-container>
 
 <div style="clear: both"></div>
 
