@@ -122,6 +122,7 @@ func HandleFetchCharacterWithNext(w http.ResponseWriter, r *http.Request, next h
 	cache.GetCharacter(int32(characterID), character)
 
 	if limitToCorporationId != 0 && character.CorporationID != limitToCorporationId {
+		http.Error(w, "The corporation you are in is not allowed to access this service", http.StatusForbidden)
 		return
 	}
 

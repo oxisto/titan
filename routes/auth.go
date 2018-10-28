@@ -82,6 +82,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// issue an authentication token for our own API
 	authToken, err := model.IssueToken(verifyResponse.CharacterID)
 	if err != nil {
 		HandleError(err, w, r)
