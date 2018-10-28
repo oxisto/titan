@@ -1,6 +1,6 @@
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpParams } from '@angular/common/http';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 const helper = new JwtHelperService();
@@ -24,6 +24,10 @@ export class AuthService {
     const token = localStorage.getItem('token');
 
     return !helper.isTokenExpired(token);
+  }
+
+  logout() {
+    localStorage.removeItem('token');
   }
 
 }

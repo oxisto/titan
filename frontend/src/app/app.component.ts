@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from './auth/auth.service';
 import { Character } from './character/character';
 import { CharacterService } from './character/character.service';
 
@@ -14,11 +15,15 @@ export class AppComponent implements OnInit {
   character: Character;
   characterPortrait: string;
 
-  constructor(private characterService: CharacterService) {
-    this.characterService.character.subscribe(character => {
-      this.character = character;
-      this.characterPortrait = this.characterService.getCharacterPortraitURL(character.characterID, 64);
-    });
+  constructor(private characterService: CharacterService, private authService: AuthService) {
+    // the AppComponent is loaded regardless wether we are logged in or not,
+    // however we can only display certain values if we are logged in
+    if (this.authService.isLoggedIn()) {
+      this.characterService.getCharacter().subscribe(character => {
+        this.character = character;
+        this.characterPortrait = this.characterService.getCharacterPortraitURL(character.characterID, 64);
+      });
+    }
   }
 
   ngOnInit() {

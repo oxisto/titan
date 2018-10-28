@@ -1,27 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
 import { Corporation } from './corporation';
 
 @Injectable()
 export class CorporationService {
 
-  corporation: Observable<Corporation>;
-
-  constructor(private http: HttpClient,
-    private authService: AuthService) {
-    if (authService.isLoggedIn()) {
-      this.fetch();
-    }
+  constructor(private http: HttpClient) {
   }
 
-  get(): Observable<Corporation> {
+  getCorporation(): Observable<Corporation> {
     return this.http.get<Corporation>('/api/corporation');
-  }
-
-  fetch() {
-    this.corporation = this.get();
   }
 
   getCorporationLogo(corporationID: number) {

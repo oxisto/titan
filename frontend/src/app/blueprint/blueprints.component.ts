@@ -25,10 +25,6 @@ export class BlueprintsComponent implements OnInit {
 
   constructor(private auth: AuthService,
     private manufacturingService: ManufacturingService) {
-    if (!this.auth.isLoggedIn()) {
-      return;
-    }
-
     this.maxProductionCosts = +localStorage.getItem('manufacturing:maxProductionCosts');
     this.nameFilter = localStorage.getItem('manufacturing:nameFilter');
 
@@ -64,28 +60,26 @@ export class BlueprintsComponent implements OnInit {
   }
 
   fetchProducts() {
-    if (this.auth.isLoggedIn()) {
-      const categoryIDs: number[] = [];
+    const categoryIDs: number[] = [];
 
-      console.log(this.selectedCategories);
+    console.log(this.selectedCategories);
 
-      for (const key of Object.keys(this.selectedCategories)) {
-        const value = this.selectedCategories[key];
-        if (value) {
-          categoryIDs.push(+key);
-        }
+    for (const key of Object.keys(this.selectedCategories)) {
+      const value = this.selectedCategories[key];
+      if (value) {
+        categoryIDs.push(+key);
       }
-
-      this.manufacturingService.getManufacturingTypeIDs({
-        categoryIDs: categoryIDs,
-        sortBy: this.sortBy,
-        nameFilter: this.nameFilter,
-        hasRequiredSkillsOnly: this.hasRequiredSkillsOnly,
-        maxProductionCosts: this.maxProductionCosts
-      }).subscribe(products => {
-        this.products = products;
-      });
     }
+
+    this.manufacturingService.getManufacturingTypeIDs({
+      categoryIDs: categoryIDs,
+      sortBy: this.sortBy,
+      nameFilter: this.nameFilter,
+      hasRequiredSkillsOnly: this.hasRequiredSkillsOnly,
+      maxProductionCosts: this.maxProductionCosts
+    }).subscribe(products => {
+      this.products = products;
+    });
   }
 
   onSortByChanged(event) {
