@@ -134,7 +134,7 @@ func CalculateModifier(modifiers map[string]float64) float64 {
 	return f
 }
 
-func NewManufacturing(builder *model.Character, productTypeId int32, object model.CachedObject) (err error) {
+func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE int, object model.CachedObject) (err error) {
 	manufacturing, ok := object.(*Manufacturing)
 	if !ok {
 		return errors.New("passing invalid type to NewManufacturing function")
@@ -172,8 +172,8 @@ func NewManufacturing(builder *model.Character, productTypeId int32, object mode
 		manufacturing.Invention = &Invention{}
 		manufacturing.IsTech2 = false
 		manufacturing.Runs = 1
-		manufacturing.ME = 0 // TODO: from options
-		manufacturing.TE = 0 // TODO: from options
+		manufacturing.ME = ME
+		manufacturing.TE = TE
 	}
 
 	manufacturing.Facility = "Engineering Complex" // TODO: from options

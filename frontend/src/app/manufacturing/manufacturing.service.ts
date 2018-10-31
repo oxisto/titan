@@ -39,10 +39,6 @@ export class ManufacturingService {
     return this.http.get<any[]>('/api/manufacturing', { params: params });
   }
 
-  getManufacturing(typeID: number) {
-    return this.http.get('/api/manufacturing/' + typeID);
-  }
-
   getManufacturingCategories(): Observable<any[]> {
     return this.http.get<any[]>('/api/manufacturing-categories');
   }

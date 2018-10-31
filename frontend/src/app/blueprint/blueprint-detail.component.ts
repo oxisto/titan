@@ -13,19 +13,40 @@ export class BlueprintDetailComponent implements OnInit {
   private possibleME: number[] = Array.from(new Array(11), (x, i) => i);
   private possibleTE: number[] = Array.from(new Array(11), (x, i) => i * 2);
 
+  ME = 0;
+  TE = 0;
+
+  typeID: number;
+
   constructor(private blueprintService: BlueprintService,
     private route: ActivatedRoute) {
-
   }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      const typeID = +params['typeID'];
+      this.typeID = +params['typeID'];
 
-      this.blueprintService.getManufacturing(typeID).subscribe(manufacturing => {
-        this.manufacturing = manufacturing;
-      });
+      this.updateType();
     });
   }
+
+  updateType(): any {
+    this.blueprintService.getManufacturing(this.typeID, this.ME, this.TE).subscribe((manufacturing: any) => {
+      this.manufacturing = manufacturing;
+
+      // lock ME and TE for tech2
+      if (manufacturing.isTech2) {
+        this.ME = manufacturing.me;
+        this.TE = manufacturing.te;
+      }
+    });
+  }
+
+  onOptionsChanged(event) {
+    console.log(event);
+
+    this.updateType();
+  }
+
 
 }

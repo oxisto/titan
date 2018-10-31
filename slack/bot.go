@@ -160,7 +160,7 @@ func profitCommand(something Something) {
 	typeID := types[0].TypeID
 
 	m := manufacturing.Manufacturing{}
-	manufacturing.NewManufacturing(&builder, int32(typeID), &m)
+	manufacturing.NewManufacturing(&builder, int32(typeID), 10, 20, &m)
 
 	p := message.NewPrinter(language.English)
 

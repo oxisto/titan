@@ -34,6 +34,8 @@ const (
 	QueryParamSortBy                = "sortBy"
 	QueryParamMaxProductionCosts    = "maxProductionCosts"
 	QueryParamHasRequiredSkillsOnly = "hasRequiredSkillsOnly"
+	QueryParamME = "ME"
+	QueryParamTE = "TE"
 
 	RouteVarsTypeID = "typeID"
 
@@ -59,6 +61,9 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 		err    error
 	)
 
+	ME, err := strconv.Atoi(r.URL.Query().Get(QueryParamME))
+	TE, err := strconv.Atoi(r.URL.Query().Get(QueryParamTE))
+
 	character := r.Context().Value(CharacterContext).(*model.Character)
 
 	if typeID, err = strconv.Atoi(mux.Vars(r)["typeID"]); err != nil {
@@ -72,7 +77,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	m := manufacturing.Manufacturing{}
 
 	// calculate it fresh
-	if err = manufacturing.NewManufacturing(character, int32(typeID), &m); err != nil {
+	if err = manufacturing.NewManufacturing(character, int32(typeID), ME, TE, &m); err != nil {
 		// ignore err, but the product should be set
 		err = nil
 		resp.Type = m.Product
@@ -85,7 +90,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 
 	m = manufacturing.Manufacturing{}
 	// calculate the manufacturing for the builder
-	if err = manufacturing.NewManufacturing(nil, int32(typeID), &m); err == nil {
+	if err = manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
 		cache.WriteCachedObject(m)
 	}
 }

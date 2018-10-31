@@ -215,7 +215,7 @@ func ServerLoop() {
 		for _, typeID := range productTypeIDs {
 			m := manufacturing.Manufacturing{}
 
-			if err := manufacturing.NewManufacturing(nil, int32(typeID), &m); err == nil {
+			if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
 				cache.WriteCachedObject(m)
 			}
 		}
