@@ -134,7 +134,7 @@ func CalculateModifier(modifiers map[string]float64) float64 {
 	return f
 }
 
-func NewManufacturing(builder model.Character, productTypeId int32, object model.CachedObject) (err error) {
+func NewManufacturing(builder *model.Character, productTypeId int32, object model.CachedObject) (err error) {
 	manufacturing, ok := object.(*Manufacturing)
 	if !ok {
 		return errors.New("passing invalid type to NewManufacturing function")
@@ -149,8 +149,13 @@ func NewManufacturing(builder model.Character, productTypeId int32, object model
 
 	manufacturing.BlueprintType = db.GetType(blueprint.BlueprintTypeID)
 
-	industrySkillLevel := builder.SkillLevel(SkillIdIndustry)
-	advancedIndustrySkillLevel := builder.SkillLevel(SkillIdAdvancedIndustry)
+	industrySkillLevel := 5
+	advancedIndustrySkillLevel := 5
+
+	if builder != nil {
+	industrySkillLevel = builder.SkillLevel(SkillIdIndustry)
+	advancedIndustrySkillLevel = builder.SkillLevel(SkillIdAdvancedIndustry)
+	}
 
 	if manufacturing.Product.MetaGroupID == 2 {
 		manufacturing.IsTech2 = true
@@ -222,7 +227,10 @@ func NewManufacturing(builder model.Character, productTypeId int32, object model
 	manufacturing.RequiredSkills = map[string]ManufacturingSkill{}
 	manufacturing.HasRequiredSkills = true
 	for _, skill := range skills {
-		skill.SkillLevel = builder.SkillLevel(skill.TypeID)
+		skill.SkillLevel = 5
+		if builder != nil {
+			skill.SkillLevel = builder.SkillLevel(skill.TypeID)
+		}
 		skill.HasLearned = skill.SkillLevel >= skill.RequiredLevel
 
 		if !skill.HasLearned {
@@ -240,14 +248,8 @@ func NewManufacturing(builder model.Character, productTypeId int32, object model
 	}
 
 	manufacturing.Time = int(math.Ceil(float64(blueprint.Activities.Manufacturing.Time*manufacturing.Runs) * manufacturing.TimeModifier))
-	manufacturing.ItemsPerDay = 3600.0 / float64(manufacturing.Time/manufacturing.Runs) * 24.0 * float64(manufacturing.Product.PortionSize)
-
-	if manufacturing.IsTech2 {
-		manufacturing.SlotsUsed = manufacturing.MaxSlots
-		manufacturing.ItemsPerDay = math.Min(manufacturing.ItemsPerDay, float64(manufacturing.Runs*manufacturing.Product.PortionSize)) * float64(manufacturing.SlotsUsed)
-	} else {
-		manufacturing.SlotsUsed = 1
-	}
+	manufacturing.SlotsUsed = manufacturing.MaxSlots
+	manufacturing.ItemsPerDay = 3600.0 / float64(manufacturing.Time/manufacturing.Runs) * 24.0 * float64(manufacturing.Product.PortionSize) * float64(manufacturing.SlotsUsed)
 
 	// revenue
 	manufacturing.Revenue.Total = ProfitValue{

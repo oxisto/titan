@@ -71,8 +71,8 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	resp := ManufacturingResponse{}	
 	m := manufacturing.Manufacturing{}
 
-	// calculate it fresh and update cache
-	if err = manufacturing.NewManufacturing(*character, int32(typeID), &m); err != nil {
+	// calculate it fresh
+	if err = manufacturing.NewManufacturing(character, int32(typeID), &m); err != nil {
 		// ignore err, but the product should be set
 		err = nil
 		resp.Type = m.Product
@@ -81,7 +81,13 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 		resp.Manufacturing = &m
 	}
 
-	JsonResponse(w, r, m, err)
+	JsonResponse(w, r, m, err)	
+
+	m = manufacturing.Manufacturing{}
+	// calculate the manufacturing for the builder
+	if err = manufacturing.NewManufacturing(nil, int32(typeID), &m); err == nil {
+		cache.WriteCachedObject(m)
+	}
 }
 
 func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {

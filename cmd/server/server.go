@@ -141,9 +141,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 
 	go slack.Bot(viper.GetString(SlackAPITokenFlag))
 
-	if viper.GetBool(CacheManufacturingFlag) {
-		go ServerLoop()
-	}
+	go ServerLoop()
 
 	router := handlers.LoggingHandler(&DebugLogWriter{Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
@@ -191,15 +189,18 @@ func ImportSDE() {
 
 // ServerLoop takes care of reguarly caching prices and manufacturing.
 func ServerLoop() {
-	builderID := int32(90821267)
-	builder := model.Character{}
-	cache.GetCharacter(builderID, &builder)
-
+	// builderID := int32(90821267)
+	// builder := model.Character{}
+	// cache.GetCharacter(builderID, &builder)
 	typeIDs := []int32{}
 
 	var productTypeIDs []int32
 	var err error
 	if productTypeIDs, err = cache.GetProductTypeIDs(); err != nil {
+		return
+	}
+
+	if !viper.GetBool(CacheManufacturingFlag) {
 		return
 	}
 
@@ -214,7 +215,7 @@ func ServerLoop() {
 		for _, typeID := range productTypeIDs {
 			m := manufacturing.Manufacturing{}
 
-			if err := manufacturing.NewManufacturing(builder, int32(typeID), &m); err == nil {
+			if err := manufacturing.NewManufacturing(nil, int32(typeID), &m); err == nil {
 				cache.WriteCachedObject(m)
 			}
 		}

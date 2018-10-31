@@ -45,7 +45,7 @@ func init() {
 	log = logrus.WithField("component", "manufacturing")
 }
 
-func NewInvention(tech2Blueprint model.Blueprint, inventor model.Character) (invention *Invention, err error) {
+func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (invention *Invention, err error) {
 	blueprint := db.GetBlueprint(tech2Blueprint.BlueprintTypeID, "activities.invention.products.typeID")
 
 	invention = &Invention{}
@@ -78,7 +78,12 @@ func NewInvention(tech2Blueprint model.Blueprint, inventor model.Character) (inv
 	skillMods := []float64{}
 	invention.RequiredSkills = map[string]ManufacturingSkill{}
 	for _, skill := range skills {
-		skill.SkillLevel = inventor.SkillLevel(skill.TypeID)
+		skill.SkillLevel = 5
+		
+		if inventor != nil {
+			skill.SkillLevel = inventor.SkillLevel(skill.TypeID)
+		}
+		
 		skill.HasLearned = skill.SkillLevel >= skill.RequiredLevel
 
 		if strings.Contains(skill.Name.EN, "Encryption") {
