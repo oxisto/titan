@@ -25,6 +25,7 @@
     "core-js": "2.5.7",
     "material-design-lite": "^1.2.1",
     "ng-bootstrap": "^1.6.3",
+    "ngx-clipboard": "^11.1.9",
     "rxjs": "6.3.3",
     "zone.js": "0.8.26"
   },

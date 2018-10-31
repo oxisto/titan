@@ -5,6 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ClipboardModule } from 'ngx-clipboard';
 import { AppComponent } from './app.component';
 import { AuthService } from './auth/auth.service';
 import { BlueprintDetailComponent } from './blueprint/blueprint-detail.component';
@@ -44,6 +45,7 @@ export function tokenGetter() {
       }
     }),
     FormsModule,
+    ClipboardModule,
     RouterModule.forRoot([{
       path: '',
       component: HomeComponent

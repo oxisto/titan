@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ClipboardService } from 'ngx-clipboard';
 import { BlueprintService } from './blueprint.service';
 
 @Component({
@@ -18,8 +19,10 @@ export class BlueprintDetailComponent implements OnInit {
 
   typeID: number;
 
-  constructor(private blueprintService: BlueprintService,
-    private route: ActivatedRoute) {
+  constructor(
+    private blueprintService: BlueprintService,
+    private route: ActivatedRoute,
+    private clipboardService: ClipboardService) {
   }
 
   ngOnInit() {
@@ -48,5 +51,13 @@ export class BlueprintDetailComponent implements OnInit {
     this.updateType();
   }
 
+  copyMaterialsToClipboard(materials: any) {
+    let text = '';
+    for (const material of Object.values(materials) as any[]) {
+      text += material.quantity + ' ' + material.name.en + '\n';
+    }
+
+    this.clipboardService.copyFromContent(text);
+  }
 
 }
