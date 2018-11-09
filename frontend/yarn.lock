@@ -219,9 +219,9 @@
   version "1.1.15"
   resolved "https://registry.yarnpkg.com/@types/material-design-lite/-/material-design-lite-1.1.15.tgz#871f9d4f2529d4f221e10e19936e2f2dcbb8c2ac"
 
-"@types/node@10.12.3":
-  version "10.12.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.3.tgz#3918b73ceed484e58367be5acb79d1775239e393"
+"@types/node@10.12.4":
+  version "10.12.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.4.tgz#292a86dcfffac3a9f8073f6e29b71c05bbc65c0d"
 
 "@webassemblyjs/ast@1.7.6":
   version "1.7.6"
