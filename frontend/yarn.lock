@@ -9,6 +9,13 @@
     "@angular-devkit/core" "7.0.5"
     rxjs "6.3.3"
 
+"@angular-devkit/architect@0.10.7":
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.10.7.tgz#c74b9f6b7f1b4261ada2d24c832328aa4c394464"
+  dependencies:
+    "@angular-devkit/core" "7.0.7"
+    rxjs "6.3.3"
+
 "@angular-devkit/build-angular@~0.10.0":
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/@angular-devkit/build-angular/-/build-angular-0.10.5.tgz#9de17f1015137cb25ccedd4928a935d179b50b10"
@@ -89,22 +96,32 @@
     rxjs "6.3.3"
     source-map "0.7.3"
 
-"@angular-devkit/schematics@7.0.5":
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/@angular-devkit/schematics/-/schematics-7.0.5.tgz#527bf0af5352172e92c5473a33bc07af44c77796"
+"@angular-devkit/core@7.0.7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-7.0.7.tgz#665176ad8421adfd5f3ea0b2c4a9a432a158b1bb"
   dependencies:
-    "@angular-devkit/core" "7.0.5"
+    ajv "6.5.3"
+    chokidar "2.0.4"
+    fast-json-stable-stringify "2.0.0"
+    rxjs "6.3.3"
+    source-map "0.7.3"
+
+"@angular-devkit/schematics@7.0.7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@angular-devkit/schematics/-/schematics-7.0.7.tgz#593422584a4f12644b10073035f1760534b718cf"
+  dependencies:
+    "@angular-devkit/core" "7.0.7"
     rxjs "6.3.3"
 
-"@angular/cli@7.0.5":
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-7.0.5.tgz#1dedf6d8adf20ffc884459c5f7b071721bb172e2"
+"@angular/cli@7.0.7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-7.0.7.tgz#0f4500c5fcf22694c9c40f14d2a5b3dc90fbb4a3"
   dependencies:
-    "@angular-devkit/architect" "0.10.5"
-    "@angular-devkit/core" "7.0.5"
-    "@angular-devkit/schematics" "7.0.5"
-    "@schematics/angular" "7.0.5"
-    "@schematics/update" "0.10.5"
+    "@angular-devkit/architect" "0.10.7"
+    "@angular-devkit/core" "7.0.7"
+    "@angular-devkit/schematics" "7.0.7"
+    "@schematics/angular" "7.0.7"
+    "@schematics/update" "0.10.7"
     inquirer "6.2.0"
     opn "5.3.0"
     rxjs "6.3.3"
@@ -196,20 +213,20 @@
     tree-kill "1.2.0"
     webpack-sources "1.2.0"
 
-"@schematics/angular@7.0.5":
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/@schematics/angular/-/angular-7.0.5.tgz#96a2fc65113e707548ff732583297e40ab96350d"
+"@schematics/angular@7.0.7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@schematics/angular/-/angular-7.0.7.tgz#2aabf02779b1e5c6035135a652b5402f5785eae6"
   dependencies:
-    "@angular-devkit/core" "7.0.5"
-    "@angular-devkit/schematics" "7.0.5"
+    "@angular-devkit/core" "7.0.7"
+    "@angular-devkit/schematics" "7.0.7"
     typescript "3.1.6"
 
-"@schematics/update@0.10.5":
-  version "0.10.5"
-  resolved "https://registry.yarnpkg.com/@schematics/update/-/update-0.10.5.tgz#abc5d4e6943d3a872c390073cb41b0e78f86d5bd"
+"@schematics/update@0.10.7":
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/@schematics/update/-/update-0.10.7.tgz#c74c65cb679003b035a25f4f354f48d1054d8eca"
   dependencies:
-    "@angular-devkit/core" "7.0.5"
-    "@angular-devkit/schematics" "7.0.5"
+    "@angular-devkit/core" "7.0.7"
+    "@angular-devkit/schematics" "7.0.7"
     npm-registry-client "8.6.0"
     rxjs "6.3.3"
     semver "5.5.1"
@@ -222,7 +239,6 @@
 "@types/node@^10":
   version "10.12.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.6.tgz#7fc213c1b811c90fc9a3edb6206742b95d697678"
-  integrity sha512-+ZWB5Ec1iki99xQFzBlivlKxSZQ+fuUKBott8StBOnLN4dWbRHlgdg1XknpW6g0tweniN5DcOqA64CJyOUPSAw==
 
 "@webassemblyjs/ast@1.7.6":
   version "1.7.6"
