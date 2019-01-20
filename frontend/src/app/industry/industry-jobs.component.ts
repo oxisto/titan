@@ -8,14 +8,14 @@ import { IndustryService } from './industry.service';
 })
 export class IndustryJobsComponent implements OnInit {
 
-  private jobs: any;
+  jobs: any;
 
-  constructor(private industryService: IndustryService) { }
-
-  private activityToName = {
+  activityToName = {
     1: 'Manufacturing',
     8: 'Invention'
   };
+
+  constructor(private industryService: IndustryService) { }
 
   ngOnInit() {
     this.industryService.getJobs().subscribe(jobs => {
