@@ -87,6 +87,7 @@ func NewRouter(corporationId int32) *mux.Router {
 	router.Handle("/api/manufacturing", WithMiddleware(middleware, GetManufacturingProducts))
 	router.Handle("/api/manufacturing/{"+RouteVarsTypeID+"}", WithMiddleware(middleware, GetManufacturing))
 	router.Handle("/api/manufacturing-categories", WithMiddleware(middleware, GetManufacturingCategories))
+	router.Handle("/api/industry/jobs", WithMiddleware(middleware, GetIndustryJobs))
 	router.Handle("/api/market/view", WithMiddleware(middleware, OpenMarketDetail))
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./frontend/dist")))
 

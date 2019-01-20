@@ -25,7 +25,8 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	scope := "publicData esi-skills.read_skills.v1 esi-corporations.read_corporation_membership.v1 esi-ui.open_window.v1 esi-wallet.read_corporation_wallets.v1 esi-corporations.read_blueprints.v1"
+	scope := "publicData esi-skills.read_skills.v1 esi-corporations.read_corporation_membership.v1 esi-ui.open_window.v1 esi-wallet.read_corporation_wallets.v1 esi-corporations.read_blueprints.v1 esi-industry.read_corporation_jobs.v1"
+
 	w.Header().Add("Location", cache.SSO.Redirect(nil, &scope))
 	w.WriteHeader(http.StatusFound)
 }

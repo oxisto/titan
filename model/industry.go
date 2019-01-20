@@ -7,13 +7,13 @@ import (
 
 type IndustryJobs struct {
 	expireDate    *time.Time
-	CorporationID int32         `json:"corporationID"`
-	Jobs          []IndustryJob `json:jobs`
+	CorporationID int32                  `json:"corporationID"`
+	Jobs          map[string]IndustryJob `json:"jobs"`
 }
 
 type IndustryJob struct {
-	ActivityID      int32
-	BlueprintTypeID int32
+	ActivityID int32 `json:"activityID"`
+	Blueprint  Type  `json:"blueprint"`
 }
 
 func (i *IndustryJobs) ID() int32 {

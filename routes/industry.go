@@ -9,9 +9,9 @@ import (
 
 func GetIndustryJobs(w http.ResponseWriter, r *http.Request) {
 	character := r.Context().Value(CharacterContext).(*model.Character)
-	corporation := &model.Corporation{}
+	jobs := &model.IndustryJobs{}
 
-	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, corporation)
+	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
 
-	JsonResponse(w, r, corporation, err)
+	JsonResponse(w, r, jobs, err)
 }

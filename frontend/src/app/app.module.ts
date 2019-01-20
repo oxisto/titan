@@ -14,6 +14,8 @@ import { BlueprintsComponent } from './blueprint/blueprints.component';
 import { CharacterService } from './character/character.service';
 import { CorporationService } from './corporation/corporation.service';
 import { HomeComponent } from './home/home.component';
+import { IndustryJobsComponent } from './industry/industry-jobs.component';
+import { IndustryService } from './industry/industry.service';
 import { LoggedInGuard } from './logged-in.guard';
 import { LoginComponent } from './login/login.component';
 import { ManufacturingService } from './manufacturing/manufacturing.service';
@@ -33,7 +35,8 @@ export function tokenGetter() {
     BlueprintDetailComponent,
     ValuesPipe,
     TypeComponent,
-    LoginComponent
+    LoginComponent,
+    IndustryJobsComponent
   ],
   imports: [
     NgbModule,
@@ -57,6 +60,11 @@ export function tokenGetter() {
       component: HomeComponent,
       canActivate: [LoggedInGuard]
     }, {
+      path: 'industry/jobs',
+      component: IndustryJobsComponent,
+      canActivate: [LoggedInGuard]
+    },
+    {
       path: 'manufacturing',
       component: BlueprintsComponent,
       canActivate: [LoggedInGuard]
@@ -72,6 +80,7 @@ export function tokenGetter() {
     CorporationService,
     CharacterService,
     BlueprintService,
+    IndustryService,
     ManufacturingService,
     MarketService,
   ],

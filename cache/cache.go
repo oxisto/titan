@@ -68,9 +68,9 @@ func GetCorporation(callerID int32, corporationID int32, corporation *model.Corp
 	return GetCachedObject(hashKey, callerID, corporationID, corporation, FetchCorporation)
 }
 
-func GetIndustryJobs(callerID int32, corporationID int32, corporation *model.Corporation) error {
+func GetIndustryJobs(callerID int32, corporationID int32, jobs *model.IndustryJobs) error {
 	hashKey := fmt.Sprintf("industry-jobs:%d", corporationID)
-	return GetCachedObject(hashKey, callerID, corporationID, corporation, FetchCorporationIndustryJobs)
+	return GetCachedObject(hashKey, callerID, corporationID, jobs, FetchCorporationIndustryJobs)
 }
 
 func GetAccessToken(characterID int32, accessToken *model.AccessToken) error {
@@ -161,6 +161,11 @@ func WriteCachedObject(object model.CachedObject) error {
 }
 
 func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object model.CachedObject) error {
+	jobs, ok := object.(*model.IndustryJobs)
+	if !ok {
+		return errors.New("passing invalid type to FetchCorporationIndustryJobs function")
+	}
+
 	// find access token for character
 	accessToken := model.AccessToken{}
 	err := GetAccessToken(callerID, &accessToken)
@@ -176,17 +181,27 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 		return err
 	}
 
-	jobs := model.IndustryJobs{
-		CorporationID: corporationID,
+	t, err := time.Parse(time.RFC1123, jobsResponse.Expires)
+
+	if err != nil {
+		return err
 	}
 
+	jobs.SetExpire(&t)
+
+	jobs.CorporationID = corporationID
+
+	jobs.Jobs = map[string]model.IndustryJob{}
+
 	for _, v := range jobsResponse.Payload {
+		blueprintTypeID := model.SafeInt32(v.BlueprintTypeID)
+
 		job := model.IndustryJob{
 			ActivityID: model.SafeInt32(v.ActivityID),
-			BlueprintTypeID: model.SafeInt32(v.BlueprintTypeID),
+			Blueprint: db.GetType(blueprintTypeID),
 		}
 
-		jobs.Jobs = append(jobs.Jobs, job)
+		jobs.Jobs[strconv.Itoa(int(model.SafeInt32(v.JobID)))] = job
 	}
 
 	return nil
