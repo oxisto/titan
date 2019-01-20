@@ -30,6 +30,7 @@ import (
 	esi "github.com/evecentral/esiapi/client"
 	esiCharacter "github.com/evecentral/esiapi/client/character"
 	esiCorporation "github.com/evecentral/esiapi/client/corporation"
+	esiIndustry "github.com/evecentral/esiapi/client/industry"
 	esiSkills "github.com/evecentral/esiapi/client/skills"
 	"github.com/fatih/structs"
 	"github.com/go-openapi/runtime/client"
@@ -65,6 +66,11 @@ func GetCharacter(characterID int32, character *model.Character) error {
 func GetCorporation(callerID int32, corporationID int32, corporation *model.Corporation) error {
 	hashKey := fmt.Sprintf("corporation:%d", corporationID)
 	return GetCachedObject(hashKey, callerID, corporationID, corporation, FetchCorporation)
+}
+
+func GetIndustryJobs(callerID int32, corporationID int32, corporation *model.Corporation) error {
+	hashKey := fmt.Sprintf("industry-jobs:%d", corporationID)
+	return GetCachedObject(hashKey, callerID, corporationID, corporation, FetchCorporationIndustryJobs)
 }
 
 func GetAccessToken(characterID int32, accessToken *model.AccessToken) error {
@@ -152,6 +158,38 @@ func WriteCachedObject(object model.CachedObject) error {
 	}
 
 	return err
+}
+
+func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object model.CachedObject) error {
+	// find access token for character
+	accessToken := model.AccessToken{}
+	err := GetAccessToken(callerID, &accessToken)
+	if err != nil {
+		return err
+	}
+
+	jobsParams := esiIndustry.NewGetCorporationsCorporationIDIndustryJobsParams()
+	jobsParams.CorporationID = corporationID
+	jobsResponse, err := esi.Default.Industry.GetCorporationsCorporationIDIndustryJobs(jobsParams, client.BearerToken(accessToken.Token))
+
+	if err != nil {
+		return err
+	}
+
+	jobs := model.IndustryJobs{
+		CorporationID: corporationID,
+	}
+
+	for _, v := range jobsResponse.Payload {
+		job := model.IndustryJob{
+			ActivityID: model.SafeInt32(v.ActivityID),
+			BlueprintTypeID: model.SafeInt32(v.BlueprintTypeID),
+		}
+
+		jobs.Jobs = append(jobs.Jobs, job)
+	}
+
+	return nil
 }
 
 func FetchCorporation(callerID int32, corporationID int32, object model.CachedObject) error {
