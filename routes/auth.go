@@ -17,9 +17,13 @@ limitations under the License.
 package routes
 
 import (
+	"encoding/base64"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 )
@@ -27,7 +31,10 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	scope := "publicData esi-skills.read_skills.v1 esi-corporations.read_corporation_membership.v1 esi-ui.open_window.v1 esi-wallet.read_corporation_wallets.v1 esi-corporations.read_blueprints.v1 esi-industry.read_corporation_jobs.v1"
 
-	w.Header().Add("Location", cache.SSO.Redirect(nil, &scope))
+	t := time.Now()
+	state := base64.StdEncoding.EncodeToString([]byte(t.String()))
+
+	w.Header().Add("Location", cache.SSO.Redirect(state, &scope))
 	w.WriteHeader(http.StatusFound)
 }
 
@@ -38,32 +45,53 @@ func HandleError(err error, w http.ResponseWriter, r *http.Request) {
 }
 
 func Callback(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+
+	// TODO: do proper error handling with JWT claims
+
 	// fetch access token with authorization code
-	tokenResponse, err := cache.SSO.AccessToken(r.URL.Query().Get("code"), false)
+	tokenResponse, err := cache.SSO.AccessToken(code, false)
 	if err != nil {
 		HandleError(err, w, r)
 		return
 	}
 
-	// verify access token
-	verifyResponse, err := cache.SSO.Verify(tokenResponse.AccessToken)
+	// retrieve character ID and name from token
+	// TODO: do proper validation
+	token, err := jwt.Parse(tokenResponse.AccessToken, func(token *jwt.Token) (interface{}, error) {
+		return nil, nil
+	})
+
+	var claims jwt.MapClaims
+	var ok bool
+	if claims, ok = token.Claims.(jwt.MapClaims); !ok {
+		return
+	}
+
+	sub := claims["sub"].(string)
+	name := claims["name"].(string)
+
+	characterID, err := strconv.Atoi(strings.Split(sub, ":")[2])
+
 	if err != nil {
-		HandleError(err, w, r)
 		return
 	}
 
 	// create a new access token cache object
 	accessToken := model.AccessToken{
-		CharacterID:   verifyResponse.CharacterID,
-		CharacterName: verifyResponse.CharacterName,
+		CharacterID:   int32(characterID),
+		CharacterName: name,
 		Token:         tokenResponse.AccessToken,
 	}
 
-	t, err := time.Parse(time.RFC3339, verifyResponse.ExpiresOn+"Z")
+	// parse expire time
+	timestamp := int64(claims["exp"].(float64))
 	if err != nil {
-		HandleError(err, w, r)
 		return
 	}
+
+	t := time.Unix(timestamp, 0)
+
 	accessToken.SetExpire(&t)
 
 	// cache the access token
@@ -75,7 +103,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 
 	// cache the refresh token (they never expire)
 	err = cache.WriteCachedObject(&model.RefreshToken{
-		CharacterID: verifyResponse.CharacterID,
+		CharacterID: int32(characterID),
 		Token:       tokenResponse.RefreshToken,
 	})
 	if err != nil {
@@ -84,7 +112,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// issue an authentication token for our own API
-	authToken, err := model.IssueToken(verifyResponse.CharacterID)
+	authToken, err := model.IssueToken(int32(characterID))
 	if err != nil {
 		HandleError(err, w, r)
 		return
