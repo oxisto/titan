@@ -19,11 +19,8 @@ package routes
 import (
 	"encoding/base64"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 )
@@ -47,52 +44,20 @@ func HandleError(err error, w http.ResponseWriter, r *http.Request) {
 func Callback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 
-	// TODO: do proper error handling with JWT claims
-
 	// fetch access token with authorization code
-	tokenResponse, err := cache.SSO.AccessToken(code, false)
+	tokenResponse, expiryTime, characterID, characterName, err := cache.SSO.AccessToken(code, false)
 	if err != nil {
 		HandleError(err, w, r)
-		return
-	}
-
-	// retrieve character ID and name from token
-	// TODO: do proper validation
-	token, err := jwt.Parse(tokenResponse.AccessToken, func(token *jwt.Token) (interface{}, error) {
-		return nil, nil
-	})
-
-	var claims jwt.MapClaims
-	var ok bool
-	if claims, ok = token.Claims.(jwt.MapClaims); !ok {
-		return
-	}
-
-	sub := claims["sub"].(string)
-	name := claims["name"].(string)
-
-	characterID, err := strconv.Atoi(strings.Split(sub, ":")[2])
-
-	if err != nil {
 		return
 	}
 
 	// create a new access token cache object
 	accessToken := model.AccessToken{
 		CharacterID:   int32(characterID),
-		CharacterName: name,
+		CharacterName: characterName,
 		Token:         tokenResponse.AccessToken,
 	}
-
-	// parse expire time
-	timestamp := int64(claims["exp"].(float64))
-	if err != nil {
-		return
-	}
-
-	t := time.Unix(timestamp, 0)
-
-	accessToken.SetExpire(&t)
+	accessToken.SetExpire(&expiryTime)
 
 	// cache the access token
 	err = cache.WriteCachedObject(&accessToken)

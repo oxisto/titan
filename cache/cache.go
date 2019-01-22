@@ -176,13 +176,11 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 	jobsParams := esiIndustry.NewGetCorporationsCorporationIDIndustryJobsParams()
 	jobsParams.CorporationID = corporationID
 	jobsResponse, err := esi.Default.Industry.GetCorporationsCorporationIDIndustryJobs(jobsParams, client.BearerToken(accessToken.Token))
-
 	if err != nil {
 		return err
 	}
 
 	t, err := time.Parse(time.RFC1123, jobsResponse.Expires)
-
 	if err != nil {
 		return err
 	}
@@ -198,7 +196,7 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 
 		job := model.IndustryJob{
 			ActivityID: model.SafeInt32(v.ActivityID),
-			Blueprint: db.GetType(blueprintTypeID),
+			Blueprint:  db.GetType(blueprintTypeID),
 		}
 
 		jobs.Jobs[strconv.Itoa(int(model.SafeInt32(v.JobID)))] = job
@@ -333,44 +331,32 @@ func FetchAccessToken(callerID int32, characterID int32, object model.CachedObje
 	}
 
 	// check, if a refresh token exists, otherwise we cannot fetch an access token
-	refreshToken := &model.RefreshToken{}
+	refreshToken := model.RefreshToken{}
 	refreshToken.CharacterID = characterID
 	hashKey := refreshToken.HashKey()
 	exists, err := cache.Exists(hashKey).Result()
 	if exists != 1 {
-		err = errors.New(fmt.Sprintf("No access or refresh tokens exist for character %d", characterID))
+		err = fmt.Errorf("No access or refresh tokens exist for character %d", characterID)
 	}
 	if err != nil {
 		return err
 	}
 
-	ReadCachedObject(hashKey, refreshToken)
+	ReadCachedObject(hashKey, &refreshToken)
 
 	// fetch a new access token
-	tokenResponse, err := SSO.AccessToken(refreshToken.Token, true)
-	if err != nil {
-		return err
-	}
-
-	// verify
-	verifyResponse, err := SSO.Verify(tokenResponse.AccessToken)
+	tokenResponse, expiryTime, _, characterName, err := SSO.AccessToken(refreshToken.Token, true)
 	if err != nil {
 		return err
 	}
 
 	// create a new access token cache object
-	accessToken.CharacterID = verifyResponse.CharacterID
-	accessToken.CharacterName = verifyResponse.CharacterName
-	accessToken.Token = tokenResponse.AccessToken
-
-	t, err := time.Parse(time.RFC3339, verifyResponse.ExpiresOn+"Z")
-	if err != nil {
-		return err
+	*accessToken = model.AccessToken{
+		CharacterID:   int32(characterID),
+		CharacterName: characterName,
+		Token:         tokenResponse.AccessToken,
 	}
-	accessToken.SetExpire(&t)
-
-	// cache the access token
-	WriteCachedObject(accessToken)
+	accessToken.SetExpire(&expiryTime)
 
 	return nil
 }
