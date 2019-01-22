@@ -44,8 +44,12 @@ import (
 var cache *redis.Client
 var log *logrus.Entry
 
+var corporationMap map[int32]int32
+
 func init() {
 	log = logrus.WithField("component", "cache")
+
+	corporationMap = map[int32]int32{}
 }
 
 func InitCache(redisAddr string) {
@@ -74,6 +78,16 @@ func GetIndustryJobs(callerID int32, corporationID int32, jobs *model.IndustryJo
 }
 
 func GetAccessToken(characterID int32, accessToken *model.AccessToken) error {
+	hashKey := fmt.Sprintf("accesstoken:%d", characterID)
+	return GetCachedObject(hashKey, characterID, characterID, accessToken, FetchAccessToken)
+}
+
+func GetAccessTokenForCorporation(corporationID int32, accessToken *model.AccessToken) error {
+	characterID, ok := corporationMap[corporationID]
+	if !ok {
+		return fmt.Errorf("Could not find a character for corporation %d", corporationID)
+	}
+
 	hashKey := fmt.Sprintf("accesstoken:%d", characterID)
 	return GetCachedObject(hashKey, characterID, characterID, accessToken, FetchAccessToken)
 }
@@ -166,9 +180,9 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 		return errors.New("passing invalid type to FetchCorporationIndustryJobs function")
 	}
 
-	// find access token for character
+	// find access token for corporation
 	accessToken := model.AccessToken{}
-	err := GetAccessToken(callerID, &accessToken)
+	err := GetAccessTokenForCorporation(corporationID, &accessToken)
 	if err != nil {
 		return err
 	}
@@ -309,6 +323,10 @@ func FetchCharacter(callerID int32, characterID int32, object model.CachedObject
 		}
 		character.Skills[strconv.Itoa(int(s.SkillID))] = s
 	}
+
+	// update the corporation map
+	corporationMap[character.CorporationID] = characterID
+	log.Infof("Setting character %d as token for corporation %d", characterID, character.CorporationID)
 
 	return nil
 }

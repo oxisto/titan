@@ -44,6 +44,20 @@ func (token *AccessToken) SetExpire(t *time.Time) {
 	token.expireDate = t
 }
 
+type CorporationAccessToken struct {
+	AccessToken
+
+	CorporationID int32
+}
+
+func (token *CorporationAccessToken) ID() int32 {
+	return token.CorporationID
+}
+
+func (token *CorporationAccessToken) HashKey() string {
+	return fmt.Sprintf("corporation-accesstoken:%d", token.ID())
+}
+
 type RefreshToken struct {
 	Token       string
 	CharacterID int32
