@@ -44,10 +44,12 @@ func (token *AccessToken) SetExpire(t *time.Time) {
 	token.expireDate = t
 }
 
+// CorporationAccessToken is basically just a link from a corporation ID to a character ID which then has the actual token
 type CorporationAccessToken struct {
-	AccessToken
+	expireDate *time.Time
 
 	CorporationID int32
+	CharacterID   int32
 }
 
 func (token *CorporationAccessToken) ID() int32 {
@@ -56,6 +58,14 @@ func (token *CorporationAccessToken) ID() int32 {
 
 func (token *CorporationAccessToken) HashKey() string {
 	return fmt.Sprintf("corporation-accesstoken:%d", token.ID())
+}
+
+func (token *CorporationAccessToken) ExpiresOn() *time.Time {
+	return token.expireDate
+}
+
+func (token *CorporationAccessToken) SetExpire(t *time.Time) {
+	token.expireDate = t
 }
 
 type RefreshToken struct {

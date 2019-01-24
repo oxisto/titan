@@ -42,14 +42,11 @@ import (
 )
 
 var cache *redis.Client
+var expiryChannel <-chan *redis.Message
 var log *logrus.Entry
-
-var corporationMap map[int32]int32
 
 func init() {
 	log = logrus.WithField("component", "cache")
-
-	corporationMap = map[int32]int32{}
 }
 
 func InitCache(redisAddr string) {
@@ -58,6 +55,49 @@ func InitCache(redisAddr string) {
 	cache = redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
+
+	cache.ConfigSet("notify-keyspace-events", "KEA")
+
+	pubsub := cache.Subscribe("__keyevent@0__:expired")
+
+	_, err := pubsub.Receive()
+	if err != nil {
+		log.Error(err)
+	}
+
+	ch := pubsub.Channel()
+
+	go ExpirySubscriber(ch)
+}
+
+func ExpirySubscriber(ch <-chan *redis.Message) {
+	for msg := range ch {
+		key := msg.Payload
+
+		// split
+		rr := strings.SplitN(key, ":", 2)
+
+		if len(rr) != 2 {
+			log.Errorf("Got an invalid key {}", key)
+			continue
+		}
+
+		typ := rr[0]
+		corporationID, err := strconv.Atoi(rr[1])
+
+		if err != nil {
+			continue
+		}
+
+		// only refresh industry jobs
+		if typ == "industry-jobs" {
+			jobs := model.IndustryJobs{}
+			err := GetIndustryJobs(0, int32(corporationID), &jobs)
+			if err != nil {
+				log.Error(err)
+			}
+		}
+	}
 }
 
 type FetchFuncType func(callerID int32, objectID int32, object model.CachedObject) error
@@ -83,10 +123,15 @@ func GetAccessToken(characterID int32, accessToken *model.AccessToken) error {
 }
 
 func GetAccessTokenForCorporation(corporationID int32, accessToken *model.AccessToken) error {
-	characterID, ok := corporationMap[corporationID]
-	if !ok {
-		return fmt.Errorf("Could not find a character for corporation %d", corporationID)
+	corporationAccessToken := model.CorporationAccessToken{}
+
+	// try to fetch it from REDIS, but it could be nil
+	err := GetCachedObject(fmt.Sprintf("corporation-accesstoken:%d", corporationID), 0, corporationID, &corporationAccessToken, nil)
+	if err != nil {
+		return err
 	}
+
+	characterID := corporationAccessToken.CharacterID
 
 	hashKey := fmt.Sprintf("accesstoken:%d", characterID)
 	return GetCachedObject(hashKey, characterID, characterID, accessToken, FetchAccessToken)
@@ -101,6 +146,10 @@ func GetCachedObject(hashKey string, callerID int32, objectID int32, object mode
 	// if it exists, read if from cache
 	if exists == 1 {
 		return ReadCachedObject(hashKey, object)
+	}
+
+	if funcType == nil {
+		return fmt.Errorf("Could not find %s and fetch function is nil", hashKey)
 	}
 
 	log.Debugf("Fetching %s from source...", hashKey)
@@ -324,9 +373,13 @@ func FetchCharacter(callerID int32, characterID int32, object model.CachedObject
 		character.Skills[strconv.Itoa(int(s.SkillID))] = s
 	}
 
-	// update the corporation map
-	corporationMap[character.CorporationID] = characterID
-	log.Infof("Setting character %d as token for corporation %d", characterID, character.CorporationID)
+	// set this character as corporation access token
+	corporationAccessToken := model.CorporationAccessToken{
+		CorporationID: character.CorporationID,
+		CharacterID:   characterID,
+	}
+
+	WriteCachedObject(&corporationAccessToken)
 
 	return nil
 }
