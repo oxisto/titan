@@ -28,6 +28,7 @@ import (
 
 	"github.com/doublerebel/bellows"
 	esi "github.com/evecentral/esiapi/client"
+	esiAssets "github.com/evecentral/esiapi/client/assets"
 	esiCharacter "github.com/evecentral/esiapi/client/character"
 	esiCorporation "github.com/evecentral/esiapi/client/corporation"
 	esiIndustry "github.com/evecentral/esiapi/client/industry"
@@ -96,6 +97,12 @@ func ExpirySubscriber(ch <-chan *redis.Message) {
 			if err != nil {
 				log.Error(err)
 			}
+		} else if typ == "corporation-assets" {
+			assets := model.CorporationAssets{}
+			err := GetCorporationAssets(0, int32(corporationID), &assets)
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }
@@ -115,6 +122,11 @@ func GetCorporation(callerID int32, corporationID int32, corporation *model.Corp
 func GetIndustryJobs(callerID int32, corporationID int32, jobs *model.IndustryJobs) error {
 	hashKey := fmt.Sprintf("industry-jobs:%d", corporationID)
 	return GetCachedObject(hashKey, callerID, corporationID, jobs, FetchCorporationIndustryJobs)
+}
+
+func GetCorporationAssets(callerID int32, corporationID int32, jobs *model.CorporationAssets) error {
+	hashKey := fmt.Sprintf("corporation-assets:%d", corporationID)
+	return GetCachedObject(hashKey, callerID, corporationID, jobs, FetchCorporationAssets)
 }
 
 func GetAccessToken(characterID int32, accessToken *model.AccessToken) error {
@@ -220,7 +232,11 @@ func WriteCachedObject(object model.CachedObject) error {
 		cache.ExpireAt(object.HashKey(), *tm)
 	}
 
-	return err
+	if err != nil {
+		return fmt.Errorf("Error while writing to REDIS: %s", err)
+	}
+
+	return nil
 }
 
 func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object model.CachedObject) error {
@@ -310,6 +326,53 @@ func FetchCorporation(callerID int32, corporationID int32, object model.CachedOb
 	corporation.Members = map[string]int32{}
 	for _, v := range membersResponse.Payload {
 		corporation.Members[strconv.Itoa(int(v))] = v
+	}
+
+	return nil
+}
+
+func FetchCorporationAssets(callerID int32, corporationID int32, object model.CachedObject) error {
+	assets, ok := object.(*model.CorporationAssets)
+	if !ok {
+		return errors.New("passing invalid type to FetchCorporationAssets function")
+	}
+
+	// find access token for corporation
+	accessToken := model.AccessToken{}
+	err := GetAccessTokenForCorporation(corporationID, &accessToken)
+	if err != nil {
+		return err
+	}
+
+	params := esiAssets.NewGetCorporationsCorporationIDAssetsParams()
+	params.CorporationID = corporationID
+
+	response, err := esi.Default.Assets.GetCorporationsCorporationIDAssets(params, client.BearerToken(accessToken.Token))
+	if err != nil {
+		return err
+	}
+
+	t, err := time.Parse(time.RFC1123, response.Expires)
+	if err != nil {
+		return err
+	}
+
+	assets.SetExpire(&t)
+
+	assets.CorporationID = corporationID
+	assets.Assets = map[string]model.Asset{}
+
+	for _, v := range response.Payload {
+		asset := model.Asset{
+			IsSingleton:  model.SafeBoolean(v.IsSingleton),
+			TypeID:       model.SafeInt32(v.TypeID),
+			ItemID:       model.SafeInt64(v.ItemID),
+			LocationID:   model.SafeInt64(v.LocationID),
+			LocationType: model.SafeString(v.LocationType),
+			LocationFlag: model.SafeString(v.LocationFlag),
+		}
+
+		assets.Assets[strconv.Itoa(int(asset.ItemID))] = asset
 	}
 
 	return nil

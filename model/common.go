@@ -27,6 +27,14 @@ type CachedObject interface {
 	SetExpire(t *time.Time)
 }
 
+func SafeBoolean(obj *bool) bool {
+	if obj == nil {
+		return false
+	} else {
+		return bool(*obj)
+	}
+}
+
 func SafeInt32(obj *int32) int32 {
 	if obj == nil {
 		return int32(0)
