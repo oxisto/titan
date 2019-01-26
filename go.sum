@@ -16,8 +16,6 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/docker/go-units v0.3.3/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
-github.com/doublerebel/bellows v0.0.0-20160303004610-f177d92a03d3 h1:7nllYTGLnq4CqBL27lV6oNfXzM2tJ2mrKF8E+aBXOV0=
-github.com/doublerebel/bellows v0.0.0-20160303004610-f177d92a03d3/go.mod h1:v/MTKot4he5oRHGirOYGN4/hEOONNnWtDBLAzllSGMw=
 github.com/evecentral/esiapi v0.0.0-20180613041610-ca93aed9b6e4 h1:MM2cINRyCecj1Bo+YVaFcO00Uh5svC6xFOoO6OtNruk=
 github.com/evecentral/esiapi v0.0.0-20180613041610-ca93aed9b6e4/go.mod h1:hRvgEnTUq+l91GRhGZ1+9g4fbYDNnNI3ur/sECMqbfs=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
@@ -95,6 +93,8 @@ github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.4.2 h1:3mYCb7aPxS/RU7TI1y4rkEn1oKmPRjNJLNEXgw7MH2I=
 github.com/onsi/gomega v1.4.2/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
+github.com/oxisto/bellows v1.0.0 h1:jAdpd1NOn5WPEriDyTLoAa3DOqs16xCAGQL3EeD9FgI=
+github.com/oxisto/bellows v1.0.0/go.mod h1:thjHETVoiFyzH0m0Lj05DJOdj2BDF8jdvsN6WAxcZKY=
 github.com/oxisto/evesso v1.0.4 h1:6lLWIXcrnH+ETLwsFPySn/msQf1ibtqKOENmPZ8Oq5U=
 github.com/oxisto/evesso v1.0.4/go.mod h1:M0sYYKIRcno1WNxb94zUaBSQmCidOc8Imv24UF5UATc=
 github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=

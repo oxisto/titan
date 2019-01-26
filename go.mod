@@ -5,7 +5,6 @@ require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
 	github.com/codegangsta/negroni v1.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/doublerebel/bellows v0.0.0-20160303004610-f177d92a03d3
 	github.com/evecentral/esiapi v0.0.0-20180613041610-ca93aed9b6e4
 	github.com/fatih/structs v1.1.0
 	github.com/go-openapi/runtime v0.17.1
@@ -22,12 +21,14 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/nlopes/slack v0.4.0
 	github.com/onsi/gomega v1.4.2 // indirect
+	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.4
 	github.com/sirupsen/logrus v1.1.1
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/smartystreets/goconvey v0.0.0-20180222194500-ef6db91d284a // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.2.1
+	github.com/stretchr/testify v1.3.0
 	github.com/urfave/negroni v1.0.0
 	golang.org/x/text v0.3.0
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
