@@ -26,35 +26,3 @@ type CachedObject interface {
 	ExpiresOn() *time.Time
 	SetExpire(t *time.Time)
 }
-
-func SafeBoolean(obj *bool) bool {
-	if obj == nil {
-		return false
-	} else {
-		return bool(*obj)
-	}
-}
-
-func SafeInt32(obj *int32) int32 {
-	if obj == nil {
-		return int32(0)
-	} else {
-		return int32(*obj)
-	}
-}
-
-func SafeInt64(obj *int64) int64 {
-	if obj == nil {
-		return int64(0)
-	} else {
-		return int64(*obj)
-	}
-}
-
-func SafeString(s *string) string {
-	if s == nil {
-		return ""
-	} else {
-		return *s
-	}
-}

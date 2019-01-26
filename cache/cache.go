@@ -17,6 +17,7 @@ limitations under the License.
 package cache
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,14 +27,10 @@ import (
 	"strings"
 	"time"
 
-	esi "github.com/evecentral/esiapi/client"
-	esiAssets "github.com/evecentral/esiapi/client/assets"
-	esiCharacter "github.com/evecentral/esiapi/client/character"
-	esiCorporation "github.com/evecentral/esiapi/client/corporation"
-	esiIndustry "github.com/evecentral/esiapi/client/industry"
-	esiSkills "github.com/evecentral/esiapi/client/skills"
+	"github.com/antihax/goesi/esi"
+
+	"github.com/antihax/goesi"
 	"github.com/fatih/structs"
-	"github.com/go-openapi/runtime/client"
 	"github.com/go-redis/redis"
 	"github.com/mitchellh/mapstructure"
 	"github.com/oxisto/bellows"
@@ -46,8 +43,12 @@ var cache *redis.Client
 var expiryChannel <-chan *redis.Message
 var log *logrus.Entry
 
+// ESI is the ESI client
+var ESI *esi.APIClient
+
 func init() {
 	log = logrus.WithField("component", "cache")
+	ESI = goesi.NewAPIClient(&http.Client{}, "Titan").ESI
 }
 
 func InitCache(redisAddr string) {
@@ -252,14 +253,12 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 		return err
 	}
 
-	jobsParams := esiIndustry.NewGetCorporationsCorporationIDIndustryJobsParams()
-	jobsParams.CorporationID = corporationID
-	jobsResponse, err := esi.Default.Industry.GetCorporationsCorporationIDIndustryJobs(jobsParams, client.BearerToken(accessToken.Token))
+	response, httpResponse, err := ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), corporationID, nil)
 	if err != nil {
 		return err
 	}
 
-	t, err := time.Parse(time.RFC1123, jobsResponse.Expires)
+	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
 	if err != nil {
 		return err
 	}
@@ -270,15 +269,13 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 
 	jobs.Jobs = map[string]model.IndustryJob{}
 
-	for _, v := range jobsResponse.Payload {
-		blueprintTypeID := model.SafeInt32(v.BlueprintTypeID)
-
+	for _, v := range response {
 		job := model.IndustryJob{
-			ActivityID: model.SafeInt32(v.ActivityID),
-			Blueprint:  db.GetType(blueprintTypeID),
+			ActivityID: v.ActivityId,
+			Blueprint:  db.GetType(v.BlueprintTypeId),
 		}
 
-		jobs.Jobs[strconv.Itoa(int(model.SafeInt32(v.JobID)))] = job
+		jobs.Jobs[strconv.Itoa(int(v.JobId))] = job
 	}
 
 	return nil
@@ -290,20 +287,18 @@ func FetchCorporation(callerID int32, corporationID int32, object model.CachedOb
 		return errors.New("passing invalid type to FetchCorporation function")
 	}
 
-	corporationParams := esiCorporation.NewGetCorporationsCorporationIDParams()
-	corporationParams.CorporationID = corporationID
-	corporationResponse, err := esi.Default.Corporation.GetCorporationsCorporationID(corporationParams)
+	response, httpResponse, err := ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), corporationID, nil)
 	if err != nil {
 		return err
 	}
 
 	corporation.CorporationID = corporationID
-	corporation.CorporationName = model.SafeString(corporationResponse.Payload.Name)
-	corporation.AllianceID = corporationResponse.Payload.AllianceID
-	corporation.Ticker = model.SafeString(corporationResponse.Payload.Ticker)
-	corporation.CEOID = model.SafeInt32(corporationResponse.Payload.CeoID)
+	corporation.CorporationName = response.Name
+	corporation.AllianceID = response.AllianceId
+	corporation.Ticker = response.Ticker
+	corporation.CEOID = response.CeoId
 
-	expireTime, err := time.Parse(time.RFC1123, corporationResponse.Expires)
+	expireTime, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
 	if err != nil {
 		return err
 	}
@@ -316,15 +311,13 @@ func FetchCorporation(callerID int32, corporationID int32, object model.CachedOb
 		return err
 	}
 
-	membersParams := esiCorporation.NewGetCorporationsCorporationIDMembersParams()
-	membersParams.CorporationID = corporationID
-	membersResponse, err := esi.Default.Corporation.GetCorporationsCorporationIDMembers(membersParams, client.BearerToken(accessToken.Token))
+	membersResponse, httpResponse, err := ESI.CorporationApi.GetCorporationsCorporationIdMembers(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), corporationID, nil)
 	if err != nil {
 		return err
 	}
 
 	corporation.Members = map[string]int32{}
-	for _, v := range membersResponse.Payload {
+	for _, v := range membersResponse {
 		corporation.Members[strconv.Itoa(int(v))] = v
 	}
 
@@ -344,15 +337,12 @@ func FetchCorporationAssets(callerID int32, corporationID int32, object model.Ca
 		return err
 	}
 
-	params := esiAssets.NewGetCorporationsCorporationIDAssetsParams()
-	params.CorporationID = corporationID
-
-	response, err := esi.Default.Assets.GetCorporationsCorporationIDAssets(params, client.BearerToken(accessToken.Token))
+	response, httpResponse, err := ESI.AssetsApi.GetCorporationsCorporationIdAssets(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), corporationID, nil)
 	if err != nil {
 		return err
 	}
 
-	t, err := time.Parse(time.RFC1123, response.Expires)
+	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
 	if err != nil {
 		return err
 	}
@@ -362,14 +352,14 @@ func FetchCorporationAssets(callerID int32, corporationID int32, object model.Ca
 	assets.CorporationID = corporationID
 	assets.Assets = map[string]model.Asset{}
 
-	for _, v := range response.Payload {
+	for _, v := range response {
 		asset := model.Asset{
-			IsSingleton:  model.SafeBoolean(v.IsSingleton),
-			TypeID:       model.SafeInt32(v.TypeID),
-			ItemID:       model.SafeInt64(v.ItemID),
-			LocationID:   model.SafeInt64(v.LocationID),
-			LocationType: model.SafeString(v.LocationType),
-			LocationFlag: model.SafeString(v.LocationFlag),
+			IsSingleton:  v.IsSingleton,
+			TypeID:       v.TypeId,
+			ItemID:       v.ItemId,
+			LocationID:   v.LocationId,
+			LocationType: v.LocationType,
+			LocationFlag: v.LocationFlag,
 		}
 
 		assets.Assets[strconv.Itoa(int(asset.ItemID))] = asset
@@ -384,29 +374,24 @@ func FetchCharacter(callerID int32, characterID int32, object model.CachedObject
 		return errors.New("passing invalid type to FetchCharacter function")
 	}
 
-	characterParams := esiCharacter.NewGetCharactersCharacterIDParams()
-	characterParams.CharacterID = characterID
-	characterResponse, err := esi.Default.Character.GetCharactersCharacterID(characterParams)
+	characterResponse, httpResponse, err := ESI.CharacterApi.GetCharactersCharacterId(context.Background(), characterID, nil)
 	if err != nil {
 		return err
 	}
 
 	character.CharacterID = characterID
-	character.CharacterName = model.SafeString(characterResponse.Payload.Name)
-	character.CorporationID = model.SafeInt32(characterResponse.Payload.CorporationID)
-	character.AllianceID = characterResponse.Payload.AllianceID
+	character.CharacterName = characterResponse.Name
+	character.CorporationID = characterResponse.CorporationId
+	character.AllianceID = characterResponse.AllianceId
 
-	corporationParams := esiCorporation.NewGetCorporationsCorporationIDParams()
-	corporationParams.CorporationID = character.CorporationID
-
-	corporationResponse, err := esi.Default.Corporation.GetCorporationsCorporationID(corporationParams)
+	corporationResponse, httpResponse, err := ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), character.CorporationID, nil)
 	if err != nil {
 		return err
 	}
 
-	character.CorporationName = model.SafeString(corporationResponse.Payload.Name)
+	character.CorporationName = corporationResponse.Name
 
-	expireTime, err := time.Parse(time.RFC1123, characterResponse.Expires)
+	expireTime, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
 	if err != nil {
 		return err
 	}
@@ -419,19 +404,17 @@ func FetchCharacter(callerID int32, characterID int32, object model.CachedObject
 		return err
 	}
 
-	skillsParams := esiSkills.NewGetCharactersCharacterIDSkillsParams()
-	skillsParams.CharacterID = characterID
-	skillsResponse, err := esi.Default.Skills.GetCharactersCharacterIDSkills(skillsParams, client.BearerToken(accessToken.Token))
+	skillsResponse, httpResponse, err := ESI.SkillsApi.GetCharactersCharacterIdSkills(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), characterID, nil)
 	if err != nil {
 		return err
 	}
 
 	character.Skills = map[string]model.Skill{}
-	for _, v := range skillsResponse.Payload.Skills {
+	for _, v := range skillsResponse.Skills {
 		s := model.Skill{
-			SkillID:     model.SafeInt32(v.SkillID),
-			SkillPoints: model.SafeInt64(v.SkillpointsInSkill),
-			Level:       model.SafeInt32(v.TrainedSkillLevel),
+			SkillID:     v.SkillId,
+			SkillPoints: v.SkillpointsInSkill,
+			Level:       v.TrainedSkillLevel,
 		}
 		character.Skills[strconv.Itoa(int(s.SkillID))] = s
 	}
