@@ -17,12 +17,12 @@ limitations under the License.
 package routes
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
-	esi "github.com/evecentral/esiapi/client"
-	esiUI "github.com/evecentral/esiapi/client/user_interface"
-	"github.com/go-openapi/runtime/client"
+	"github.com/antihax/goesi"
+
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 )
@@ -36,9 +36,6 @@ func OpenMarketDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 func OpenMarket(characterID int32, typeID int32, w http.ResponseWriter, r *http.Request) {
-	uiParams := esiUI.NewPostUIOpenwindowMarketdetailsParams()
-	uiParams.TypeID = typeID
-
 	// find access token for character
 	accessToken := model.AccessToken{}
 	err := cache.GetAccessToken(characterID, &accessToken)
@@ -47,7 +44,7 @@ func OpenMarket(characterID int32, typeID int32, w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, err = esi.Default.UserInterface.PostUIOpenwindowMarketdetails(uiParams, client.BearerToken(accessToken.Token))
+	_, err = cache.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), typeID, nil)
 	if err != nil {
 		JsonResponse(w, r, nil, err)
 		return
