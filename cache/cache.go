@@ -26,7 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/doublerebel/bellows"
 	esi "github.com/evecentral/esiapi/client"
 	esiAssets "github.com/evecentral/esiapi/client/assets"
 	esiCharacter "github.com/evecentral/esiapi/client/character"
@@ -37,6 +36,7 @@ import (
 	"github.com/go-openapi/runtime/client"
 	"github.com/go-redis/redis"
 	"github.com/mitchellh/mapstructure"
+	"github.com/oxisto/bellows"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
@@ -79,7 +79,7 @@ func ExpirySubscriber(ch <-chan *redis.Message) {
 		rr := strings.SplitN(key, ":", 2)
 
 		if len(rr) != 2 {
-			log.Errorf("Got an invalid key {}", key)
+			log.Errorf("Got an invalid key %s", key)
 			continue
 		}
 
