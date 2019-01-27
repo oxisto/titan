@@ -286,6 +286,7 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 			EndDate:          v.EndDate.Unix(),
 			CompletedDate:    v.CompletedDate.Unix(),
 			PauseDate:        v.PauseDate.Unix(),
+			Status:           v.Status,
 		}
 
 		jobs.Jobs[strconv.Itoa(int(v.JobId))] = job

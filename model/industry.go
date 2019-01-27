@@ -22,6 +22,7 @@ type IndustryJob struct {
 	OutputLocationID int64   `json:"outputLocationID"`
 	Probability      float32 `json:"probability"`
 	SuccesfulRuns    int     `json:"succesfulRuns"`
+	Status           string  `json:"status"`
 }
 
 func (i *IndustryJobs) ID() int32 {
