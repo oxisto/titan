@@ -220,6 +220,11 @@ func WriteCachedObject(object model.CachedObject) error {
 	log.Debugf("Writing %v to cache...", object.HashKey())
 
 	for k, v := range m {
+		// ignore nil values
+		if v == nil {
+			continue
+		}
+
 		if reflect.TypeOf(v).Kind() == reflect.Map {
 			// remove maps for now
 			delete(m, k)
@@ -271,8 +276,17 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 
 	for _, v := range response {
 		job := model.IndustryJob{
-			ActivityID: v.ActivityId,
-			Blueprint:  db.GetType(v.BlueprintTypeId),
+			ActivityID:       v.ActivityId,
+			Blueprint:        db.GetType(v.BlueprintTypeId),
+			LicensedRuns:     int(v.LicensedRuns),
+			SuccesfulRuns:    int(v.SuccessfulRuns),
+			Probability:      v.Probability,
+			OutputLocationID: v.OutputLocationId,
+			StartDate:        v.StartDate.Unix(),
+			EndDate:          v.EndDate.Unix(),
+			CompletedDate:    v.CompletedDate.Unix(),
+			PauseDate:        v.PauseDate.Unix(),
+			Status:           v.Status,
 		}
 
 		jobs.Jobs[strconv.Itoa(int(v.JobId))] = job

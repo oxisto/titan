@@ -12,8 +12,17 @@ type IndustryJobs struct {
 }
 
 type IndustryJob struct {
-	ActivityID int32 `json:"activityID"`
-	Blueprint  Type  `json:"blueprint"`
+	ActivityID       int32   `json:"activityID"`
+	Blueprint        Type    `json:"blueprint"`
+	StartDate        int64   `json:"startDate"`
+	EndDate          int64   `json:"endDate"`
+	CompletedDate    int64   `json:"completedDate"`
+	PauseDate        int64   `json:"pausedDate"`
+	LicensedRuns     int     `json:"licensedRuns"`
+	OutputLocationID int64   `json:"outputLocationID"`
+	Probability      float32 `json:"probability"`
+	SuccesfulRuns    int     `json:"succesfulRuns"`
+	Status           string  `json:"status"`
 }
 
 func (i *IndustryJobs) ID() int32 {

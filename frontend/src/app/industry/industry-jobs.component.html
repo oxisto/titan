@@ -1,13 +1,21 @@
-<ul class="list-group" *ngIf="jobs">
-  <li class="list-group-item list-group-item-action flex-column align-items-start" *ngFor="let entry of jobs.jobs | keyvalue">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{ entry.value.blueprint.name.en }}</h5>
-    </div>
-    <p class="mb-1">
-      <img src="https://image.eveonline.com/Type/{{ entry.value.blueprint.typeID }}_64.png" />
-      <!--{{ product.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK Profit per Day (based on buy price) /
-      {{ product.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK Profit per Day (based on sell price)-->
-    </p>
-    <small>{{ activityToName[entry.value.activityID] }}</small>
-  </li>
-</ul>
+<h2>Industry Jobs</h2>
+<table class="w-100 table table-sm">
+  <thead>
+    <tr>
+      <td>Name</td>
+      <td>Activity</td>
+      <td>Status</td>
+      <td>End Date</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let entry of jobs?.jobs | keyvalue">
+      <td>
+        <app-type [type]="entry.value.blueprint" [blueprint]="true"></app-type>
+      </td>
+      <td>{{ activityToName[entry.value.activityID] }}</td>
+      <td>{{ entry.value.status }}</td>
+      <td>{{ entry.value.endDate | date:'medium' }}</td>
+    </tr>
+  </tbody>
+</table>
