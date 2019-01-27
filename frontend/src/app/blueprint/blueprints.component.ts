@@ -42,8 +42,6 @@ export class BlueprintsComponent implements OnInit {
     this.manufacturingService.getManufacturingCategories().subscribe(categories => {
       this.categories = categories.reduce((map, category) => ({ ...map, [category.categoryID]: category }), {});
 
-      console.log(this.categories);
-
       // see, if there is something in localStorage, otherwise set all categories to true
       const json = localStorage.getItem('manufacturing:selectedCategories');
       if (!json) {

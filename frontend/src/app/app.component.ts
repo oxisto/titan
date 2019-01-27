@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivationStart, Router, UrlSegment } from '@angular/router';
 import { empty } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
@@ -19,9 +19,17 @@ export class AppComponent implements OnInit {
   character: Character;
   characterPortrait: string;
 
+  url: UrlSegment[];
+
   constructor(private characterService: CharacterService,
     private authService: AuthService,
     private router: Router) {
+    this.router.events.subscribe((res) => {
+      if (res instanceof ActivationStart) {
+        this.url = res.snapshot.url;
+      }
+    });
+
     // the AppComponent is loaded regardless wether we are logged in or not,
     // however we can only display certain values if we are logged in
     if (this.authService.isLoggedIn()) {
