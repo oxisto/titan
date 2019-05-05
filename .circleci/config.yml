@@ -51,9 +51,9 @@ jobs:
           name: Install titan
           command: ./kubectl apply -f kubernetes/titan.yaml
       - run:
-          name: Install MongoDB and REDIS
+          name: Install PostgreSQL and REDIS
           command: |
-            ./kubectl apply -f kubernetes/mongodb.yaml
+            ./kubectl apply -f kubernetes/postgres.yaml
             ./kubectl apply -f kubernetes/redis.yaml
       - run:
           name: Set image to current build

@@ -38,5 +38,6 @@ COPY --from=build-frontend /tmp/dist ./frontend/dist
 COPY --from=build-server /build/server .
 COPY --from=build-server /build/sde.version .
 COPY --from=build-server /build/sde-* .
-COPY restore.sh .
+ADD restore.sh .
+ADD docker-entrypoint.sh .
 CMD ["./docker-entrypoint.sh"]
