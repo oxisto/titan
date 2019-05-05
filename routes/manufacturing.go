@@ -22,7 +22,6 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
@@ -34,8 +33,8 @@ const (
 	QueryParamSortBy                = "sortBy"
 	QueryParamMaxProductionCosts    = "maxProductionCosts"
 	QueryParamHasRequiredSkillsOnly = "hasRequiredSkillsOnly"
-	QueryParamME = "ME"
-	QueryParamTE = "TE"
+	QueryParamME                    = "ME"
+	QueryParamTE                    = "TE"
 
 	RouteVarsTypeID = "typeID"
 
@@ -50,9 +49,9 @@ func GetManufacturingCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 type ManufacturingResponse struct {
-	TypeID int32
-	Type model.Type
-	Manufacturing *manufacturing.Manufacturing
+	TypeID        int32
+	Type          model.Type
+	Manufacturing *model.Manufacturing
 }
 
 func GetManufacturing(w http.ResponseWriter, r *http.Request) {
@@ -73,30 +72,26 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 
 	log.Debugf("Calculating manufacturing information for typeID %d...", typeID)
 
-	resp := ManufacturingResponse{}	
-	m := manufacturing.Manufacturing{}
+	resp := ManufacturingResponse{}
+	m := model.Manufacturing{}
 
 	// calculate it fresh
-	if err = manufacturing.NewManufacturing(character, int32(typeID), ME, TE, &m); err != nil {
-		// ignore err, but the product should be set
-		err = nil
-		resp.Type = m.Product
-		// keep manufacturing to nil
-	} else {
+	if err = manufacturing.NewManufacturing(character, int32(typeID), ME, TE, &m); err == nil {
 		resp.Manufacturing = &m
 	}
 
-	JsonResponse(w, r, m, err)	
+	JsonResponse(w, r, m, err)
 
-	m = manufacturing.Manufacturing{}
+	m = model.Manufacturing{}
 	// calculate the manufacturing for the builder
 	if err = manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
-		cache.WriteCachedObject(m)
+		//cache.WriteCachedObject(m)
+		db.UpdateProfit(m)
 	}
 }
 
 func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
-	character := r.Context().Value(CharacterContext).(*model.Character)
+	//character := r.Context().Value(CharacterContext).(*model.Character)
 
 	array := strings.Split(r.URL.Query().Get(QueryParamCategoryIDs), SeparatorCategoryIDs)
 
@@ -107,7 +102,7 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 		categoryIDs[i] = true
 	}
 
-	options := cache.NewSearchOptions()
+	options := db.NewSearchOptions()
 
 	options.NameFilter = r.URL.Query().Get(QueryParamNameFilter)
 	options.CategoryIDs = categoryIDs
@@ -124,7 +119,8 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	types, err := cache.GetProductTypes(options, *character)
+	//types, err := cache.GetProductTypes(options, *character)
+	types, err := db.GetProductTypes(options)
 
 	JsonResponse(w, r, types, err)
 }

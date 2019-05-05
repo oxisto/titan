@@ -20,6 +20,9 @@ spec:
         imagePullPolicy: Always
         name: titan
         volumeMounts:
+        env:
+        - name: TITAN_POSTGRES
+          value: postgres
         - name: config
           mountPath: /usr/titan/config
           readOnly: true

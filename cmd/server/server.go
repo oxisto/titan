@@ -22,8 +22,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oxisto/titan/manufacturing"
-
 	"fmt"
 	"os"
 	"strings"
@@ -31,6 +29,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 	"github.com/oxisto/titan/routes"
 	"github.com/oxisto/titan/slack"
@@ -43,7 +42,7 @@ import (
 
 const (
 	RedisFlag              = "redis"
-	MongoFlag              = "mongo"
+	PostgresFlag           = "postgres"
 	ListenFlag             = "listen"
 	CorporationIDFlag      = "corporationID"
 	SlackAPITokenFlag      = "slack.token"
@@ -53,7 +52,7 @@ const (
 	EveRedirectURI         = "eve.redirectURI"
 
 	DefaultRedis              = "localhost:6379"
-	DefaultMongo              = "localhost:27017"
+	DefaultPostgres           = "localhost"
 	DefaultListen             = ":4300"
 	DefaultCorporationID      = 0
 	DefaultSlackAPIToken      = DefaultEmpty
@@ -86,7 +85,7 @@ func init() {
 
 	serverCmd.Flags().String(ListenFlag, DefaultListen, "Host and port to listen to")
 	serverCmd.Flags().String(RedisFlag, DefaultRedis, "Host and port of redis server")
-	serverCmd.Flags().String(MongoFlag, DefaultMongo, "Host and port of mongodb server")
+	serverCmd.Flags().String(PostgresFlag, DefaultPostgres, "Connection string for PostgreSQL")
 	serverCmd.Flags().Int32(CorporationIDFlag, DefaultCorporationID, "If specified, limits access to this corporation ID")
 	serverCmd.Flags().String(SlackAPITokenFlag, DefaultSlackAPIToken, "The token for Slack integration")
 	serverCmd.Flags().String(EveClientID, DefaultEmpty, "The EVE SSO Client ID")
@@ -98,7 +97,7 @@ func init() {
 
 	viper.BindPFlag(ListenFlag, serverCmd.Flags().Lookup(ListenFlag))
 	viper.BindPFlag(RedisFlag, serverCmd.Flags().Lookup(RedisFlag))
-	viper.BindPFlag(MongoFlag, serverCmd.Flags().Lookup(MongoFlag))
+	viper.BindPFlag(PostgresFlag, serverCmd.Flags().Lookup(PostgresFlag))
 	viper.BindPFlag(CorporationIDFlag, serverCmd.Flags().Lookup(CorporationIDFlag))
 	viper.BindPFlag(SlackAPITokenFlag, serverCmd.Flags().Lookup(SlackAPITokenFlag))
 	viper.BindPFlag(CacheManufacturingFlag, serverCmd.Flags().Lookup(CacheManufacturingFlag))
@@ -135,7 +134,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 	}
 
 	cache.InitCache(viper.GetString(RedisFlag))
-	db.InitMongoDB(viper.GetString(MongoFlag))
+	db.InitPostgreSQL(viper.GetString(PostgresFlag))
 
 	ImportSDE()
 
@@ -177,7 +176,7 @@ func ImportSDE() {
 	cache.ReadCachedObject(fmt.Sprintf("sde:%d", version), &sde)
 
 	if sde.Version == 0 {
-		db.ImportSDE(version, array[1])
+		db.ImportSDE(version, array[1], viper.GetString(PostgresFlag))
 		sde.Version = version
 		sde.Server = server
 
@@ -196,7 +195,7 @@ func ServerLoop() {
 
 	var productTypeIDs []int32
 	var err error
-	if productTypeIDs, err = cache.GetProductTypeIDs(); err != nil {
+	if productTypeIDs, err = db.GetProductTypeIDs(); err != nil {
 		return
 	}
 
@@ -205,18 +204,23 @@ func ServerLoop() {
 	}
 
 	typeIDs = append(typeIDs, productTypeIDs...)
-	typeIDs = append(typeIDs, db.GetMaterialTypeIDs("manufacturing")...)
-	typeIDs = append(typeIDs, db.GetMaterialTypeIDs("invention")...)
+	typeIDs = append(typeIDs, db.GetTech1BlueprintIDs()...)
+	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityManufacturing)...)
+	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityInvention)...)
 
 	cache.GetPrices(model.JitaRegionID, typeIDs)
 
 	for {
 		// this will cache all manufacturing objects, every hour
 		for _, typeID := range productTypeIDs {
-			m := manufacturing.Manufacturing{}
+			m := model.Manufacturing{}
 
 			if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
-				cache.WriteCachedObject(m)
+				//cache.WriteCachedObject(m)
+
+				db.UpdateProfit(m)
+			} else {
+				log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)
 			}
 		}
 

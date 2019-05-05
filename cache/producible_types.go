@@ -17,7 +17,6 @@ limitations under the License.
 package cache
 
 import (
-	"math"
 	"strconv"
 	"strings"
 
@@ -26,27 +25,15 @@ import (
 	"github.com/oxisto/titan/model"
 )
 
-type SearchOptions struct {
-	CategoryIDs           map[int]bool
-	SortByField           string
-	SortByDirection       string
-	NameFilter            string
-	MaxProductionCosts    float64
-	MetaGroupID           int
-	Offset                int
-	Limit                 int
-	HasRequiredSkillsOnly bool
-}
-
 type ProfitValue struct {
 	BasedOnBuyPrice  float64 `json:"basedOnBuyPrice" bson:"basedOnBuyPrice"`
 	BasedOnSellPrice float64 `json:"basedOnSellPrice" bson:"basedOnSellPrice"`
 }
 
 type ProductTypeResult struct {
-	TypeID     int                 `json:"typeID"`
-	Name       model.LocalizedName `json:"name"`
-	CategoryID int                 `json:"categoryID"`
+	TypeID     int    `json:"typeID" db:"typeID"`
+	TypeName   string `json:"name"`
+	CategoryID int    `json:"categoryID"`
 	Profit     struct {
 		PerDay ProfitValue `json:"perDay"`
 	} `json:"profit"`
@@ -56,18 +43,7 @@ type ProductTypeResult struct {
 	HasRequiredSkills bool `json:"hasRequiredSkills"`
 }
 
-func NewSearchOptions() *SearchOptions {
-	options := &SearchOptions{}
-	options.SortByField = "Profit.PerDay.BasedOnSellPrice"
-	options.SortByDirection = "DESC"
-	options.MaxProductionCosts = math.MaxInt32
-	options.Limit = 100
-	options.Offset = 0
-
-	return options
-}
-
-func GetProductTypes(options *SearchOptions, builder model.Character) ([]ProductTypeResult, error) {
+func GetProductTypes(options *db.SearchOptions, builder model.Character) ([]ProductTypeResult, error) {
 	s := redis.Sort{
 		By: "manufacturing:*->" + options.SortByField,
 		Get: []string{
@@ -96,7 +72,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 	for i := 0; i < numTypes; i++ {
 		t := ProductTypeResult{}
 		t.TypeID, err = strconv.Atoi(results[i*columns])
-		t.Name.EN = results[i*columns+1]
+		t.TypeName = results[i*columns+1]
 		t.CategoryID, err = strconv.Atoi(results[i*columns+2])
 		t.Profit.PerDay.BasedOnSellPrice, err = strconv.ParseFloat(results[i*columns+3], 64)
 		t.Profit.PerDay.BasedOnBuyPrice, err = strconv.ParseFloat(results[i*columns+4], 64)
@@ -107,7 +83,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 			continue
 		}
 
-		if options.NameFilter != "" && !strings.Contains(strings.ToLower(t.Name.EN), strings.ToLower(options.NameFilter)) {
+		if options.NameFilter != "" && !strings.Contains(strings.ToLower(t.TypeName), strings.ToLower(options.NameFilter)) {
 			continue
 		}
 
@@ -140,7 +116,7 @@ func GetProductTypes(options *SearchOptions, builder model.Character) ([]Product
 	return types[options.Offset:limit], nil
 }
 
-func GetProductTypeIDs() ([]int32, error) {
+/*func GetProductTypeIDs() ([]int32, error) {
 	exists, err := cache.Exists("productTypeIDs").Result()
 	if err != nil {
 		return nil, err
@@ -152,6 +128,8 @@ func GetProductTypeIDs() ([]int32, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		log.Debug("Done")
 
 		for _, t := range typeIDs {
 			cache.SAdd("productTypeIDs", t)
@@ -165,4 +143,4 @@ func GetProductTypeIDs() ([]int32, error) {
 
 		return typeIDs, err
 	}
-}
+}*/

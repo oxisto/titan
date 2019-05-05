@@ -1,8 +1,9 @@
 <div *ngIf="manufacturing">
-  <h2>{{ manufacturing.product.name.en }}</h2>
+  <h2>{{ manufacturing.product.typeName }}</h2>
   <div>
-    <img class="pr-2" src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png" style="float: left">
-    <p>The <app-type [type]="manufacturing.product"></app-type> is a <b>{{ manufacturing.product.group.name.en }}</b>
+    <img class="pr-2" src="https://image.eveonline.com/Type/{{ manufacturing.product.typeID }}_64.png"
+      style="float: left">
+    <p>The <app-type [type]="manufacturing.product"></app-type> is a <b>{{ manufacturing.product.groupName }}</b>
       manufactured from a <app-type [type]="manufacturing.blueprintType" blueprint="true"></app-type>.
       <span *ngIf="manufacturing.isTech2 && manufacturing.invention">It is a Tech II component and needs invention
         from a <app-type [type]="manufacturing.invention.blueprintType" blueprint="true"></app-type>.
@@ -27,7 +28,8 @@
               </tr>
               <tr *ngIf="manufacturing && manufacturing.invention">
                 <td>Average Invention Costs</td>
-                <td style="text-align: right">{{ manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK</td>
+                <td style="text-align: right">{{ manufacturing.invention.costsForManufacturing | number:'1.0-0' }} ISK
+                </td>
               </tr>
               <tr>
                 <td>Total Manufacturing Costs</td>
@@ -222,7 +224,8 @@
               </tr>
             </tbody>
           </table>
-          <button class="btn btn-secondary" (click)="copyMaterialsToClipboard(manufacturing.invention.materials)">Copy</button>
+          <button class="btn btn-secondary"
+            (click)="copyMaterialsToClipboard(manufacturing.invention.materials)">Copy</button>
         </div>
         <div class="col-5">
           <div>
@@ -284,8 +287,8 @@
         <div class="form-group row">
           <label for="blueprintME" class="col-sm-4 col-form-label">Blueprint ME</label>
           <div class="col-sm-8">
-            <select name="ME" id="blueprintME" class="form-control" [(ngModel)]="ME" (ngModelChange)="onOptionsChanged($event)"
-              [disabled]="manufacturing.isTech2">
+            <select name="ME" id="blueprintME" class="form-control" [(ngModel)]="ME"
+              (ngModelChange)="onOptionsChanged($event)" [disabled]="manufacturing.isTech2">
               <option *ngFor="let me of possibleME" [selected]="manufacturing.me == me">{{ me }}</option>
             </select>
           </div>
@@ -293,8 +296,8 @@
         <div class="form-group row">
           <label for="blueprintTE" class="col-sm-4 col-form-label">Blueprint TE</label>
           <div class="col-sm-8">
-            <select name="TE" id="blueprintTE" class="form-control" [(ngModel)]="TE" (ngModelChange)="onOptionsChanged($event)"
-              [disabled]="manufacturing.isTech2">
+            <select name="TE" id="blueprintTE" class="form-control" [(ngModel)]="TE"
+              (ngModelChange)="onOptionsChanged($event)" [disabled]="manufacturing.isTech2">
               <option *ngFor="let te of possibleTE">{{ te }}</option>
             </select>
           </div>

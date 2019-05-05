@@ -12,12 +12,14 @@
 
 <div>
   <label for="hasRequiredSkillsOnly">Required Skills only</label>
-  <input type="checkbox" id="hasRequiredSkillsOnly" [(ngModel)]="hasRequiredSkillsOnly" (ngModelChange)="onSortByChanged($event)" />
+  <input type="checkbox" id="hasRequiredSkillsOnly" [(ngModel)]="hasRequiredSkillsOnly"
+    (ngModelChange)="onSortByChanged($event)" />
 </div>
 
 <div>
   <label for="maxProductionCosts">Maximum Production Costs</label>
-  <input type="text" id="maxProductionCosts" [(ngModel)]="maxProductionCosts" (ngModelChange)="onSortByChanged($event)" />
+  <input type="text" id="maxProductionCosts" [(ngModel)]="maxProductionCosts"
+    (ngModelChange)="onSortByChanged($event)" />
   ISK
 </div>
 
@@ -27,8 +29,9 @@
 </p>
 <ng-container *ngIf="categories">
   <div *ngFor="let item of selectedCategories | keyvalue" style="float: left">
-    <input type="checkbox" id="categoryID:{{item.key}}" [(ngModel)]="this.selectedCategories[item.key]" (ngModelChange)="onSortByChanged($event)" />
-    <label class="pr-1" for="categoryID:{{item.key}}">{{ categories[item.key].name.en}}</label>
+    <input type="checkbox" id="categoryID:{{item.key}}" [(ngModel)]="this.selectedCategories[item.key]"
+      (ngModelChange)="onSortByChanged($event)" />
+    <label class="pr-1" for="categoryID:{{item.key}}">{{ categories[item.key].categoryName}}</label>
   </div>
 </ng-container>
 
@@ -37,14 +40,14 @@
 <ul class="list-group">
   <li class="list-group-item list-group-item-action flex-column align-items-start" *ngFor="let product of products">
     <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1"><a [routerLink]="['/manufacturing', product.typeID ]">{{ product.name.en }}</a></h5>
+      <h5 class="mb-1"><a [routerLink]="['/manufacturing', product.typeID ]">{{ product.typeName }}</a></h5>
       <img style="width: 32px; height: 32px" src="assets/skill_points_64.png" *ngIf="product.hasRequiredSkills">
     </div>
     <p class="mb-1">
       <img src="https://image.eveonline.com/Type/{{ product.typeID }}_64.png" />
-      {{ product.profit.perDay.basedOnBuyPrice | number:'1.0-0' }} ISK Profit per Day (based on buy price) /
-      {{ product.profit.perDay.basedOnSellPrice | number:'1.0-0' }} ISK Profit per Day (based on sell price)
+      {{ product.basedOnBuyPrice | number:'1.0-0' }} ISK Profit per Day (based on buy price) /
+      {{ product.basedOnSellPrice | number:'1.0-0' }} ISK Profit per Day (based on sell price)
     </p>
-    <small>{{ categories[product.categoryID].name.en }}</small>
+    <small>{{ categories[product.categoryID].categoryName }}</small>
   </li>
 </ul>

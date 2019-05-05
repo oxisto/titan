@@ -10,7 +10,7 @@ export class BlueprintsComponent implements OnInit {
 
   products: any[];
 
-  sortByOptions = ['Profit.PerDay.BasedOnSellPrice:DESC', 'Profit.PerDay.BasedOnBuyPrice:DESC'];
+  sortByOptions = ['basedOnSellPrice', 'basedOnBuyPrice'];
 
   sortBy: string;
 

@@ -17,59 +17,67 @@ limitations under the License.
 package model
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 )
 
 type Blueprint struct {
-	ObjectID   int32 `json:"typeID" bson:"_id"`
+	/*ObjectID   int32 `json:"typeID" db:"_id"`
 	Activities struct {
 		Copying          Activity `json:"activities"`
-		Invention        Activity `json:"activities"`
-		Manufacturing    Activity `json:"activities"`
-		ResearchMaterial Activity "research_material"
-		ResearchTime     Activity "research_time"
-	} `json:"activities"`
-	BlueprintTypeID    int32 `json:"blueprintTypeID" bson:"blueprintTypeID" yaml:"blueprintTypeID"`
-	MaxProductionLimit int   `json:"maxProductionLimit" bson:"maxProductionLimit" yaml:"maxProductionLimit"`
+		Invention        Activity `json:"invention"`
+		Manufacturing    Activity `json:"manufacturing"`
+		ResearchMaterial Activity `json:"researchMaterial"`
+		ResearchTime     Activity `json:"researchTime"`
+	} `json:"activities"`*/
+	TypeID             int32 `json:"typeID" db:"typeID" yaml:"blueprintTypeID"`
+	MaxProductionLimit int   `json:"maxProductionLimit" db:"maxProductionLimit" yaml:"maxProductionLimit"`
 }
 
 type Activity struct {
-	Time      int
+	Time      int             `json:"time"`
 	Materials []Material      "materials,omitempty"
 	Products  []Product       "products,omitempty"
 	Skills    []RequiredSkill "skills,omitempty"
 }
 
 type Material struct {
-	TypeID   int32 `json:"typeID" bson:"typeID" yaml:"typeID"`
+	TypeID   int32 `json:"typeID" db:"typeID" yaml:"typeID"`
 	Quantity int   `json:"quantity"`
 }
 
 type Product struct {
 	Probability float32
 	Quantity    int
-	TypeID      int32 `json:"typeID" bson:"typeID" yaml:"typeID"`
+	TypeID      int32 `json:"typeID" db:"typeID" yaml:"typeID"`
 }
 
 type RequiredSkill struct {
-	TypeID int32 `json:"typeID" bson:"typeID" yaml:"typeID"`
+	TypeID int32 `json:"typeID" db:"typeID" yaml:"typeID"`
 	Level  int
 }
 
 type Type struct {
-	TypeID        int32         `json:"typeID" bson:"_id"`
-	BasePrice     int           `json:"basePrice" bson:"basePrice" yaml:"basePrice"`
-	Description   LocalizedName `json:"description,omitempty" bson:"description,omitempty"`
-	GroupID       int32         `json:"groupID" bson:"groupID" yaml:"groupID"`
-	MarketGroupID int32         `json:"marketGroupID" bson:"marketGroupID" yaml:"marketGroupID"`
-	Group         Group         `json:"group" bson:"group,omitempty"` // not part of SDE, but joined from mongo
-	Name          LocalizedName `json:"name"`
-	MetaGroupID   int32         `json:"metaGroupID" bson:"metaGroupID" yaml:"metaGroupID"`
-	PortionSize   int           `json:"portionSize" bson:"portionSize" yaml:"portionSize"`
-	Published     bool          `json:"published"`
-	RaceID        int32         `json:"raceID" bson:"raceID" yaml:"raceID"`
-	Volume        float32       `json:"volume"`
+	TypeID        int32    `json:"typeID" db:"typeID"`
+	BasePrice     *float32 `json:"basePrice" db:"basePrice" yaml:"basePrice"`
+	Description   string   `json:"description,omitempty" db:"description,omitempty"`
+	GroupID       int32    `json:"groupID" db:"groupID" yaml:"groupID"`
+	MarketGroupID *int32   `json:"marketGroupID" db:"marketGroupID" yaml:"marketGroupID"`
+	Group                  // not part of SDE, but joined from postgres
+	TypeName      string   `json:"typeName" db:"typeName"`
+	Mass          float64  `db:"mass"`
+	Capacity      float64
+	IconID        *int32  `json:"iconID" db:"iconID"`
+	SoundID       *int32  `json:"soundID" db:"soundID"`
+	GraphicID     int32   `json:"graphicID" db:"graphicID"`
+	MetaGroupID   int32   `json:"metaGroupID" db:"metaGroupID" yaml:"metaGroupID"`
+	PortionSize   int     `json:"portionSize" db:"portionSize" yaml:"portionSize"`
+	Published     bool    `json:"published"`
+	RaceID        *int32  `json:"raceID" db:"raceID" yaml:"raceID"`
+	Volume        float64 `json:"volume"`
 }
 
 func (t Type) ID() int32 {
@@ -89,25 +97,48 @@ func (t Type) HashKey() string {
 }
 
 type Group struct {
-	GroupID    int32         `json:"groupID" bson:"_id"`
-	CategoryID int32         `json:"categoryID" bson:"categoryID" yaml:"categoryID"`
-	Name       LocalizedName `json:"name"`
-	Published  bool          `json:"published"`
+	GroupID    int32  `json:"groupID" db:"groupID"`
+	CategoryID int32  `json:"categoryID" db:"categoryID" yaml:"categoryID"`
+	GroupName  string `json:"groupName" db:"groupName"`
+	Published  bool   `json:"published"`
 }
 
 type Category struct {
-	CategoryID int32         `json:"categoryID" bson:"_id"`
-	Name       LocalizedName `json:"name"`
-	Published  bool          `json:"published"`
+	CategoryID   int32  `json:"categoryID" db:"categoryID"`
+	CategoryName string `json:"categoryName" db:"categoryName"`
+	Published    bool   `json:"published"`
+	IconID       *int32 `json:"iconID" db:"iconID"`
 }
 
 type LocalizedName struct {
-	DE string `json:"de" bson:"de"`
-	EN string `json:"en" bson:"en"`
-	FR string `json:"fr" bson:"fr"`
-	JA string `json:"ja" bson:"ja"`
-	RU string `json:"ru" bson:"ru"`
-	ZH string `json:"zh" bson:"zh"`
+	DE string `json:"de" db:"de"`
+	EN string `json:"en" db:"en"`
+	FR string `json:"fr" db:"fr"`
+	JA string `json:"ja" db:"ja"`
+	RU string `json:"ru" db:"ru"`
+	ZH string `json:"zh" db:"zh"`
+}
+
+func (p LocalizedName) Value() (driver.Value, error) {
+	j, err := json.Marshal(p)
+	return j, err
+}
+
+func (p *LocalizedName) Scan(src interface{}) error {
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("Type assertion .([]byte) failed.")
+	}
+
+	var name LocalizedName
+	err := json.Unmarshal(source, &name)
+	if err != nil {
+		return err
+	}
+
+	*p = name
+
+	return nil
 }
 
 type MetaGroup struct {

@@ -23,6 +23,7 @@ import (
 
 	"github.com/nlopes/slack"
 	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
@@ -142,7 +143,7 @@ func profitCommand(something Something) {
 	cache.GetCharacter(builderID, &builder)
 
 	// try to find it using the get product types
-	options := cache.NewSearchOptions()
+	options := db.NewSearchOptions()
 	options.NameFilter = typeName
 	options.Limit = 1
 	types, err := cache.GetProductTypes(options, builder)
@@ -159,7 +160,7 @@ func profitCommand(something Something) {
 	// pick the first type
 	typeID := types[0].TypeID
 
-	m := manufacturing.Manufacturing{}
+	m := model.Manufacturing{}
 	manufacturing.NewManufacturing(&builder, int32(typeID), 10, 20, &m)
 
 	p := message.NewPrinter(language.English)
@@ -167,9 +168,9 @@ func profitCommand(something Something) {
 	fields := []slack.AttachmentField{
 		{
 			Value: fmt.Sprintf("The %s is a %s manufactured from a %s.",
-				m.Product.Name.EN,
-				m.Product.Group.Name.EN,
-				m.BlueprintType.Name.EN),
+				m.Product.TypeName,
+				m.Product.GroupName,
+				m.BlueprintType.TypeName),
 		},
 		{
 			Title: "Needs invention",
@@ -195,7 +196,7 @@ func profitCommand(something Something) {
 
 	attachment := slack.Attachment{
 		Color:     "#B733FF",
-		Title:     fmt.Sprintf("%s", m.Product.Name.EN),
+		Title:     fmt.Sprintf("%s", m.Product.TypeName),
 		TitleLink: fmt.Sprintf("https://eve.aybaze.com/#/manufacturing/%d", m.Product.TypeID),
 		Fields:    fields,
 		//Actions:    actions,

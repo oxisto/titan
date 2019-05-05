@@ -37,5 +37,6 @@ WORKDIR /usr/titan
 COPY --from=build-frontend /tmp/dist ./frontend/dist
 COPY --from=build-server /build/server .
 COPY --from=build-server /build/sde.version .
-COPY --from=build-server /build/sde/ sde
-CMD ["./server"]
+COPY --from=build-server /build/sde-* .
+COPY restore.sh .
+CMD ["./docker-entrypoint.sh"]

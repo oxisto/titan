@@ -13,8 +13,7 @@ server
 *.out
 
 # The SDE
-sde
-sde.zip
+sde*
 
 # Config files
 config

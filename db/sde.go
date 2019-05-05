@@ -18,11 +18,11 @@ package db
 
 import (
 	"fmt"
+	"os/exec"
 	"time"
 
 	"io/ioutil"
 
-	"github.com/oxisto/titan/model"
 	"gopkg.in/yaml.v2"
 )
 
@@ -47,10 +47,10 @@ func (t StaticDataExport) HashKey() string {
 	return fmt.Sprintf("sde:%d", t.ID())
 }
 
-func ImportSDE(version int32, server string) {
+func ImportSDE(version int32, server string, postgresHost string) {
 	log.Infof("Importing SDE %d...", version)
 
-	files := map[string]string{
+	/*files := map[string]string{
 		"sde/fsd/blueprints.yaml":  "blueprints",
 		"sde/fsd/typeIDs.yaml":     "types",
 		"sde/fsd/groupIDs.yaml":    "groups",
@@ -68,10 +68,12 @@ func ImportSDE(version int32, server string) {
 		if err := ImportSDEFile(k, v, objects[v]); err != nil {
 			log.Errorf("An error occured while importing blueprints: %v", err)
 		}
-	}
+	}*/
+	cmd := exec.Command("./restore.sh", postgresHost)
+	cmd.Wait()
 }
 
-func ImportSDEFile(fileName string, objectType string, in interface{}) error {
+/*func ImportSDEFile(fileName string, objectType string, in interface{}) error {
 	log.Infof("Reading %s ...", objectType)
 
 	err := UnmarshalYAMLFromFile(fileName, in)
@@ -106,8 +108,8 @@ func ImportSDEFile(fileName string, objectType string, in interface{}) error {
 
 	switch v := in.(type) {
 	case map[int32]model.Blueprint:
-		for objectID, blueprint := range v {
-			blueprint.ObjectID = objectID
+		for _, blueprint := range v {
+			//blueprint.ObjectID = objectID
 
 			if err = collection.Insert(blueprint); err != nil {
 				return err
@@ -150,7 +152,7 @@ func ImportSDEFile(fileName string, objectType string, in interface{}) error {
 	log.Infof("Successfully inserted %d %s.", i, objectType)
 
 	return err
-}
+}*/
 
 func UnmarshalYAMLFromFile(fileName string, out interface{}) (err error) {
 	data, err := ioutil.ReadFile(fileName)

@@ -26,42 +26,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Invention struct {
-	BlueprintType               model.Type                       `json:"blueprintType" bson:"blueprintType"`
-	CostsPerInvention           int                              `json:"costsPerInvention" bson:"costsPerInvention"`
-	DecryptorTypeID             int32                            `json:"decryptorTypeID" bson:"decryptorTypeID"`
-	Materials                   map[string]ManufacturingMaterial `json:"materials"`
-	RequiredSkills              map[string]ManufacturingSkill    `json:"requiredSkills" bson:"requiredSkills"`
-	SuccessProbabilityModifiers map[string]float64               `json:"successProbabilityModifiers" bson:"successProbabilityModifiers"`
-	CostsPerRun                 float64                          `json:"costsPerRun" bson:"costsPerRun"`
-	InventionChance             float64                          `json:"inventionChance" bson:"inventionChance"`
-	TriesForManufacturing       float64                          `json:"triesForManufacturing" bson:"triesForManufacturing"`
-	CostsForManufacturing       float64                          `json:"costsForManufacturing" bson:"costsForManufacturing"`
-}
-
 var log *logrus.Entry
 
 func init() {
 	log = logrus.WithField("component", "manufacturing")
 }
 
-func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (invention *Invention, err error) {
-	blueprint := db.GetBlueprint(tech2Blueprint.BlueprintTypeID, "activities.invention.products.typeID")
+func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (invention *model.Invention, err error) {
+	blueprint := db.GetBlueprint(tech2Blueprint.TypeID, ActivityInvention).Blueprint
 
-	invention = &Invention{}
+	invention = &model.Invention{}
 
-	if blueprint.ObjectID == 0 {
-		log.Warnf("Why?? TypeID %d", blueprint.ObjectID)
-		return
-	}
+	invention.BlueprintType = db.GetType(blueprint.TypeID)
 
-	invention.BlueprintType = db.GetType(blueprint.BlueprintTypeID)
+	materials, err := db.GetActivityMaterials(ActivityInvention, blueprint, 1, 1)
 
-	materials := []ManufacturingMaterial{}
-	db.GetActivityMaterials("invention", blueprint, 1, 1, &materials)
-
-	skills := []ManufacturingSkill{}
-	db.GetActivitySkills("invention", blueprint, &skills)
+	var skills []db.IndustryActivitySkillResult
+	skills, err = db.GetActivitySkills(ActivityInvention, blueprint)
 
 	typeIDs := []int32{}
 	for _, material := range materials {
@@ -76,38 +57,39 @@ func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (in
 	}
 
 	skillMods := []float64{}
-	invention.RequiredSkills = map[string]ManufacturingSkill{}
+	invention.RequiredSkills = map[string]model.ManufacturingSkill{}
 	for _, skill := range skills {
 		skill.SkillLevel = 5
-		
+
 		if inventor != nil {
 			skill.SkillLevel = inventor.SkillLevel(skill.TypeID)
 		}
-		
+
 		skill.HasLearned = skill.SkillLevel >= skill.RequiredLevel
 
-		if strings.Contains(skill.Name.EN, "Encryption") {
+		if strings.Contains(skill.TypeName, "Encryption") {
 			skillMods = append(skillMods, float64(skill.SkillLevel)*0.0250)
 		} else {
 			skillMods = append(skillMods, float64(skill.SkillLevel)*0.0333)
 		}
 
-		invention.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill
+		invention.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill.ManufacturingSkill
 	}
 
 	invention.CostsPerRun = 0
-	invention.Materials = map[string]ManufacturingMaterial{}
+	invention.Materials = map[string]model.ManufacturingMaterial{}
 	for _, material := range materials {
 		material.PricePerUnit = prices[material.TypeID].Sell.Percentile
 		material.Cost = float64(material.Quantity) * material.PricePerUnit
 
-		invention.Materials[strconv.Itoa(int(material.TypeID))] = material
+		invention.Materials[strconv.Itoa(int(material.TypeID))] = material.ManufacturingMaterial
 		invention.CostsPerRun += material.Cost
 	}
 
 	// we just the the first product. the probability should be the same for all anyway
 	invention.SuccessProbabilityModifiers = map[string]float64{}
-	invention.SuccessProbabilityModifiers["Blueprint Base Probability"] = float64(blueprint.Activities.Invention.Products[0].Probability)
+	// TODO: we need a new call for this
+	//invention.SuccessProbabilityModifiers["Blueprint Base Probability"] = float64(blueprint.Activities.Invention.Products[0].Probability)
 
 	invention.SuccessProbabilityModifiers["Skills"] = 0
 	for _, skillMod := range skillMods {

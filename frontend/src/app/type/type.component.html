@@ -1,9 +1,11 @@
 <ng-container *ngIf="type && !blueprint && !skill; else s">
-    <img class="pr-1" src="https://image.eveonline.com/Type/{{ type.typeID }}_32.png" /><a [routerLink]="['/manufacturing', type.typeID]">{{
-        type.name.en }}</a><a href="javascript:void(0)" (click)="openMarketView(type.typeID)"><img style="width: 32px"
+    <img class="pr-1" src="https://image.eveonline.com/Type/{{ type.typeID }}_32.png" /><a
+        [routerLink]="['/manufacturing', type.typeID]">{{
+        type.typeName }}</a><a href="javascript:void(0)" (click)="openMarketView(type.typeID)"><img style="width: 32px"
             src="assets/market.png"></a>
 </ng-container>
 <ng-template #s>
-    <img class="pr-1" src="https://image.eveonline.com/Type/{{ type.typeID }}_32.png" />{{ type.name.en }}<a href="javascript:void(0)"
-        (click)="openMarketView(type.typeID)"><img style="width: 32px" src="assets/market.png" *ngIf="type.marketGroupID != 0"></a>
+    <img class="pr-1" src="https://image.eveonline.com/Type/{{ type.typeID }}_32.png" />{{ type.typeName }}<a
+        href="javascript:void(0)" (click)="openMarketView(type.typeID)"><img style="width: 32px" src="assets/market.png"
+            *ngIf="type.marketGroupID != 0"></a>
 </ng-template>

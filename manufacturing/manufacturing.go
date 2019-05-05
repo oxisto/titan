@@ -18,10 +18,6 @@ package manufacturing
 
 import (
 	"math"
-
-	"fmt"
-	"time"
-
 	"strconv"
 
 	"errors"
@@ -36,6 +32,11 @@ const (
 	SkillIdAdvancedIndustry = 3388
 )
 
+const (
+	ActivityManufacturing = 1
+	ActivityInvention     = 8
+)
+
 var FacilityJobDurationBonuses = map[string]float64{
 	"POS":                 -0.25,
 	"Station":             0,
@@ -48,82 +49,6 @@ var FacilityMaterialBonuses = map[string]float64{
 	"Engineering Complex": -0.01,
 }
 
-type ManufacturingMaterial struct {
-	TypeID       int32               `json:"typeID" bson:"typeID"`
-	Quantity     int                 `json:"quantity"`
-	Name         model.LocalizedName `json:"name" bson:"name,omitempty"`
-	PricePerUnit float64             `json:"pricePerUnit" bson:"pricePerUnit"`
-	Cost         float64             `json:"cost"`
-}
-
-type ManufacturingSkill struct {
-	TypeID        int32               `json:"typeID" bson:"typeID"`
-	Name          model.LocalizedName `json:"name" bson:"name"`
-	RequiredLevel int                 `json:"requiredLevel" bson:"requiredLevel"`
-	SkillLevel    int                 `json:"skillLevel" bson:"skillLevel"`
-	HasLearned    bool                `json:"hasLearned" bson:"hasLearned"`
-}
-
-type Manufacturing struct {
-	BlueprintType                model.Type                       `json:"blueprintType" bson:"blueprintType"`
-	Product                      model.Type                       `json:"product"`
-	IsTech2                      bool                             `json:"isTech2" bson:"isTech2"`
-	Runs                         int                              `json:"runs"`
-	MaxSlots                     int                              `json:"maxSlots" bson:"maxSlots"`
-	SlotsUsed                    int                              `json:"slotsUsed" bson:"slotsUsed"`
-	JobDurationModifiers         map[string]float64               `json:"jobDurationModifiers" bson:"jobDurationModifiers"`
-	MaterialConsumptionModifiers map[string]float64               `json:"materialConsumptionModifiers" bson:"materialConsumptionModifiers"`
-	ME                           int                              `json:"me"`
-	TE                           int                              `json:"te"`
-	TimeModifier                 float64                          `json:"timeModifier" bson:"timeModifier"`
-	MaterialModifier             float64                          `json:"materialModifier" bson:"materialModifier"`
-	Materials                    map[string]ManufacturingMaterial `json:"materials"`
-	RequiredSkills               map[string]ManufacturingSkill    `json:"requiredSkills" bson:"requiredSkills"`
-	HasRequiredSkills            bool                             `json:"hasRequiredSkills" bson:"hasRequiredSkills"`
-	Facility                     string                           `json:"facility"`
-	Costs                        struct {
-		TotalMaterials float64 `json:"totalMaterials" bson:"totalMaterials"`
-		Total          float64 `json:"total"`
-		PerItem        float64 `json:"perItem" bson:"perItem"`
-	} `json:"costs"`
-	Revenue struct {
-		Total   ProfitValue `json:"total"`
-		PerItem ProfitValue `json:"perItem" bson:"perItem"`
-	} `json:"revenue"`
-	Profit struct {
-		Total   ProfitValue `json:"total"`
-		PerItem ProfitValue `json:"perItem" bson:"perItem"`
-		PerDay  ProfitValue `json:"perDay" bson:"perDay"`
-		Margin  ProfitValue `json:"margin"`
-	} `json:"profit"`
-	BuyOrderVolume int        `json:"buyOrderVolume" bson:"buyOrderVolume"`
-	DailyBuyFactor float64    `json:"dailyBuyFactor" bson:"dailyBuyFactor"`
-	Time           int        `json:"time"`
-	ItemsPerDay    float64    `json:"itemsPerDay" bson:"itemsPerDay"`
-	Invention      *Invention `json:"invention"`
-}
-
-func (m Manufacturing) ID() int32 {
-	return m.Product.TypeID
-}
-
-func (m Manufacturing) ExpiresOn() *time.Time {
-	return nil
-}
-
-func (m Manufacturing) SetExpire(t *time.Time) {
-
-}
-
-func (m Manufacturing) HashKey() string {
-	return fmt.Sprintf("manufacturing:%d", m.ID())
-}
-
-type ProfitValue struct {
-	BasedOnBuyPrice  float64 `json:"basedOnBuyPrice" bson:"basedOnBuyPrice"`
-	BasedOnSellPrice float64 `json:"basedOnSellPrice" bson:"basedOnSellPrice"`
-}
-
 func CalculateModifier(modifiers map[string]float64) float64 {
 	f := 1.0
 
@@ -134,27 +59,27 @@ func CalculateModifier(modifiers map[string]float64) float64 {
 	return f
 }
 
-func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE int, object model.CachedObject) (err error) {
-	manufacturing, ok := object.(*Manufacturing)
+func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE int, object model.CachedObject) (err error) {
+	manufacturing, ok := object.(*model.Manufacturing)
 	if !ok {
 		return errors.New("passing invalid type to NewManufacturing function")
 	}
 
-	manufacturing.Product = db.GetType(productTypeId)
-	blueprint := db.GetBlueprint(productTypeId, "activities.manufacturing.products.typeID")
+	manufacturing.Product = db.GetType(productTypeID)
+	blueprint := db.GetBlueprint(productTypeID, ActivityManufacturing).Blueprint
 
-	if blueprint.BlueprintTypeID == 0 {
+	if blueprint.TypeID == 0 {
 		return errors.New("Item cannot be manufactured")
 	}
 
-	manufacturing.BlueprintType = db.GetType(blueprint.BlueprintTypeID)
+	manufacturing.BlueprintType = db.GetType(blueprint.TypeID)
 
 	industrySkillLevel := 5
 	advancedIndustrySkillLevel := 5
 
 	if builder != nil {
-	industrySkillLevel = builder.SkillLevel(SkillIdIndustry)
-	advancedIndustrySkillLevel = builder.SkillLevel(SkillIdAdvancedIndustry)
+		industrySkillLevel = builder.SkillLevel(SkillIdIndustry)
+		advancedIndustrySkillLevel = builder.SkillLevel(SkillIdAdvancedIndustry)
 	}
 
 	if manufacturing.Product.MetaGroupID == 2 {
@@ -169,7 +94,7 @@ func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE 
 		manufacturing.TE = 4
 	} else {
 		// to avoid NPE
-		manufacturing.Invention = &Invention{}
+		manufacturing.Invention = &model.Invention{}
 		manufacturing.IsTech2 = false
 		manufacturing.Runs = 1
 		manufacturing.ME = ME
@@ -191,13 +116,13 @@ func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE 
 	manufacturing.TimeModifier = CalculateModifier(manufacturing.JobDurationModifiers)
 	manufacturing.MaterialModifier = CalculateModifier(manufacturing.MaterialConsumptionModifiers)
 
-	materials := []ManufacturingMaterial{}
-	if err = db.GetActivityMaterials("manufacturing", blueprint, manufacturing.Runs, manufacturing.MaterialModifier, &materials); err != nil {
+	var materials []db.IndustryActivityMaterialResult
+	if materials, err = db.GetActivityMaterials(ActivityManufacturing, blueprint, manufacturing.Runs, manufacturing.MaterialModifier); err != nil {
 		return err
 	}
 
-	skills := []ManufacturingSkill{}
-	if err = db.GetActivitySkills("manufacturing", blueprint, &skills); err != nil {
+	var skills []db.IndustryActivitySkillResult
+	if skills, err = db.GetActivitySkills(ActivityManufacturing, blueprint); err != nil {
 		return err
 	}
 
@@ -215,16 +140,16 @@ func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE 
 		return err
 	}
 
-	manufacturing.Materials = map[string]ManufacturingMaterial{}
+	manufacturing.Materials = map[string]model.ManufacturingMaterial{}
 	for _, material := range materials {
 		material.PricePerUnit = prices[material.TypeID].Sell.Percentile
 		material.Cost = float64(material.Quantity) * material.PricePerUnit
 
-		manufacturing.Materials[strconv.Itoa(int(material.TypeID))] = material
+		manufacturing.Materials[strconv.Itoa(int(material.TypeID))] = material.ManufacturingMaterial
 		manufacturing.Costs.TotalMaterials += material.Cost
 	}
 
-	manufacturing.RequiredSkills = map[string]ManufacturingSkill{}
+	manufacturing.RequiredSkills = map[string]model.ManufacturingSkill{}
 	manufacturing.HasRequiredSkills = true
 	for _, skill := range skills {
 		skill.SkillLevel = 5
@@ -237,7 +162,7 @@ func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE 
 			manufacturing.HasRequiredSkills = false
 		}
 
-		manufacturing.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill
+		manufacturing.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill.ManufacturingSkill
 	}
 
 	manufacturing.Costs.Total = manufacturing.Costs.TotalMaterials // TODO: sales tax, factory tax, etc.
@@ -247,42 +172,43 @@ func NewManufacturing(builder *model.Character, productTypeId int32, ME int, TE 
 		manufacturing.Costs.Total += manufacturing.Invention.CostsForManufacturing
 	}
 
-	manufacturing.Time = int(math.Ceil(float64(blueprint.Activities.Manufacturing.Time*manufacturing.Runs) * manufacturing.TimeModifier))
+	activity := db.GetIndustryActivity(blueprint.TypeID, ActivityManufacturing)
+	manufacturing.Time = int(math.Ceil(float64(activity.Time*manufacturing.Runs) * manufacturing.TimeModifier))
 	manufacturing.SlotsUsed = manufacturing.MaxSlots
 	manufacturing.ItemsPerDay = 3600.0 / float64(manufacturing.Time/manufacturing.Runs) * 24.0 * float64(manufacturing.Product.PortionSize) * float64(manufacturing.SlotsUsed)
 
 	// revenue
-	manufacturing.Revenue.Total = ProfitValue{
-		BasedOnBuyPrice:  prices[productTypeId].Buy.Percentile * float64(manufacturing.Product.PortionSize*manufacturing.Runs),
-		BasedOnSellPrice: prices[productTypeId].Sell.Percentile * float64(manufacturing.Product.PortionSize*manufacturing.Runs),
+	manufacturing.Revenue.Total = model.ProfitValue{
+		BasedOnBuyPrice:  prices[productTypeID].Buy.Percentile * float64(manufacturing.Product.PortionSize*manufacturing.Runs),
+		BasedOnSellPrice: prices[productTypeID].Sell.Percentile * float64(manufacturing.Product.PortionSize*manufacturing.Runs),
 	}
-	manufacturing.Revenue.PerItem = ProfitValue{
-		BasedOnBuyPrice:  prices[productTypeId].Buy.Percentile,
-		BasedOnSellPrice: prices[productTypeId].Sell.Percentile,
+	manufacturing.Revenue.PerItem = model.ProfitValue{
+		BasedOnBuyPrice:  prices[productTypeID].Buy.Percentile,
+		BasedOnSellPrice: prices[productTypeID].Sell.Percentile,
 	}
 
 	// profit
-	manufacturing.Profit.Total = ProfitValue{
+	manufacturing.Profit.Total = model.ProfitValue{
 		BasedOnBuyPrice:  manufacturing.Revenue.Total.BasedOnBuyPrice - manufacturing.Costs.Total,
 		BasedOnSellPrice: manufacturing.Revenue.Total.BasedOnSellPrice - manufacturing.Costs.Total,
 	}
-	manufacturing.Profit.PerItem = ProfitValue{
+	manufacturing.Profit.PerItem = model.ProfitValue{
 		BasedOnBuyPrice:  manufacturing.Profit.Total.BasedOnBuyPrice / float64(manufacturing.Product.PortionSize) / float64(manufacturing.Runs),
 		BasedOnSellPrice: manufacturing.Profit.Total.BasedOnSellPrice / float64(manufacturing.Product.PortionSize) / float64(manufacturing.Runs),
 	}
-	manufacturing.Profit.PerDay = ProfitValue{
+	manufacturing.Profit.PerDay = model.ProfitValue{
 		BasedOnBuyPrice:  manufacturing.Profit.PerItem.BasedOnBuyPrice * manufacturing.ItemsPerDay,
 		BasedOnSellPrice: manufacturing.Profit.PerItem.BasedOnSellPrice * manufacturing.ItemsPerDay,
 	}
 
 	// margin
-	manufacturing.Profit.Margin = ProfitValue{
-		BasedOnBuyPrice:  prices[productTypeId].Buy.Percentile/manufacturing.Costs.PerItem - 1,
-		BasedOnSellPrice: prices[productTypeId].Sell.Percentile/manufacturing.Costs.PerItem - 1,
+	manufacturing.Profit.Margin = model.ProfitValue{
+		BasedOnBuyPrice:  prices[productTypeID].Buy.Percentile/manufacturing.Costs.PerItem - 1,
+		BasedOnSellPrice: prices[productTypeID].Sell.Percentile/manufacturing.Costs.PerItem - 1,
 	}
 
 	// other stats
-	manufacturing.BuyOrderVolume = prices[productTypeId].Buy.Volume
+	manufacturing.BuyOrderVolume = prices[productTypeID].Buy.Volume
 	manufacturing.DailyBuyFactor = float64(manufacturing.BuyOrderVolume) / manufacturing.ItemsPerDay
 
 	return nil
