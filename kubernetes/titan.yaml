@@ -19,10 +19,10 @@ spec:
       - image: oxisto/titan
         imagePullPolicy: Always
         name: titan
-        volumeMounts:
         env:
         - name: TITAN_POSTGRES
           value: postgres
+        volumeMounts:
         - name: config
           mountPath: /usr/titan/config
           readOnly: true
