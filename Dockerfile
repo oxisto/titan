@@ -32,7 +32,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a cmd/server/server.go
 
 FROM alpine
 # update CA certificates
-RUN apk update && apk add ca-certificates
+RUN apk update && apk add ca-certificates postgres-client
 WORKDIR /usr/titan
 COPY --from=build-frontend /tmp/dist ./frontend/dist
 COPY --from=build-server /build/server .
