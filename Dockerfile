@@ -14,7 +14,7 @@ FROM golang AS build-server
 
 WORKDIR /build
 
-RUN apt update && apt -y install unzip
+RUN apt update && apt -y install bzip2
 
 # copy SDE version and download EVE SDE
 COPY sde.* ./
