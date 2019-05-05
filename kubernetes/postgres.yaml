@@ -12,7 +12,10 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: mongo
+        image: postgres
+        env:
+        - name: POSTGRES_DB
+          value: titan
         ports:
         - containerPort: 5432
 ---
