@@ -172,7 +172,11 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE 
 		manufacturing.Costs.Total += manufacturing.Invention.CostsForManufacturing
 	}
 
-	activity := db.GetIndustryActivity(blueprint.TypeID, ActivityManufacturing)
+	var activity db.IndustryActivityResult
+	if activity, err = db.GetIndustryActivity(blueprint.TypeID, ActivityManufacturing); err != nil {
+		return err
+	}
+
 	manufacturing.Time = int(math.Ceil(float64(activity.Time*manufacturing.Runs) * manufacturing.TimeModifier))
 	manufacturing.SlotsUsed = manufacturing.MaxSlots
 	manufacturing.ItemsPerDay = 3600.0 / float64(manufacturing.Time/manufacturing.Runs) * 24.0 * float64(manufacturing.Product.PortionSize) * float64(manufacturing.SlotsUsed)

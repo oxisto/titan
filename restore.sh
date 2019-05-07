@@ -7,8 +7,10 @@ psql -U $USER -h $HOST titan -c 'DROP SCHEMA evesde CASCADE; CREATE SCHEMA evesd
 pg_restore -U $USER -h $HOST \
 -t invTypes \
 -t invGroups \
+-t invCategories \
 -t invMetaTypes \
 -t industryBlueprints \
+-t industryActivity \
 -t industryActivityProducts \
 -t industryActivitySkills \
 -t industryActivityMaterials \

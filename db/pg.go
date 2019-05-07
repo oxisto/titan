@@ -126,12 +126,12 @@ WHERE
 	return typeIDs
 }
 
-func GetIndustryActivity(typeID int32, activityID int32) IndustryActivityResult {
+func GetIndustryActivity(typeID int32, activityID int32) (IndustryActivityResult, error) {
 	activity := IndustryActivityResult{}
 
 	// TODO: directly join materials?
 
-	pdb.Get(&activity, `SELECT
+	err := pdb.Get(&activity, `SELECT
     "industryActivity".*
 FROM
     evesde. "industryActivity"
@@ -140,7 +140,7 @@ WHERE
     AND "activityID" = $2
 `, typeID, activityID)
 
-	return activity
+	return activity, err
 }
 
 func GetCategories() ([]model.Category, error) {
