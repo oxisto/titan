@@ -213,10 +213,10 @@ WHERE
 	return blueprint
 }
 
-func GetType(typeID int32) model.Type {
+func GetType(typeID int32) (model.Type, error) {
 	t := model.Type{}
 
-	pdb.Get(&t, `SELECT
+	err := pdb.Get(&t, `SELECT
     "invTypes".*,
     "invGroups"."categoryID",
     "invGroups"."groupName"
@@ -227,7 +227,7 @@ WHERE
     "typeID" = $1
 `, typeID)
 
-	return t
+	return t, err
 }
 
 func GetProductTypeIDs() ([]int32, error) {
@@ -243,7 +243,7 @@ WHERE
     "activityID" = 1
     AND published = TRUE
     AND ("metaGroupID" IS NULL
-        OR "metaGroupID" IN (1, 2, 14))
+        OR "metaGroupID" IN (1, 2))
 `)
 
 	return types, err
@@ -290,7 +290,7 @@ WHERE
     "activityID" = 1
     AND "invTypes".published = TRUE
     AND ("metaGroupID" IS NULL
-        OR "metaGroupID" IN (1, 2, 14))
+        OR "metaGroupID" IN (1, 2))
     AND "typeName" ILIKE $2
 ORDER BY
     "`+options.SortByField+`" DESC NULLS LAST, "typeName"

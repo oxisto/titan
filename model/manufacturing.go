@@ -31,6 +31,7 @@ type IndustryActivity struct {
 type Manufacturing struct {
 	BlueprintType                Type                             `json:"blueprintType" bson:"blueprintType"`
 	Product                      Type                             `json:"product"`
+	ProductTypeID                int32                            `json:"productTypeID"`
 	IsTech2                      bool                             `json:"isTech2" bson:"isTech2"`
 	Runs                         int                              `json:"runs"`
 	MaxSlots                     int                              `json:"maxSlots" bson:"maxSlots"`

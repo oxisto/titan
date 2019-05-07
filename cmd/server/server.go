@@ -210,21 +210,25 @@ func ServerLoop() {
 
 	cache.GetPrices(model.JitaRegionID, typeIDs)
 
+	log.Printf("Trying to calculate profit for %d types...", len(productTypeIDs))
+
 	for {
 		// this will cache all manufacturing objects, every hour
 		for _, typeID := range productTypeIDs {
-			m := model.Manufacturing{}
-
-			if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
-				//cache.WriteCachedObject(m)
-
-				db.UpdateProfit(m)
-			} else {
-				log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)
-			}
+			/*go*/ UpdateProduct(typeID)
 		}
 
 		time.Sleep(time.Duration(1) * time.Hour)
+	}
+}
+
+func UpdateProduct(typeID int32) {
+	m := model.Manufacturing{}
+
+	if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
+		db.UpdateProfit(m)
+	} else {
+		log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)
 	}
 }
 

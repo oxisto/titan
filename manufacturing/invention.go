@@ -37,7 +37,9 @@ func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (in
 
 	invention = &model.Invention{}
 
-	invention.BlueprintType = db.GetType(blueprint.TypeID)
+	if invention.BlueprintType, err = db.GetType(blueprint.TypeID); err != nil {
+		return nil, err
+	}
 
 	materials, err := db.GetActivityMaterials(ActivityInvention, blueprint, 1, 1)
 

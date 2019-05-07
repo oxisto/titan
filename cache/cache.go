@@ -277,7 +277,6 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 	for _, v := range response {
 		job := model.IndustryJob{
 			ActivityID:       v.ActivityId,
-			Blueprint:        db.GetType(v.BlueprintTypeId),
 			LicensedRuns:     int(v.LicensedRuns),
 			SuccesfulRuns:    int(v.SuccessfulRuns),
 			Probability:      v.Probability,
@@ -288,6 +287,7 @@ func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object mo
 			PauseDate:        v.PauseDate.Unix(),
 			Status:           v.Status,
 		}
+		job.Blueprint, _ = db.GetType(v.BlueprintTypeId)
 
 		jobs.Jobs[strconv.Itoa(int(v.JobId))] = job
 	}
@@ -450,9 +450,10 @@ func FetchType(callerID int32, typeID int32, object model.CachedObject) error {
 		return errors.New("passing invalid type to FetchType function")
 	}
 
-	*t = db.GetType(typeID)
+	var err error
+	*t, err = db.GetType(typeID)
 
-	return nil
+	return err
 }
 
 func FetchAccessToken(callerID int32, characterID int32, object model.CachedObject) error {
