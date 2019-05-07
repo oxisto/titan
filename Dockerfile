@@ -40,5 +40,5 @@ COPY --from=build-server /build/sde.version .
 COPY --from=build-server /build/sde-* .
 ADD restore.sh .
 ADD docker-entrypoint.sh .
-ADD sql .
+ADD sql sql
 CMD ["./docker-entrypoint.sh"]
