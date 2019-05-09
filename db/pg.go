@@ -96,7 +96,7 @@ func NewSearchOptions() *SearchOptions {
 }
 
 func UpdateProfit(m model.Manufacturing) {
-	log.Printf("Updating profit for %s (%d)...", m.Product.TypeName, m.Product.TypeID)
+	log.Debugf("Updating profit for %s (%d)...", m.Product.TypeName, m.Product.TypeID)
 
 	_, err := pdb.Exec(`INSERT INTO profit ("typeID", "basedOnSellPrice", "basedOnBuyPrice")
         VALUES ($1, $2, $3) ON CONFLICT ("typeID")

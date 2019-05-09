@@ -210,18 +210,36 @@ func ServerLoop() {
 	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityManufacturing)...)
 	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityInvention)...)
 
+	uniqueTypeIDs := MakeUnique(typeIDs)
+
+	// this will cache all manufacturing objects, every hour
 	for {
+		log.Printf("Need to know the price of %d unique types.", len(uniqueTypeIDs))
+
+		cache.GetPrices(model.JitaRegionID, uniqueTypeIDs)
+
 		log.Printf("Trying to calculate profit for %d types...", len(productTypeIDs))
 
-		cache.GetPrices(model.JitaRegionID, typeIDs)
-
-		// this will cache all manufacturing objects, every hour
 		for _, typeID := range productTypeIDs {
 			/*go*/ UpdateProduct(typeID)
 		}
 
 		time.Sleep(time.Duration(1) * time.Hour)
 	}
+}
+
+func MakeUnique(slice []int32) []int32 {
+	u := make([]int32, 0, len(slice))
+	m := make(map[int32]bool)
+
+	for _, v := range slice {
+		if !m[v] {
+			m[v] = true
+			u = append(u, v)
+		}
+	}
+
+	return u
 }
 
 func UpdateProduct(typeID int32) {

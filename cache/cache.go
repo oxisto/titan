@@ -213,6 +213,45 @@ func ReadCachedObject(hashKey string, object model.CachedObject) error {
 	return d.Decode(m)
 }
 
+func WriteCachedObjects(objects []model.CachedObject) error {
+	log.Debugf("Writing %d objects to cache in pipeline mode...", len(objects))
+
+	pipe := cache.Pipeline()
+
+	for _, object := range objects {
+		m := structs.Map(object)
+		m = bellows.Flatten(m)
+
+		for k, v := range m {
+			// ignore nil values
+			if v == nil {
+				continue
+			}
+
+			if reflect.TypeOf(v).Kind() == reflect.Map {
+				// remove maps for now
+				delete(m, k)
+			}
+		}
+
+		pipe.HMSet(object.HashKey(), m).Result()
+
+		// set expiry if necessary
+		if tm := object.ExpiresOn(); tm != nil {
+			pipe.ExpireAt(object.HashKey(), *tm)
+		}
+	}
+
+	_, err := pipe.Exec()
+
+	if err != nil {
+		return fmt.Errorf("Error while writing to REDIS: %s", err)
+	}
+
+	return nil
+
+}
+
 func WriteCachedObject(object model.CachedObject) error {
 	m := structs.Map(object)
 	m = bellows.Flatten(m)
@@ -541,7 +580,10 @@ func GetPrices(regionID int, types []int32) (prices map[int32]model.Price, err e
 		// deliberately ignore errors here, because fuzzwork json objects are sometimes not properly formatted
 		results, _ := FetchPrices(regionID, typesToFetch[chunkStart:chunkEnd])
 
-		for k, price := range results {
+		objects := []model.CachedObject{}
+		for k, p := range results {
+			price := p
+
 			typeID, err := strconv.Atoi(k)
 			expireDate := time.Now().Add(time.Hour * time.Duration(1))
 
@@ -552,10 +594,14 @@ func GetPrices(regionID int, types []int32) (prices map[int32]model.Price, err e
 			price.TypeID = int32(typeID)
 			price.SetExpire(&expireDate)
 
-			WriteCachedObject(&price)
+			// add to cached objects
+			objects = append(objects, &price)
 
 			prices[int32(typeID)] = price
 		}
+
+		// update cache
+		WriteCachedObjects(objects)
 	}
 
 	return
