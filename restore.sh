@@ -17,5 +17,5 @@ pg_restore -U $USER -h $HOST \
 -d titan sde-$VERSION
 
 # Our tables
-psql -U $USER -h $HOST titan < sql/profit.sql
+psql -U $USER -h $HOST titan < sql/public.sql
 

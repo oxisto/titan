@@ -29,6 +29,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/finance"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 	"github.com/oxisto/titan/routes"
@@ -141,6 +142,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 	go slack.Bot(viper.GetString(SlackAPITokenFlag))
 
 	go ServerLoop()
+	go FinanceLoop()
 
 	router := handlers.LoggingHandler(&DebugLogWriter{Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
@@ -229,6 +231,23 @@ func UpdateProduct(typeID int32) {
 		db.UpdateProfit(m)
 	} else {
 		log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)
+	}
+}
+
+func FinanceLoop() {
+	for {
+		corporationID := int32(viper.GetInt(CorporationIDFlag))
+
+		log.Printf("Fetching journal data for corporation %d...", corporationID)
+		duration, err := finance.FetchJournal(corporationID, 1)
+
+		if err != nil {
+			log.Printf("An error occured while fetching journal: %v", err.Error())
+		}
+
+		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
+
+		time.Sleep(duration)
 	}
 }
 
