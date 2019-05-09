@@ -210,11 +210,11 @@ func ServerLoop() {
 	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityManufacturing)...)
 	typeIDs = append(typeIDs, db.GetMaterialTypeIDs(manufacturing.ActivityInvention)...)
 
-	cache.GetPrices(model.JitaRegionID, typeIDs)
-
-	log.Printf("Trying to calculate profit for %d types...", len(productTypeIDs))
-
 	for {
+		log.Printf("Trying to calculate profit for %d types...", len(productTypeIDs))
+
+		cache.GetPrices(model.JitaRegionID, typeIDs)
+
 		// this will cache all manufacturing objects, every hour
 		for _, typeID := range productTypeIDs {
 			/*go*/ UpdateProduct(typeID)
