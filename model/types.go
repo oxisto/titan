@@ -24,6 +24,8 @@ import (
 	"time"
 )
 
+type TypeIdentifier int32
+
 type Blueprint struct {
 	/*ObjectID   int32 `json:"typeID" db:"_id"`
 	Activities struct {

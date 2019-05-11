@@ -112,27 +112,6 @@ func UpdateProfit(m model.Manufacturing) {
 	}
 }
 
-func GetJournalEntryIDs() ([]int64, error) {
-	journalIDs := []int64{}
-
-	err := pdb.Select(&journalIDs, `SELECT id from journal ORDER BY id DESC`)
-
-	return journalIDs, err
-}
-
-func InsertJournalEntry(entry model.JournalEntry) error {
-	_, err := pdb.Exec(`INSERT INTO journal VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-		entry.ID,
-		entry.Amount,
-		entry.Balance,
-		entry.Date,
-		entry.Description,
-		entry.FirstPartyID,
-		entry.RefType,
-		entry.SecondPartyID)
-
-	return err
-}
 
 func GetMaterialTypeIDs(activityID int32) []int32 {
 	typeIDs := []int32{}

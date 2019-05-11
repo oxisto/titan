@@ -9,12 +9,27 @@ CREATE TABLE journal (
     id bigint NOT NULL,
     amount double precision,
     balance double precision,
-    date timestamp(4
-) WITH time zone,
+    date timestamp WITH time zone,
     description text COLLATE pg_catalog. "default",
     "firstPartyID" integer,
     "refType" text COLLATE pg_catalog. "default",
     "secondPartyID" integer,
-    CONSTRAINT journal_pkey PRIMARY KEY (id)
+    CONSTRAINT journal_pkey PRIMARY KEY (
+        id
+)
 );
 
+CREATE TABLE public.transactions (
+    "transactionID" bigint NOT NULL,
+    "clientID" integer,
+    date timestamp WITH time zone,
+    "isBuy" boolean,
+    "journalRefID" bigint,
+    "locationID" integer,
+    quantity integer,
+    "typeID" integer,
+    "unitPrice" double precision,
+    CONSTRAINT transactions_pkey PRIMARY KEY (
+        "transactionID"
+)
+)

@@ -142,7 +142,8 @@ func doCmd(cmd *cobra.Command, args []string) {
 	go slack.Bot(viper.GetString(SlackAPITokenFlag))
 
 	go ServerLoop()
-	go FinanceLoop()
+	go JournalLoop()
+	go TransactionLoop()
 
 	router := handlers.LoggingHandler(&DebugLogWriter{Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
@@ -252,7 +253,7 @@ func UpdateProduct(typeID int32) {
 	}
 }
 
-func FinanceLoop() {
+func JournalLoop() {
 	for {
 		corporationID := int32(viper.GetInt(CorporationIDFlag))
 
@@ -261,6 +262,23 @@ func FinanceLoop() {
 
 		if err != nil {
 			log.Printf("An error occured while fetching journal: %v", err.Error())
+		}
+
+		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
+
+		time.Sleep(duration)
+	}
+}
+
+func TransactionLoop() {
+	for {
+		corporationID := int32(viper.GetInt(CorporationIDFlag))
+
+		log.Printf("Fetching transactions for corporation %d...", corporationID)
+		duration, err := finance.FetchTransations(corporationID, 1)
+
+		if err != nil {
+			log.Printf("An error occured while fetching transactions: %v", err.Error())
 		}
 
 		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())

@@ -3,7 +3,6 @@ module github.com/oxisto/titan
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/antihax/goesi v0.0.0-20190124202355-217515075e8e
-	github.com/arangodb/go-driver v0.0.0-20190430103524-b14f41496c3d
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
 	github.com/codegangsta/negroni v1.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -35,6 +34,5 @@ require (
 	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b // indirect
 	golang.org/x/oauth2 v0.0.0-20190115181402-5dab4167f31c // indirect
 	golang.org/x/text v0.3.0
-	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
 	gopkg.in/yaml.v2 v2.2.1
 )
