@@ -495,6 +495,36 @@ func FetchType(callerID int32, typeID int32, object model.CachedObject) error {
 	return err
 }
 
+func FetchSystemCostIndices() (indices map[int32]model.CachedObject, err error) {
+	indices = make(map[int32]model.CachedObject)
+
+	response, httpResponse, err := ESI.IndustryApi.GetIndustrySystems(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range response {
+		index := model.SystemCostIndex{
+			SolarSystemID: v.SolarSystemId,
+		}
+
+		for _, w := range v.CostIndices {
+			index.ActivityCost[w.Activity] = w.CostIndex
+		}
+
+		index.SetExpire(&t)
+
+		indices[index.SolarSystemID] = &index
+	}
+
+	return
+}
+
 func FetchMarketPrices() (prices map[int32]model.CachedObject, err error) {
 	prices = make(map[int32]model.CachedObject)
 
@@ -558,6 +588,40 @@ func FetchAccessToken(callerID int32, characterID int32, object model.CachedObje
 	accessToken.SetExpire(&expiryTime)
 
 	return nil
+}
+
+func GetSystemCostIndex(solarSystemID int32) (index *model.SystemCostIndex, err error) {
+	var (
+		cached  int64
+		ok      bool
+		indices map[int32]model.CachedObject
+		hashKey = fmt.Sprintf("system-cost-index:%d", solarSystemID)
+	)
+
+	// check, if prices are somehow cached
+	if cached, err = cache.Exists(hashKey).Result(); err != nil {
+		return nil, err
+	}
+
+	if cached == int64(1) {
+		index = &model.SystemCostIndex{}
+
+		// read it from cache
+		err = ReadCachedObject(hashKey, index)
+
+		return
+	}
+
+	// we can only fetch prices from ESI in bulk
+	indices, err = FetchSystemCostIndices()
+
+	WriteCachedObjects(indices)
+
+	if index, ok = indices[solarSystemID].(*model.SystemCostIndex); !ok {
+		return nil, fmt.Errorf("Could not get system cost index for %d although all systems were fetch from ESI", solarSystemID)
+	}
+
+	return
 }
 
 func GetMarketPrice(typeID int32) (price *model.MarketPrice, err error) {
