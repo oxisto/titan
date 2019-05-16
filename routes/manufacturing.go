@@ -35,6 +35,7 @@ const (
 	QueryParamHasRequiredSkillsOnly = "hasRequiredSkillsOnly"
 	QueryParamME                    = "ME"
 	QueryParamTE                    = "TE"
+	QueryParamFacilityTax           = "facilityTax"
 
 	RouteVarsTypeID = "typeID"
 
@@ -62,6 +63,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 
 	ME, err := strconv.Atoi(r.URL.Query().Get(QueryParamME))
 	TE, err := strconv.Atoi(r.URL.Query().Get(QueryParamTE))
+	facilityTax, err := strconv.ParseFloat(r.URL.Query().Get(QueryParamFacilityTax), 64)
 
 	character := r.Context().Value(CharacterContext).(*model.Character)
 
@@ -76,7 +78,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	m := model.Manufacturing{}
 
 	// calculate it fresh
-	if err = manufacturing.NewManufacturing(character, int32(typeID), ME, TE, &m); err == nil {
+	if err = manufacturing.NewManufacturing(character, int32(typeID), ME, TE, facilityTax, &m); err == nil {
 		resp.Manufacturing = &m
 	}
 
@@ -84,7 +86,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 
 	m = model.Manufacturing{}
 	// calculate the manufacturing for the builder
-	if err = manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
+	if err = manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, 0.1, &m); err == nil {
 		//cache.WriteCachedObject(m)
 		db.UpdateProfit(m)
 	}

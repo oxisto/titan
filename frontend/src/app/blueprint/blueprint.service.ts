@@ -20,8 +20,8 @@ export class BlueprintService {
     return this.http.get<Blueprint>('/api/blueprints/' + typeID);
   }
 
-  getManufacturing(typeID: number, ME: number, TE: number) {
-    return this.http.get('/api/manufacturing/' + typeID + '?ME=' + ME + '&TE=' + TE);
+  getManufacturing(typeID: number, ME: number, TE: number, facilityTax: number) {
+    return this.http.get('/api/manufacturing/' + typeID + '?ME=' + ME + '&TE=' + TE + '&facilityTax=' + facilityTax);
   }
 
 }

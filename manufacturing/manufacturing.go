@@ -38,15 +38,18 @@ const (
 )
 
 var FacilityJobDurationBonuses = map[string]float64{
-	"POS":                 -0.25,
 	"Station":             0,
 	"Engineering Complex": -0.15,
 }
 
 var FacilityMaterialBonuses = map[string]float64{
-	"POS":                 -0.02,
 	"Station":             0,
 	"Engineering Complex": -0.01,
+}
+
+var FacilityISKBonus = map[string]float64{
+	"Station":             0,
+	"Engineering Complex": -0.03,
 }
 
 func CalculateModifier(modifiers map[string]float64) float64 {
@@ -59,7 +62,7 @@ func CalculateModifier(modifiers map[string]float64) float64 {
 	return f
 }
 
-func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE int, object model.CachedObject) (err error) {
+func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE int, facilityTax float64, object model.CachedObject) (err error) {
 	manufacturing, ok := object.(*model.Manufacturing)
 	if !ok {
 		return errors.New("passing invalid type to NewManufacturing function")
@@ -146,6 +149,8 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE 
 		return err
 	}
 
+	eiv := 0.0
+
 	manufacturing.Materials = map[string]model.ManufacturingMaterial{}
 	for _, material := range materials {
 		material.PricePerUnit = prices[material.TypeID].Sell.Percentile
@@ -153,7 +158,17 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE 
 
 		manufacturing.Materials[strconv.Itoa(int(material.TypeID))] = material.ManufacturingMaterial
 		manufacturing.Costs.TotalMaterials += material.Cost
+
+		// get market prices for Estimated Item Value (EIV) calculation
+		if marketPrice, err := cache.GetMarketPrice(material.TypeID); err != nil {
+			return err
+		} else {
+			// EIV calculation is always based on ME 0
+			eiv += float64(material.RawQuantity) * marketPrice.AdjustedPrice
+		}
 	}
+
+	eiv = /*math.Round(*/ eiv * float64(manufacturing.Runs) /*)*/
 
 	manufacturing.RequiredSkills = map[string]model.ManufacturingSkill{}
 	manufacturing.HasRequiredSkills = true
@@ -171,7 +186,9 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE 
 		manufacturing.RequiredSkills[strconv.Itoa(int(skill.TypeID))] = skill.ManufacturingSkill
 	}
 
-	manufacturing.Costs.Total = manufacturing.Costs.TotalMaterials // TODO: sales tax, factory tax, etc.
+	manufacturing.Costs.TotalJobCost = CalculateJobCost(eiv, 0.0386, FacilityISKBonus[manufacturing.Facility], facilityTax)
+
+	manufacturing.Costs.Total = manufacturing.Costs.TotalMaterials + manufacturing.Costs.TotalJobCost
 	manufacturing.Costs.PerItem = manufacturing.Costs.Total / float64(manufacturing.Product.PortionSize) / float64(manufacturing.Runs)
 
 	if manufacturing.IsTech2 {
@@ -222,4 +239,17 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int, TE 
 	manufacturing.DailyBuyFactor = float64(manufacturing.BuyOrderVolume) / manufacturing.ItemsPerDay
 
 	return nil
+}
+
+func CalculateJobCost(eiv float64, systemCostIndex float64, iskBonus float64, facilityTax float64) (jobCost float64) {
+	// job cost according to the system cost index
+	jobCost = eiv * systemCostIndex
+
+	// substract ISK bonus
+	jobCost += (jobCost * iskBonus)
+
+	// apply facility tax
+	jobCost += jobCost * facilityTax
+
+	return
 }

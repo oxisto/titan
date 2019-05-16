@@ -25,6 +25,29 @@ const (
 	JitaRegionID = 10000002
 )
 
+type MarketPrice struct {
+	expireDate    *time.Time
+	AdjustedPrice float64 `json:"adjustedPrice"`
+	AveragePrice  float64 `json:"averagePrice"`
+	TypeID        int32   `json:"typeID"`
+}
+
+func (c *MarketPrice) ID() int32 {
+	return c.TypeID
+}
+
+func (c *MarketPrice) ExpiresOn() *time.Time {
+	return c.expireDate
+}
+
+func (c *MarketPrice) SetExpire(t *time.Time) {
+	c.expireDate = t
+}
+
+func (c *MarketPrice) HashKey() string {
+	return fmt.Sprintf("marketprice:%d", c.ID())
+}
+
 type Price struct {
 	expireDate *time.Time
 	TypeID     int32

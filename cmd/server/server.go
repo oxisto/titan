@@ -28,6 +28,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/contracts"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/finance"
 	"github.com/oxisto/titan/manufacturing"
@@ -144,6 +145,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 	go ServerLoop()
 	go JournalLoop()
 	go TransactionLoop()
+	//go ContractsLoop()
 
 	router := handlers.LoggingHandler(&DebugLogWriter{Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
@@ -229,6 +231,16 @@ func ServerLoop() {
 	}
 }
 
+func ContractsLoop() {
+	for {
+		log.Printf("Trying get contracts for Jita region...")
+
+		contracts.FetchContracts()
+
+		time.Sleep(time.Duration(1) * time.Hour)
+	}
+}
+
 func MakeUnique(slice []int32) []int32 {
 	u := make([]int32, 0, len(slice))
 	m := make(map[int32]bool)
@@ -246,7 +258,7 @@ func MakeUnique(slice []int32) []int32 {
 func UpdateProduct(typeID int32) {
 	m := model.Manufacturing{}
 
-	if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, &m); err == nil {
+	if err := manufacturing.NewManufacturing(nil, int32(typeID), 10, 20, 0.1, &m); err == nil {
 		db.UpdateProfit(m)
 	} else {
 		log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)

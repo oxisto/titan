@@ -9,6 +9,7 @@ type ManufacturingMaterial struct {
 	// TypeID is the id of the type that is beeing manufactured
 	TypeID       int32   `json:"typeID" db:"typeID"`
 	Quantity     int     `json:"quantity"`
+	RawQuantity  int     `json:"rawQuantity" db:"rawQuantity"`
 	TypeName     string  `json:"typeName" db:"typeName"`
 	PricePerUnit float64 `json:"pricePerUnit" db:"pricePerUnit"`
 	Cost         float64 `json:"cost"`
@@ -48,6 +49,7 @@ type Manufacturing struct {
 	Facility                     string                           `json:"facility"`
 	Costs                        struct {
 		TotalMaterials float64 `json:"totalMaterials" bson:"totalMaterials"`
+		TotalJobCost   float64 `json:"totalJobCost" bson:"totalJobCost"`
 		Total          float64 `json:"total"`
 		PerItem        float64 `json:"perItem" bson:"perItem"`
 	} `json:"costs"`

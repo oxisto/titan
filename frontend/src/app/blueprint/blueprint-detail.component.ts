@@ -16,6 +16,7 @@ export class BlueprintDetailComponent implements OnInit {
 
   ME = 0;
   TE = 0;
+  facilityTax = 0.1;
 
   typeID: number;
 
@@ -34,7 +35,7 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   updateType(): any {
-    this.blueprintService.getManufacturing(this.typeID, this.ME, this.TE).subscribe((manufacturing: any) => {
+    this.blueprintService.getManufacturing(this.typeID, this.ME, this.TE, this.facilityTax).subscribe((manufacturing: any) => {
       this.manufacturing = manufacturing;
 
       // lock ME and TE for tech2

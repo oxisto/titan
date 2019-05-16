@@ -112,7 +112,6 @@ func UpdateProfit(m model.Manufacturing) {
 	}
 }
 
-
 func GetMaterialTypeIDs(activityID int32) []int32 {
 	typeIDs := []int32{}
 
@@ -164,7 +163,8 @@ func GetActivityMaterials(activityID int32, blueprint model.Blueprint, runs int,
 	err := pdb.Select(&materials, `SELECT
     "invTypes"."typeID",
     "invTypes"."typeName",
-    CAST(CEIL(quantity * $3 * $4::double precision) AS integer) AS quantity
+	CAST(CEIL(quantity * $3 * $4::double precision) AS integer) AS quantity,
+	"quantity" AS "rawQuantity"
 FROM
     evesde. "industryActivityMaterials"
     JOIN evesde. "invTypes" ON ("industryActivityMaterials"."materialTypeID" = "invTypes"."typeID")

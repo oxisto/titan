@@ -213,7 +213,7 @@ func ReadCachedObject(hashKey string, object model.CachedObject) error {
 	return d.Decode(m)
 }
 
-func WriteCachedObjects(objects []model.CachedObject) error {
+func WriteCachedObjects(objects map[int32]model.CachedObject) error {
 	log.Debugf("Writing %d objects to cache in pipeline mode...", len(objects))
 
 	pipe := cache.Pipeline()
@@ -495,6 +495,34 @@ func FetchType(callerID int32, typeID int32, object model.CachedObject) error {
 	return err
 }
 
+func FetchMarketPrices() (prices map[int32]model.CachedObject, err error) {
+	prices = make(map[int32]model.CachedObject)
+
+	response, httpResponse, err := ESI.MarketApi.GetMarketsPrices(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range response {
+		price := model.MarketPrice{
+			TypeID:        v.TypeId,
+			AdjustedPrice: v.AdjustedPrice,
+			AveragePrice:  v.AveragePrice,
+		}
+
+		price.SetExpire(&t)
+
+		prices[price.TypeID] = &price
+	}
+
+	return
+}
+
 func FetchAccessToken(callerID int32, characterID int32, object model.CachedObject) error {
 	accessToken, ok := object.(*model.AccessToken)
 	if !ok {
@@ -530,6 +558,40 @@ func FetchAccessToken(callerID int32, characterID int32, object model.CachedObje
 	accessToken.SetExpire(&expiryTime)
 
 	return nil
+}
+
+func GetMarketPrice(typeID int32) (price *model.MarketPrice, err error) {
+	var (
+		cached  int64
+		ok      bool
+		prices  map[int32]model.CachedObject
+		hashKey = fmt.Sprintf("marketprice:%d", typeID)
+	)
+
+	// check, if prices are somehow cached
+	if cached, err = cache.Exists(hashKey).Result(); err != nil {
+		return nil, err
+	}
+
+	if cached == int64(1) {
+		price = &model.MarketPrice{}
+
+		// read it from cache
+		err = ReadCachedObject(hashKey, price)
+
+		return
+	}
+
+	// we can only fetch prices from ESI in bulk
+	prices, err = FetchMarketPrices()
+
+	WriteCachedObjects(prices)
+
+	if price, ok = prices[typeID].(*model.MarketPrice); !ok {
+		return nil, fmt.Errorf("Could not get price for %d although all types were fetch from ESI", typeID)
+	}
+
+	return
 }
 
 func GetPrices(regionID int, types []int32) (prices map[int32]model.Price, err error) {
@@ -580,7 +642,7 @@ func GetPrices(regionID int, types []int32) (prices map[int32]model.Price, err e
 		// deliberately ignore errors here, because fuzzwork json objects are sometimes not properly formatted
 		results, _ := FetchPrices(regionID, typesToFetch[chunkStart:chunkEnd])
 
-		objects := []model.CachedObject{}
+		objects := map[int32]model.CachedObject{}
 		for k, p := range results {
 			price := p
 
@@ -595,7 +657,7 @@ func GetPrices(regionID int, types []int32) (prices map[int32]model.Price, err e
 			price.SetExpire(&expireDate)
 
 			// add to cached objects
-			objects = append(objects, &price)
+			objects[price.TypeID] = &price
 
 			prices[int32(typeID)] = price
 		}
