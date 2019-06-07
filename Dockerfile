@@ -4,7 +4,7 @@ WORKDIR /tmp
 
 ADD frontend/*.json ./
 ADD frontend/*.lock ./
-RUN yarn install
+RUN yarn install --ignore-optionals
 
 ADD frontend/. .
 RUN yarn run lint
