@@ -18,6 +18,13 @@ spec:
           value: titan
         ports:
         - containerPort: 5432
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        hostPath:
+          path: /srv/k8s/titan-postgres
 ---
 apiVersion: v1
 kind: Service
