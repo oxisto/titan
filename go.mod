@@ -25,13 +25,13 @@ require (
 	github.com/onsi/gomega v1.4.2 // indirect
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.4
-	github.com/sirupsen/logrus v1.1.1
+	github.com/oxisto/go-httputil v0.0.1
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/smartystreets/goconvey v0.0.0-20180222194500-ef6db91d284a // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.2.1
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b // indirect
 	golang.org/x/oauth2 v0.0.0-20190115181402-5dab4167f31c // indirect
 	golang.org/x/text v0.3.0
 	gopkg.in/yaml.v2 v2.2.1

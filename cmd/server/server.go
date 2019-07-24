@@ -38,6 +38,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/oxisto/go-httputil"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -63,17 +64,6 @@ const (
 
 	EnvPrefix = "TITAN"
 )
-
-// DebugLogWriter implements io.Writer and writes all incoming text out to log level info.
-type DebugLogWriter struct {
-	Component string
-}
-
-func (d DebugLogWriter) Write(p []byte) (n int, err error) {
-	log.WithField("component", d.Component).Debug(strings.TrimRight(string(p), "\n"))
-
-	return len(p), nil
-}
 
 var serverCmd = &cobra.Command{
 	Use:   "titan-server",
@@ -147,7 +137,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 	go TransactionLoop()
 	//go ContractsLoop()
 
-	router := handlers.LoggingHandler(&DebugLogWriter{Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
+	router := handlers.LoggingHandler(&httputil.LogWriter{Level: log.DebugLevel, Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
 
 	log.Errorf("An error occured: %v", err)

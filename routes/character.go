@@ -20,10 +20,11 @@ import (
 	"net/http"
 
 	"github.com/oxisto/titan/model"
+	"github.com/oxisto/go-httputil"
 )
 
 func GetCharacter(w http.ResponseWriter, r *http.Request) {
 	character := r.Context().Value(CharacterContext).(*model.Character)
 
-	JsonResponse(w, r, character, nil)
+	httputil.JsonResponse(w, r, character, nil)
 }

@@ -18,7 +18,6 @@ package routes
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/auth0/go-jwt-middleware"
@@ -41,31 +40,6 @@ var (
 
 func init() {
 	log = logrus.WithField("component", "routes")
-}
-
-func JsonResponse(w http.ResponseWriter, r *http.Request, object interface{}, err error) {
-	// uh-uh, we have an error
-	if err != nil {
-		log.Errorf("An error occured during processing of a REST request: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// return not found if object is nil
-	if object == nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	// otherwise, lets try to decode the JSON
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(object); err != nil {
-		// uh-uh we couldn't decode the JSON
-		log.Errorf("An error occured during encoding of the JSON response: %v. Payload was: %+v", err, object)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 func NewRouter(corporationId int32) *mux.Router {

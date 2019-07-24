@@ -5,6 +5,7 @@ import (
 
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
+	"github.com/oxisto/go-httputil"
 )
 
 func GetIndustryJobs(w http.ResponseWriter, r *http.Request) {
@@ -13,5 +14,5 @@ func GetIndustryJobs(w http.ResponseWriter, r *http.Request) {
 
 	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
 
-	JsonResponse(w, r, jobs, err)
+	httputil.JsonResponse(w, r, jobs, err)
 }

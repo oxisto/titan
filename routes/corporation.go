@@ -21,6 +21,7 @@ import (
 
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
+	"github.com/oxisto/go-httputil"
 )
 
 func GetCorporation(w http.ResponseWriter, r *http.Request) {
@@ -29,5 +30,5 @@ func GetCorporation(w http.ResponseWriter, r *http.Request) {
 
 	err := cache.GetCorporation(character.CharacterID, character.CorporationID, corporation)
 
-	JsonResponse(w, r, corporation, err)
+	httputil.JsonResponse(w, r, corporation, err)
 }
