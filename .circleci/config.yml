@@ -15,7 +15,7 @@ jobs:
           name: Update greenkeeper lockfile
           command: |
             apk add --no-cache nodejs yarn git
-            yarn global add greenkeeper-lockfile@2.4.0
+            yarn global add greenkeeper-lockfile@next
             cd frontend && greenkeeper-lockfile-update
       - run:
           name: Build Docker image
