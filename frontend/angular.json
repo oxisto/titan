@@ -75,11 +75,6 @@
           }
         }
       }
-    },
-    "titan-dashboard-e2e": {
-      "root": "",
-      "sourceRoot": "e2e",
-      "projectType": "application"
     }
   },
   "defaultProject": "titan-dashboard",
