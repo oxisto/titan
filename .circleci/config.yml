@@ -6,8 +6,7 @@ jobs:
     working_directory: /titan
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - setup_remote_docker
       - run:
           name: Load cached image
           command: docker pull oxisto/titan
