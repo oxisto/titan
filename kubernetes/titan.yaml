@@ -16,26 +16,26 @@ spec:
         app: titan
     spec:
       containers:
-      - image: oxisto/titan
-        imagePullPolicy: Always
-        name: titan
-        env:
-        - name: TITAN_POSTGRES
-          value: postgres
-        volumeMounts:
-        - name: config
-          mountPath: /usr/titan/config
-          readOnly: true
-        ports:
-        - containerPort: 4300
-          protocol: TCP
+        - image: oxisto/titan:$TAG
+          imagePullPolicy: Always
+          name: titan
+          env:
+            - name: TITAN_POSTGRES
+              value: postgres
+          volumeMounts:
+            - name: config
+              mountPath: /usr/titan/config
+              readOnly: true
+          ports:
+            - containerPort: 4300
+              protocol: TCP
       volumes:
-      - name: config
-        secret:
-          secretName: config-secret
-          items:
-          - key: config-production.yaml
-            path: config.yaml
+        - name: config
+          secret:
+            secretName: config-secret
+            items:
+              - key: config-production.yaml
+                path: config.yaml
 ---
 apiVersion: v1
 kind: Service
@@ -44,9 +44,9 @@ metadata:
   namespace: titan
 spec:
   ports:
-  - port: 4300
-    protocol: TCP
-    targetPort: 4300
+    - port: 4300
+      protocol: TCP
+      targetPort: 4300
   selector:
     app: titan
 ---
@@ -60,14 +60,14 @@ metadata:
   namespace: titan
 spec:
   rules:
-  - host: eve.aybaze.com
-    http:
-      paths:
-      - backend:
-          serviceName: titan
-          servicePort: 4300
-        path: /
+    - host: eve.aybaze.com
+      http:
+        paths:
+          - backend:
+              serviceName: titan
+              servicePort: 4300
+            path: /
   tls:
-  - hosts:
-    - eve.aybaze.com
-    secretName: eve-tls
+    - hosts:
+        - eve.aybaze.com
+      secretName: eve-tls
