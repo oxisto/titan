@@ -18,7 +18,7 @@
     "@angular/platform-browser": "8.2.14",
     "@angular/platform-browser-dynamic": "8.2.14",
     "@angular/router": "8.2.14",
-    "@auth0/angular-jwt": "^3.0.0",
+    "@auth0/angular-jwt": "^4.0.0",
     "@ng-bootstrap/ng-bootstrap": "^5.1.0",
     "@ng-bootstrap/schematics": "^2.0.0-alpha.1",
     "@w11k/ngx-componentdestroyed": "^4.0.1",
