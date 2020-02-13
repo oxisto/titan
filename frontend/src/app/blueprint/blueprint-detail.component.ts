@@ -11,8 +11,8 @@ export class BlueprintDetailComponent implements OnInit {
 
   public manufacturing: any;
 
-  private possibleME: number[] = Array.from(new Array(11), (x, i) => i);
-  private possibleTE: number[] = Array.from(new Array(11), (x, i) => i * 2);
+  possibleME: number[] = Array.from(new Array(11), (x, i) => i);
+  possibleTE: number[] = Array.from(new Array(11), (x, i) => i * 2);
 
   ME = 0;
   TE = 0;
