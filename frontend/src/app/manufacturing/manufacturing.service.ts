@@ -34,7 +34,7 @@ export class ManufacturingService {
     params = params.set('hasRequiredSkillsOnly', String(options.hasRequiredSkillsOnly));
     params = params.set('categoryIDs', options.categoryIDs.join(','));
 
-    return this.http.get<any[]>('/api/manufacturing', { params: params });
+    return this.http.get<any[]>('/api/manufacturing', { params });
   }
 
   getManufacturingCategories(): Observable<any[]> {

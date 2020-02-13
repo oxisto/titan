@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivationStart, Router, UrlSegment } from '@angular/router';
-import { empty } from 'rxjs';
+import { EMPTY } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { Character } from './character/character';
@@ -21,7 +21,8 @@ export class AppComponent implements OnInit {
 
   url: UrlSegment[];
 
-  constructor(private characterService: CharacterService,
+  constructor(
+    private characterService: CharacterService,
     private authService: AuthService,
     private router: Router) {
     this.router.events.subscribe((res) => {
@@ -38,7 +39,7 @@ export class AppComponent implements OnInit {
           // for now, just redirect to LoginComponent
           // TODO: actually show a error message
           this.router.navigateByUrl('/login');
-          return empty();
+          return EMPTY;
         }))
         .subscribe(character => {
           this.character = character;

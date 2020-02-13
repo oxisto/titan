@@ -7,7 +7,7 @@ import { AuthService } from '../auth/auth.service';
 export class MarketService {
 
   constructor(private http: HttpClient,
-    private authService: AuthService) {
+              private authService: AuthService) {
 
   }
 

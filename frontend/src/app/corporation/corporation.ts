@@ -12,7 +12,7 @@ export class Corporation {
 
   ticker: string;
 
-  members: Map<Number, Character> = new Map();
+  members: Map<number, Character> = new Map();
 
   expiresOn: Date;
 

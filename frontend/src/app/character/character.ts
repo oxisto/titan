@@ -8,7 +8,7 @@ export class Character {
   allianceID: number;
   allianceName: string;
 
-  skills: Map<Number, Skill> = new Map();
+  skills: Map<number, Skill> = new Map();
 
   expiresOn: Date;
 

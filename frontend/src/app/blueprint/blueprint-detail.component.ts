@@ -28,7 +28,7 @@ export class BlueprintDetailComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.typeID = +params['typeID'];
+      this.typeID = +params.typeID;
 
       this.updateType();
     });

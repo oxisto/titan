@@ -24,7 +24,7 @@ export class BlueprintsComponent implements OnInit {
   maxProductionCosts: number;
 
   constructor(private auth: AuthService,
-    private manufacturingService: ManufacturingService) {
+              private manufacturingService: ManufacturingService) {
     this.maxProductionCosts = +localStorage.getItem('manufacturing:maxProductionCosts');
     this.nameFilter = localStorage.getItem('manufacturing:nameFilter');
 
@@ -70,7 +70,7 @@ export class BlueprintsComponent implements OnInit {
     }
 
     this.manufacturingService.getManufacturingTypeIDs({
-      categoryIDs: categoryIDs,
+      categoryIDs,
       sortBy: this.sortBy,
       nameFilter: this.nameFilter,
       hasRequiredSkillsOnly: this.hasRequiredSkillsOnly,

@@ -8,7 +8,7 @@ import { Blueprint } from './blueprint';
 export class BlueprintService {
 
   constructor(private http: HttpClient,
-    private authService: AuthService) {
+              private authService: AuthService) {
 
   }
 
