@@ -1,4 +1,4 @@
-FROM node:11 AS build-frontend
+FROM node AS build-frontend
 
 WORKDIR /tmp
 
