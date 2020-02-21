@@ -20,7 +20,7 @@
     "@angular/platform-browser-dynamic": "~9.0.0",
     "@angular/router": "~9.0.0",
     "@auth0/angular-jwt": "^4.0.0",
-    "@ng-bootstrap/ng-bootstrap": "^5.1.0",
+    "@ng-bootstrap/ng-bootstrap": "^6.0.0",
     "bootstrap": "^4.3.1",
     "moment": "^2.22.2",
     "ngx-clipboard": "^12.1.0",
