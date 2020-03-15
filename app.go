@@ -56,7 +56,7 @@ func (a App) ImportSDE() {
 	cache.ReadCachedObject(fmt.Sprintf("sde:%d", version), &sde)
 
 	if sde.Version == 0 {
-		db.ImportSDE(version, array[1])
+		db.RunSDERestoreScript(version, array[1])
 		sde.Version = version
 		sde.Server = server
 
