@@ -20,9 +20,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/model"
+	"titan/cache"
+	"titan/db"
+	"titan/model"
+
 	"github.com/sirupsen/logrus"
 )
 

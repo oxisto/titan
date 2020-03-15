@@ -47,7 +47,7 @@ func (t StaticDataExport) HashKey() string {
 	return fmt.Sprintf("sde:%d", t.ID())
 }
 
-func ImportSDE(version int32, server string, postgresHost string) {
+func ImportSDE(version int32, server string) {
 	log.Infof("Importing SDE %d...", version)
 
 	/*files := map[string]string{
@@ -69,7 +69,7 @@ func ImportSDE(version int32, server string, postgresHost string) {
 			log.Errorf("An error occured while importing blueprints: %v", err)
 		}
 	}*/
-	cmd := exec.Command("./restore.sh", postgresHost)
+	cmd := exec.Command("./restore.sh", host)
 	cmd.Wait()
 }
 

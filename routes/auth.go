@@ -21,8 +21,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/model"
+	"titan/cache"
+	"titan/model"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {

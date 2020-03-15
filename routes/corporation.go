@@ -19,8 +19,9 @@ package routes
 import (
 	"net/http"
 
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/model"
+	"titan/cache"
+	"titan/model"
+
 	"github.com/oxisto/go-httputil"
 )
 

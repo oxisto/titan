@@ -1,6 +1,6 @@
 package db
 
-import "github.com/oxisto/titan/model"
+import "titan/model"
 
 func GetJournalEntryIDs() ([]int64, error) {
 	journalIDs := []int64{}

@@ -29,13 +29,14 @@ import (
 
 	"github.com/antihax/goesi/esi"
 
+	"titan/db"
+	"titan/model"
+
 	"github.com/antihax/goesi"
 	"github.com/fatih/structs"
 	"github.com/go-redis/redis"
 	"github.com/mitchellh/mapstructure"
 	"github.com/oxisto/bellows"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -51,25 +52,32 @@ func init() {
 	ESI = goesi.NewAPIClient(&http.Client{}, "Titan").ESI
 }
 
-func InitCache(redisAddr string) {
+func InitCache(redisAddr string) (err error) {
 	log.Infof("Using Redis cache @ %s", redisAddr)
 
 	cache = redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
 
+	status := cache.Ping()
+	if status.Err() != nil {
+		return fmt.Errorf("could not connect to cache: %w", status.Err())
+	}
+
 	cache.ConfigSet("notify-keyspace-events", "KEA")
 
 	pubsub := cache.Subscribe("__keyevent@0__:expired")
 
-	_, err := pubsub.Receive()
+	_, err = pubsub.Receive()
 	if err != nil {
-		log.Error(err)
+		return fmt.Errorf("could not subscribe to expiration events: %w", err)
 	}
 
 	ch := pubsub.Channel()
 
 	go ExpirySubscriber(ch)
+
+	return
 }
 
 func ExpirySubscriber(ch <-chan *redis.Message) {

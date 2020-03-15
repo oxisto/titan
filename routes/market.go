@@ -24,8 +24,8 @@ import (
 	"github.com/antihax/goesi"
 	"github.com/oxisto/go-httputil"
 
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/model"
+	"titan/cache"
+	"titan/model"
 )
 
 func OpenMarketDetail(w http.ResponseWriter, r *http.Request) {

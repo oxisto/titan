@@ -20,8 +20,9 @@ import (
 	"fmt"
 	"math"
 
+	"titan/model"
+
 	"github.com/jmoiron/sqlx"
-	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
@@ -29,15 +30,17 @@ import (
 
 var pdb *sqlx.DB
 var log *logrus.Entry
+var host string
 
 func init() {
 	log = logrus.WithField("component", "cache")
 }
 
-func InitPostgreSQL(host string) {
+func InitPostgreSQL(h string) {
+	host = h
 	pdb, _ = sqlx.Connect("postgres", fmt.Sprintf("postgres://postgres@%s/titan?sslmode=disable", host))
 
-	log.Infof("Using PostgreSQL @ %s", host)
+	log.Infof("Using PostgreSQL @ %s", h)
 }
 
 type Profit struct {

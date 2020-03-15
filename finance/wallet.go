@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
+	"titan/cache"
+	"titan/db"
+	"titan/model"
+
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
 	"github.com/antihax/goesi/optional"
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
 )
 

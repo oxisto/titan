@@ -21,11 +21,12 @@ import (
 	"fmt"
 	"strings"
 
+	"titan/cache"
+	"titan/db"
+	"titan/manufacturing"
+	"titan/model"
+
 	"github.com/nlopes/slack"
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/manufacturing"
-	"github.com/oxisto/titan/model"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"

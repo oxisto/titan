@@ -21,10 +21,11 @@ import (
 	"strconv"
 	"strings"
 
+	"titan/db"
+	"titan/manufacturing"
+	"titan/model"
+
 	"github.com/gorilla/mux"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/manufacturing"
-	"github.com/oxisto/titan/model"
 	"github.com/oxisto/go-httputil"
 )
 

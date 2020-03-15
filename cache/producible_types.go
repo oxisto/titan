@@ -20,9 +20,10 @@ import (
 	"strconv"
 	"strings"
 
+	"titan/db"
+	"titan/model"
+
 	"github.com/go-redis/redis"
-	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/model"
 )
 
 type ProfitValue struct {
