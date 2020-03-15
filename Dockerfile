@@ -34,10 +34,10 @@ FROM alpine
 # update CA certificates
 RUN apk update && apk add ca-certificates postgresql-client
 WORKDIR /usr/titan
-COPY --from=build-frontend /tmp/dist ./frontend/dist
+COPY --from=build-frontend /tmp/dist/titan-frontend ./frontend/dist
 COPY --from=build-server /build/server .
 COPY --from=build-server /build/sde.version .
-COPY --from=build-server /build/sde-* .
+COPY --from=build-server /build/sde-* ./
 ADD restore.sh .
 ADD docker-entrypoint.sh .
 ADD sql sql
