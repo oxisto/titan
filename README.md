@@ -1,6 +1,9 @@
 # Titan
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/oxisto/titan.svg)](https://greenkeeper.io/) [![CircleCI](https://circleci.com/gh/oxisto/titan.svg?style=shield)](https://circleci.com/gh/oxisto/titan)
+[![Greenkeeper badge](https://badges.greenkeeper.io/oxisto/titan.svg)](https://greenkeeper.io/) ![build](https://github.com/oxisto/titan/workflows/build/badge.svg) 
+[![](https://godoc.org/github.com/oxisto/titan?status.svg)](https://pkg.go.dev/github.com/oxisto/titan)
+
+import "github.com/oxisto/titan"
 
 A simple go-based application that will help you become an industry titan in EVE Online.
 
