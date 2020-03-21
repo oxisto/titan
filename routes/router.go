@@ -56,7 +56,6 @@ func NewRouter(corporationId int32) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/auth/callback", Callback)
 	router.HandleFunc("/auth/login", Login)
-	router.HandleFunc("/slack/callback", SlackCallback)
 	router.Handle("/api/character", WithMiddleware(middleware, GetCharacter))
 	router.Handle("/api/corporation", WithMiddleware(middleware, GetCorporation))
 	router.Handle("/api/manufacturing", WithMiddleware(middleware, GetManufacturingProducts))

@@ -27,7 +27,6 @@ import (
 	"titan/routes"
 
 	"github.com/gorilla/handlers"
-	"github.com/nlopes/slack"
 	"github.com/oxisto/go-httputil"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -39,7 +38,6 @@ const (
 	PostgresFlag           = "postgres"
 	ListenFlag             = "listen"
 	CorporationIDFlag      = "corporationID"
-	SlackAPITokenFlag      = "slack.token"
 	CacheManufacturingFlag = "cache.manufacturing"
 	EveClientID            = "eve.clientID"
 	EveSecretKey           = "eve.secretKey"
@@ -49,7 +47,6 @@ const (
 	DefaultPostgres           = "localhost"
 	DefaultListen             = ":4300"
 	DefaultCorporationID      = 0
-	DefaultSlackAPIToken      = DefaultEmpty
 	DefaultCacheManufacturing = "true"
 	DefaultEmpty              = ""
 
@@ -70,7 +67,6 @@ func init() {
 	serverCmd.Flags().String(RedisFlag, DefaultRedis, "Host and port of redis server")
 	serverCmd.Flags().String(PostgresFlag, DefaultPostgres, "Connection string for PostgreSQL")
 	serverCmd.Flags().Int32(CorporationIDFlag, DefaultCorporationID, "If specified, limits access to this corporation ID")
-	serverCmd.Flags().String(SlackAPITokenFlag, DefaultSlackAPIToken, "The token for Slack integration")
 	serverCmd.Flags().String(EveClientID, DefaultEmpty, "The EVE SSO Client ID")
 	serverCmd.Flags().String(EveSecretKey, DefaultEmpty, "The EVE SSO Secret Key")
 	serverCmd.Flags().String(EveRedirectURI, DefaultEmpty, "The EVE SSO Redirect URI")
@@ -82,7 +78,6 @@ func init() {
 	viper.BindPFlag(RedisFlag, serverCmd.Flags().Lookup(RedisFlag))
 	viper.BindPFlag(PostgresFlag, serverCmd.Flags().Lookup(PostgresFlag))
 	viper.BindPFlag(CorporationIDFlag, serverCmd.Flags().Lookup(CorporationIDFlag))
-	viper.BindPFlag(SlackAPITokenFlag, serverCmd.Flags().Lookup(SlackAPITokenFlag))
 	viper.BindPFlag(CacheManufacturingFlag, serverCmd.Flags().Lookup(CacheManufacturingFlag))
 	viper.BindPFlag(EveClientID, serverCmd.Flags().Lookup(EveClientID))
 	viper.BindPFlag(EveSecretKey, serverCmd.Flags().Lookup(EveSecretKey))
@@ -129,8 +124,6 @@ func doCmd(cmd *cobra.Command, args []string) {
 	}
 
 	app.ImportSDE()
-
-	go slack.Bot(viper.GetString(SlackAPITokenFlag))
 
 	go app.ServerLoop()
 	go app.JournalLoop()
