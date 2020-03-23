@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"titan/db"
-	"titan/model"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/model"
 
 	"github.com/go-redis/redis"
 )

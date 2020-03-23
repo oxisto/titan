@@ -21,11 +21,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/model"
+
 	"github.com/antihax/goesi"
 	"github.com/oxisto/go-httputil"
-
-	"titan/cache"
-	"titan/model"
 )
 
 func OpenMarketDetail(w http.ResponseWriter, r *http.Request) {
@@ -41,13 +41,13 @@ func OpenMarket(characterID int32, typeID int32, w http.ResponseWriter, r *http.
 	accessToken := model.AccessToken{}
 	err := cache.GetAccessToken(characterID, &accessToken)
 	if err != nil {
-		httputil.JsonResponse(w, r, nil, err)
+		httputil.JSONResponse(w, r, nil, err)
 		return
 	}
 
 	_, err = cache.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), typeID, nil)
 	if err != nil {
-		httputil.JsonResponse(w, r, nil, err)
+		httputil.JSONResponse(w, r, nil, err)
 		return
 	}
 }

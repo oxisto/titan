@@ -20,8 +20,8 @@ import (
 	"context"
 	"net/http"
 
-	"titan/cache"
-	"titan/model"
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/model"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"

@@ -19,7 +19,7 @@ package routes
 import (
 	"net/http"
 
-	"titan/model"
+	"github.com/oxisto/titan/model"
 
 	"github.com/oxisto/go-httputil"
 )
@@ -27,5 +27,5 @@ import (
 func GetCharacter(w http.ResponseWriter, r *http.Request) {
 	character := r.Context().Value(CharacterContext).(*model.Character)
 
-	httputil.JsonResponse(w, r, character, nil)
+	httputil.JSONResponse(w, r, character, nil)
 }

@@ -29,8 +29,8 @@ import (
 
 	"github.com/antihax/goesi/esi"
 
-	"titan/db"
-	"titan/model"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/model"
 
 	"github.com/antihax/goesi"
 	"github.com/fatih/structs"

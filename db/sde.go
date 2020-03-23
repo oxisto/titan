@@ -20,10 +20,6 @@ import (
 	"fmt"
 	"os/exec"
 	"time"
-
-	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
 )
 
 type StaticDataExport struct {
@@ -53,14 +49,4 @@ func RunSDERestoreScript(version int32, server string) {
 
 	cmd := exec.Command("./restore.sh", host)
 	cmd.Wait()
-}
-
-func UnmarshalYAMLFromFile(fileName string, out interface{}) (err error) {
-	data, err := ioutil.ReadFile(fileName)
-
-	if err != nil {
-		return err
-	}
-
-	return yaml.Unmarshal(data, out)
 }

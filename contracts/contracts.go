@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"titan/cache"
-	"titan/model"
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/model"
 
 	"github.com/antihax/goesi/esi"
 )

@@ -21,9 +21,9 @@ import (
 	"strconv"
 	"strings"
 
-	"titan/db"
-	"titan/manufacturing"
-	"titan/model"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/manufacturing"
+	"github.com/oxisto/titan/model"
 
 	"github.com/gorilla/mux"
 	"github.com/oxisto/go-httputil"
@@ -48,7 +48,7 @@ const (
 func GetManufacturingCategories(w http.ResponseWriter, r *http.Request) {
 	categories, err := db.GetCategories()
 
-	httputil.JsonResponse(w, r, categories, err)
+	httputil.JSONResponse(w, r, categories, err)
 }
 
 type ManufacturingResponse struct {
@@ -70,7 +70,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	character := r.Context().Value(CharacterContext).(*model.Character)
 
 	if typeID, err = strconv.Atoi(mux.Vars(r)["typeID"]); err != nil {
-		httputil.JsonResponse(w, r, nil, err)
+		httputil.JSONResponse(w, r, nil, err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 		resp.Manufacturing = &m
 	}
 
-	httputil.JsonResponse(w, r, m, err)
+	httputil.JSONResponse(w, r, m, err)
 
 	m = model.Manufacturing{}
 	// calculate the manufacturing for the builder
@@ -126,5 +126,5 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 	//types, err := cache.GetProductTypes(options, *character)
 	types, err := db.GetProductTypes(options)
 
-	httputil.JsonResponse(w, r, types, err)
+	httputil.JSONResponse(w, r, types, err)
 }

@@ -20,9 +20,9 @@ import (
 	"context"
 	"time"
 
-	"titan/cache"
-	"titan/db"
-	"titan/model"
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/model"
 
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
@@ -46,7 +46,7 @@ func FetchJournal(corporationID int32, journal int32) (time.Duration, error) {
 
 	// for now, no paging
 	options := esi.GetCorporationsCorporationIdWalletsDivisionJournalOpts{
-		//Page: optional.NewInt32(1),
+	//Page: optional.NewInt32(1),
 	}
 
 	response, httpResponse, err := cache.ESI.WalletApi.GetCorporationsCorporationIdWalletsDivisionJournal(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), corporationID, 1, &options)

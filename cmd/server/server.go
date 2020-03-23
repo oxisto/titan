@@ -21,10 +21,10 @@ import (
 	"os"
 	"strings"
 
-	"titan"
-	"titan/cache"
-	"titan/db"
-	"titan/routes"
+	"github.com/oxisto/titan"
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/routes"
 
 	"github.com/gorilla/handlers"
 	"github.com/oxisto/go-httputil"

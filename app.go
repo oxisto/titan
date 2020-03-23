@@ -22,12 +22,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"titan/cache"
-	"titan/contracts"
-	"titan/db"
-	"titan/finance"
-	"titan/manufacturing"
-	"titan/model"
+
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/contracts"
+	"github.com/oxisto/titan/db"
+	"github.com/oxisto/titan/finance"
+	"github.com/oxisto/titan/manufacturing"
+	"github.com/oxisto/titan/model"
 
 	"github.com/sirupsen/logrus"
 )

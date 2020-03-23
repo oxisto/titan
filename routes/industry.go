@@ -19,8 +19,8 @@ package routes
 import (
 	"net/http"
 
-	"titan/cache"
-	"titan/model"
+	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/model"
 
 	"github.com/oxisto/go-httputil"
 )
@@ -31,5 +31,5 @@ func GetIndustryJobs(w http.ResponseWriter, r *http.Request) {
 
 	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
 
-	httputil.JsonResponse(w, r, jobs, err)
+	httputil.JSONResponse(w, r, jobs, err)
 }

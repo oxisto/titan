@@ -16,7 +16,7 @@ limitations under the License.
 
 package db
 
-import "titan/model"
+import "github.com/oxisto/titan/model"
 
 func GetJournalEntryIDs() ([]int64, error) {
 	journalIDs := []int64{}
