@@ -19,13 +19,13 @@ package routes
 import (
 	"net/http"
 
-	"github.com/oxisto/titan/model"
-
+	"github.com/gin-gonic/gin"
 	"github.com/oxisto/go-httputil"
+	"github.com/oxisto/titan/model"
 )
 
-func GetCharacter(w http.ResponseWriter, r *http.Request) {
-	character := r.Context().Value(CharacterContext).(*model.Character)
+func GetCharacter(c *gin.Context) {
+	character := c.Value(CharacterContext).(*model.Character)
 
-	httputil.JSONResponse(w, r, character, nil)
+	httputil.JSON(c, http.StatusOK, character, nil)
 }

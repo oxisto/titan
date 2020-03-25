@@ -39,8 +39,8 @@ type Manufacturing struct {
 	SlotsUsed                    int                              `json:"slotsUsed" bson:"slotsUsed"`
 	JobDurationModifiers         map[string]float64               `json:"jobDurationModifiers" bson:"jobDurationModifiers"`
 	MaterialConsumptionModifiers map[string]float64               `json:"materialConsumptionModifiers" bson:"materialConsumptionModifiers"`
-	ME                           int                              `json:"me"`
-	TE                           int                              `json:"te"`
+	ME                           int64                            `json:"me"`
+	TE                           int64                            `json:"te"`
 	TimeModifier                 float64                          `json:"timeModifier" bson:"timeModifier"`
 	MaterialModifier             float64                          `json:"materialModifier" bson:"materialModifier"`
 	Materials                    map[string]ManufacturingMaterial `json:"materials"`
