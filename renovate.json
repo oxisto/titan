@@ -1,5 +1,24 @@
 {
   "extends": [
     "config:base"
+  ],
+  "packageRules": [
+    {
+      "updateTypes": [
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    },
+    {
+      "packageNames": [
+        "^@types/node"
+      ],
+      "separateMinorPatch": true,
+      "patch": {
+        "enabled": false
+      }
+    }
   ]
 }
