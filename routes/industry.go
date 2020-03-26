@@ -19,17 +19,18 @@ package routes
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 
 	"github.com/oxisto/go-httputil"
 )
 
-func GetIndustryJobs(w http.ResponseWriter, r *http.Request) {
-	character := r.Context().Value(CharacterContext).(*model.Character)
+func GetIndustryJobs(c *gin.Context) {
+	character := c.Value(CharacterContext).(*model.Character)
 	jobs := &model.IndustryJobs{}
 
 	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
 
-	httputil.JSONResponse(w, r, jobs, err)
+	httputil.JSON(c, http.StatusOK, jobs, err)
 }

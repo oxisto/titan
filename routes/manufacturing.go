@@ -21,11 +21,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 
-	"github.com/gorilla/mux"
 	"github.com/oxisto/go-httputil"
 )
 
@@ -45,10 +45,10 @@ const (
 	SeparatorSortBy      = ":"
 )
 
-func GetManufacturingCategories(w http.ResponseWriter, r *http.Request) {
+func GetManufacturingCategories(c *gin.Context) {
 	categories, err := db.GetCategories()
 
-	httputil.JSONResponse(w, r, categories, err)
+	httputil.JSON(c, http.StatusOK, categories, err)
 }
 
 type ManufacturingResponse struct {
@@ -57,20 +57,20 @@ type ManufacturingResponse struct {
 	Manufacturing *model.Manufacturing
 }
 
-func GetManufacturing(w http.ResponseWriter, r *http.Request) {
+func GetManufacturing(c *gin.Context) {
 	var (
-		typeID int
+		typeID int64
 		err    error
 	)
 
-	ME, err := strconv.Atoi(r.URL.Query().Get(QueryParamME))
-	TE, err := strconv.Atoi(r.URL.Query().Get(QueryParamTE))
-	facilityTax, err := strconv.ParseFloat(r.URL.Query().Get(QueryParamFacilityTax), 64)
+	ME, err := httputil.IntQuery(c, QueryParamME)
+	TE, err := httputil.IntQuery(c, QueryParamTE)
+	facilityTax, err := strconv.ParseFloat(c.Query(QueryParamFacilityTax), 64)
 
-	character := r.Context().Value(CharacterContext).(*model.Character)
+	character := c.Value(CharacterContext).(*model.Character)
 
-	if typeID, err = strconv.Atoi(mux.Vars(r)["typeID"]); err != nil {
-		httputil.JSONResponse(w, r, nil, err)
+	if typeID, err = httputil.IntParam(c, "id"); err != nil {
+		httputil.JSON(c, http.StatusBadRequest, nil, err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 		resp.Manufacturing = &m
 	}
 
-	httputil.JSONResponse(w, r, m, err)
+	httputil.JSON(c, http.StatusOK, m, err)
 
 	m = model.Manufacturing{}
 	// calculate the manufacturing for the builder
@@ -94,10 +94,10 @@ func GetManufacturing(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
+func GetManufacturingProducts(c *gin.Context) {
 	//character := r.Context().Value(CharacterContext).(*model.Character)
 
-	array := strings.Split(r.URL.Query().Get(QueryParamCategoryIDs), SeparatorCategoryIDs)
+	array := strings.Split(c.Query(QueryParamCategoryIDs), SeparatorCategoryIDs)
 
 	categoryIDs := map[int]bool{}
 
@@ -108,12 +108,12 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 
 	options := db.NewSearchOptions()
 
-	options.NameFilter = r.URL.Query().Get(QueryParamNameFilter)
+	options.NameFilter = c.Query(QueryParamNameFilter)
 	options.CategoryIDs = categoryIDs
-	options.MaxProductionCosts, _ = strconv.ParseFloat(r.URL.Query().Get(QueryParamMaxProductionCosts), 64)
-	options.HasRequiredSkillsOnly, _ = strconv.ParseBool(r.URL.Query().Get(QueryParamHasRequiredSkillsOnly))
+	options.MaxProductionCosts, _ = httputil.FloatQuery(c, QueryParamMaxProductionCosts)
+	options.HasRequiredSkillsOnly, _ = strconv.ParseBool(c.Query(QueryParamHasRequiredSkillsOnly))
 
-	if sortBy := r.URL.Query().Get(QueryParamSortBy); sortBy != "" {
+	if sortBy := c.Query(QueryParamSortBy); sortBy != "" {
 		array = strings.Split(sortBy, SeparatorSortBy)
 
 		options.SortByField = array[0]
@@ -126,5 +126,5 @@ func GetManufacturingProducts(w http.ResponseWriter, r *http.Request) {
 	//types, err := cache.GetProductTypes(options, *character)
 	types, err := db.GetProductTypes(options)
 
-	httputil.JSONResponse(w, r, types, err)
+	httputil.JSON(c, http.StatusOK, types, err)
 }

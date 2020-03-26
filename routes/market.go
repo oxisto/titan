@@ -19,35 +19,35 @@ package routes
 import (
 	"context"
 	"net/http"
-	"strconv"
-
-	"github.com/oxisto/titan/cache"
-	"github.com/oxisto/titan/model"
 
 	"github.com/antihax/goesi"
+	"github.com/gin-gonic/gin"
+	"github.com/oxisto/titan/model"
+
 	"github.com/oxisto/go-httputil"
+	"github.com/oxisto/titan/cache"
 )
 
-func OpenMarketDetail(w http.ResponseWriter, r *http.Request) {
-	character := r.Context().Value(CharacterContext).(*model.Character)
+func OpenMarketDetail(c *gin.Context) {
+	character := c.Value(CharacterContext).(*model.Character)
 
-	if typeID, err := strconv.Atoi(r.URL.Query().Get("typeID")); err == nil {
-		OpenMarket(character.ID(), int32(typeID), w, r)
+	if typeID, err := httputil.IntParam(c, "id"); err == nil {
+		OpenMarket(character.ID(), int32(typeID), c)
 	}
 }
 
-func OpenMarket(characterID int32, typeID int32, w http.ResponseWriter, r *http.Request) {
+func OpenMarket(characterID int32, typeID int32, c *gin.Context) {
 	// find access token for character
 	accessToken := model.AccessToken{}
 	err := cache.GetAccessToken(characterID, &accessToken)
 	if err != nil {
-		httputil.JSONResponse(w, r, nil, err)
+		httputil.JSON(c, http.StatusNotFound, nil, err)
 		return
 	}
 
 	_, err = cache.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), typeID, nil)
 	if err != nil {
-		httputil.JSONResponse(w, r, nil, err)
+		httputil.JSON(c, http.StatusNotFound, nil, err)
 		return
 	}
 }

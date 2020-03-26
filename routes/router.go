@@ -17,17 +17,16 @@ limitations under the License.
 package routes
 
 import (
-	"context"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-contrib/static"
+	"github.com/gin-gonic/gin"
+	"github.com/oxisto/go-httputil/auth"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 
-	jwtmiddleware "github.com/auth0/go-jwt-middleware"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/negroni"
 )
 
 const (
@@ -43,53 +42,76 @@ func init() {
 	log = logrus.WithField("component", "routes")
 }
 
-func NewRouter(corporationId int32) *mux.Router {
+func NewRouter(corporationId int32) *gin.Engine {
 	limitToCorporationId = corporationId
 
-	middleware := jwtmiddleware.New(jwtmiddleware.Options{
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(model.JwtSecretKey), nil
-		},
-		SigningMethod: jwt.SigningMethodHS256,
-	})
+	options := auth.DefaultOptions
+	options.JWTKeySupplier = func(token *jwt.Token) (interface{}, error) {
+		return []byte(model.JwtSecretKey), nil
+	}
+	options.TokenExtractor = auth.ExtractFromFirstAvailable(
+		auth.ExtractTokenFromCookie("auth"),
+		auth.ExtractTokenFromHeader)
 
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/auth/callback", Callback)
-	router.HandleFunc("/auth/login", Login)
-	router.Handle("/api/character", WithMiddleware(middleware, GetCharacter))
-	router.Handle("/api/corporation", WithMiddleware(middleware, GetCorporation))
-	router.Handle("/api/manufacturing", WithMiddleware(middleware, GetManufacturingProducts))
-	router.Handle("/api/manufacturing/{"+RouteVarsTypeID+"}", WithMiddleware(middleware, GetManufacturing))
-	router.Handle("/api/manufacturing-categories", WithMiddleware(middleware, GetManufacturingCategories))
-	router.Handle("/api/industry/jobs", WithMiddleware(middleware, GetIndustryJobs))
-	router.Handle("/api/market/view", WithMiddleware(middleware, OpenMarketDetail))
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./frontend/dist")))
+	handler := auth.NewHandler(options)
 
-	return router
+	r := gin.Default()
+	r.Use(static.Serve("/", static.LocalFile("./frontend/dist", false)))
+
+	r.POST("/auth/login", Login)
+	r.POST("/auth/callback", Callback)
+
+	api := r.Group("/api")
+	api.Use(handler.AuthRequired)
+	api.Use(CharacterRequired)
+	{
+		character := api.Group("/character")
+		{
+			character.GET("/", GetCharacter)
+		}
+
+		corporation := api.Group("/corporation")
+		{
+			corporation.GET("/", GetCorporation)
+		}
+
+		manufacturing := api.Group("/manufacturing")
+		{
+			manufacturing.GET("/", GetManufacturingProducts)
+			manufacturing.GET("/:id", GetManufacturing)
+		}
+		api.GET("/manufacturing-categories", GetManufacturingCategories)
+
+		industry := api.Group("/industry")
+		{
+			industry.GET("/jobs", GetIndustryJobs)
+		}
+
+		market := api.Group("/market")
+		{
+			market.POST("/:view", OpenMarketDetail)
+		}
+	}
+
+	return r
 }
 
-func WithMiddleware(middleware *jwtmiddleware.JWTMiddleware, handlerFunc http.HandlerFunc) *negroni.Negroni {
-	return negroni.New(
-		negroni.HandlerFunc(middleware.HandlerWithNext),
-		negroni.HandlerFunc(HandleFetchCharacterWithNext),
-		negroni.Wrap(handlerFunc),
-	)
-}
-
-// Special implementation for Negroni, but could be used elsewhere.
-func HandleFetchCharacterWithNext(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	token, ok := r.Context().Value("user").(*jwt.Token)
+func CharacterRequired(c *gin.Context) {
+	token, ok := c.Value(auth.ClaimsContext).(*jwt.Token)
 	if !ok {
+		c.Abort()
 		return
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(*jwt.MapClaims)
 	if !ok {
+		c.Abort()
 		return
 	}
 
-	characterID, ok := claims["CharacterID"].(float64)
+	characterID, ok := (*claims)["CharacterID"].(float64)
 	if !ok {
+		c.Abort()
 		return
 	}
 
@@ -97,12 +119,11 @@ func HandleFetchCharacterWithNext(w http.ResponseWriter, r *http.Request, next h
 	cache.GetCharacter(int32(characterID), character)
 
 	if limitToCorporationId != 0 && character.CorporationID != limitToCorporationId {
-		http.Error(w, "The corporation you are in is not allowed to access this service", http.StatusForbidden)
+		c.String(http.StatusForbidden, "The corporation you are in is not allowed to access this service")
+		c.Abort()
 		return
 	}
 
-	request := r.WithContext(context.WithValue(r.Context(), CharacterContext, character))
-
-	*r = *request
-	next(w, r)
+	c.Set(CharacterContext, character)
+	c.Next()
 }

@@ -21,33 +21,35 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func Login(c *gin.Context) {
 	scope := "publicData esi-skills.read_skills.v1 esi-corporations.read_corporation_membership.v1 esi-ui.open_window.v1 esi-wallet.read_corporation_wallets.v1 esi-assets.read_corporation_assets.v1 esi-corporations.read_blueprints.v1 esi-industry.read_corporation_jobs.v1"
 
 	t := time.Now()
 	state := base64.StdEncoding.EncodeToString([]byte(t.String()))
 
-	w.Header().Add("Location", cache.SSO.Redirect(state, &scope))
-	w.WriteHeader(http.StatusFound)
+	c.Header("Location", cache.SSO.Redirect(state, &scope))
+	c.String(http.StatusFound, "")
 }
 
-func HandleError(err error, w http.ResponseWriter, r *http.Request) {
+func HandleError(err error, c *gin.Context) {
 	log.Errorf("Could not fetch access token: %v", err)
-	w.Header().Add("Location", "/auth/login")
-	w.WriteHeader(http.StatusFound)
+
+	c.Header("Location", "/auth/login")
+	c.String(http.StatusFound, "")
 }
 
-func Callback(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
+func Callback(c *gin.Context) {
+	code := c.Query("code")
 
 	// fetch access token with authorization code
 	tokenResponse, expiryTime, characterID, characterName, err := cache.SSO.AccessToken(code, false)
 	if err != nil {
-		HandleError(err, w, r)
+		HandleError(err, c)
 		return
 	}
 
@@ -62,7 +64,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 	// cache the access token
 	err = cache.WriteCachedObject(&accessToken)
 	if err != nil {
-		HandleError(err, w, r)
+		HandleError(err, c)
 		return
 	}
 
@@ -72,19 +74,19 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 		Token:       tokenResponse.RefreshToken,
 	})
 	if err != nil {
-		HandleError(err, w, r)
+		HandleError(err, c)
 		return
 	}
 
 	// issue an authentication token for our own API
 	authToken, err := model.IssueToken(int32(characterID))
 	if err != nil {
-		HandleError(err, w, r)
+		HandleError(err, c)
 		return
 	}
 
 	// redirect to main dashboard page
-	w.Header().Add("Location", "/#?token="+authToken)
-	w.Header().Add("Set-Cookie", "token="+authToken+"; Path=/")
-	w.WriteHeader(http.StatusFound)
+	c.Header("Location", "/#?token="+authToken)
+	c.Header("Set-Cookie", "token="+authToken+"; Path=/")
+	c.String(http.StatusFound, "")
 }
