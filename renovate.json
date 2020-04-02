@@ -4,21 +4,11 @@
   ],
   "packageRules": [
     {
-      "updateTypes": [
-        "patch",
-        "pin",
-        "digest"
-      ],
+      "updateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
-    },
-    {
-      "packageNames": [
-        "^@types/node"
-      ],
-      "separateMinorPatch": true,
-      "patch": {
-        "enabled": false
-      }
     }
+  ],
+  "ignoreDeps": [
+    "@types/node"
   ]
 }
