@@ -85,6 +85,8 @@ func Callback(c *gin.Context) {
 		return
 	}
 
+	log.Infof("token: %s\n", authToken)
+
 	// redirect to main dashboard page
 	c.Header("Location", "/#?token="+authToken)
 	c.Header("Set-Cookie", "token="+authToken+"; Path=/")

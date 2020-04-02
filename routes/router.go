@@ -49,8 +49,9 @@ func NewRouter(corporationId int32) *gin.Engine {
 	options.JWTKeySupplier = func(token *jwt.Token) (interface{}, error) {
 		return []byte(model.JwtSecretKey), nil
 	}
+	options.JWTClaims = &model.APIClaims{}
 	options.TokenExtractor = auth.ExtractFromFirstAvailable(
-		auth.ExtractTokenFromCookie("auth"),
+		auth.ExtractTokenFromCookie("token"),
 		auth.ExtractTokenFromHeader)
 
 	handler := auth.NewHandler(options)
@@ -67,18 +68,18 @@ func NewRouter(corporationId int32) *gin.Engine {
 	{
 		character := api.Group("/character")
 		{
-			character.GET("/", GetCharacter)
+			character.GET("", GetCharacter)
 		}
 
 		corporation := api.Group("/corporation")
 		{
-			corporation.GET("/", GetCorporation)
+			corporation.GET("", GetCorporation)
 		}
 
 		manufacturing := api.Group("/manufacturing")
 		{
-			manufacturing.GET("/", GetManufacturingProducts)
-			manufacturing.GET("/:id", GetManufacturing)
+			manufacturing.GET("", GetManufacturingProducts)
+			manufacturing.GET(":id", GetManufacturing)
 		}
 		api.GET("/manufacturing-categories", GetManufacturingCategories)
 
@@ -103,20 +104,14 @@ func CharacterRequired(c *gin.Context) {
 		return
 	}
 
-	claims, ok := token.Claims.(*jwt.MapClaims)
-	if !ok {
-		c.Abort()
-		return
-	}
-
-	characterID, ok := (*claims)["CharacterID"].(float64)
+	claims, ok := token.Claims.(*model.APIClaims)
 	if !ok {
 		c.Abort()
 		return
 	}
 
 	character := &model.Character{}
-	cache.GetCharacter(int32(characterID), character)
+	cache.GetCharacter(int32(claims.CharacterID), character)
 
 	if limitToCorporationId != 0 && character.CorporationID != limitToCorporationId {
 		c.String(http.StatusForbidden, "The corporation you are in is not allowed to access this service")
