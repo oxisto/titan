@@ -22,7 +22,7 @@
     "@auth0/angular-jwt": "4.0.0",
     "@ng-bootstrap/ng-bootstrap": "6.1.0",
     "bootstrap": "4.4.1",
-    "moment": "2.25.0",
+    "moment": "2.25.1",
     "ngx-clipboard": "13.0.0",
     "rxjs": "6.5.5",
     "tslib": "1.11.1",
