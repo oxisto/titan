@@ -12,7 +12,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.6.0
+	github.com/lib/pq v1.7.0
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.2
 	github.com/onsi/ginkgo v1.12.0 // indirect
