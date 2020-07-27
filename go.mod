@@ -11,7 +11,7 @@ require (
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/lib/pq v1.7.1
+	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/onsi/ginkgo v1.12.0 // indirect
