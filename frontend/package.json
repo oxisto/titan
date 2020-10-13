@@ -21,7 +21,7 @@
     "@angular/router": "10.1.5",
     "@auth0/angular-jwt": "5.0.1",
     "@ng-bootstrap/ng-bootstrap": "7.0.0",
-    "bootstrap": "4.5.2",
+    "bootstrap": "4.5.3",
     "moment": "2.29.1",
     "ngx-clipboard": "13.0.1",
     "rxjs": "6.6.3",
