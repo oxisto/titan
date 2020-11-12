@@ -73,7 +73,7 @@ export function tokenGetter() {
       component: BlueprintDetailComponent,
       canActivate: [LoggedInGuard]
     }
-    ], { useHash: true })
+    ], { useHash: true, relativeLinkResolution: 'legacy' })
   ],
   providers: [
     AuthService,
