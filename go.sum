@@ -33,6 +33,8 @@ github.com/antihax/goesi v0.0.0-20201027023057-f17477dcbae1 h1:kBosfQpwK0U7hNzSY
 github.com/antihax/goesi v0.0.0-20201027023057-f17477dcbae1/go.mod h1:mCmvV4HK4Y7Fw4tCyqpo6mRG5QYH/3VOV1rU9g32byA=
 github.com/antihax/goesi v0.0.0-20201110023718-679d0b849ff5 h1:mONTgv+OcF/9dwBgkTbOQNeI8OwkHH+odOEFDEJXNTQ=
 github.com/antihax/goesi v0.0.0-20201110023718-679d0b849ff5/go.mod h1:mCmvV4HK4Y7Fw4tCyqpo6mRG5QYH/3VOV1rU9g32byA=
+github.com/antihax/goesi v0.0.0-20201124030044-d9865cf4c491 h1:Vr53TtElg1wftTCA/BesdTwvGa6lR6xKHt8o9wDdMtQ=
+github.com/antihax/goesi v0.0.0-20201124030044-d9865cf4c491/go.mod h1:mCmvV4HK4Y7Fw4tCyqpo6mRG5QYH/3VOV1rU9g32byA=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
