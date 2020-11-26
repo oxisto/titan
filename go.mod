@@ -14,7 +14,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.2 // indirect
-	github.com/mitchellh/mapstructure v1.3.3
+	github.com/mitchellh/mapstructure v1.4.0
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.6
 	github.com/oxisto/go-httputil v0.3.7
