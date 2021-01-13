@@ -1283,10 +1283,10 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.7.0"
 
-"@ng-bootstrap/ng-bootstrap@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@ng-bootstrap/ng-bootstrap/-/ng-bootstrap-7.0.0.tgz#3bfa62eb52fdb891b1ce693ea11c39127e2d1ab7"
-  integrity sha512-SxUaptGWJmCxM0d2Zy1mx7K7p/YBwGZ69NmmBQVY4BE6p5av0hWrVmv9rzzfBz0rhxU7RPZLor2Jpaoq8Xyl4w==
+"@ng-bootstrap/ng-bootstrap@8.0.2":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@ng-bootstrap/ng-bootstrap/-/ng-bootstrap-8.0.2.tgz#16bad7c4164f71cbe75cd7119dd1a3201764337a"
+  integrity sha512-LF642HhuIxMWQl96Ih3ZNDrIprmUJyuA4FWZrajX3jD0zDJt+ruChURTM4CnFTLGl9MClia8mcL/eNYayMLGFw==
   dependencies:
     tslib "^2.0.0"
 
