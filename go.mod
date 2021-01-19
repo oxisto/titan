@@ -9,7 +9,7 @@ require (
 	github.com/gin-contrib/static v0.0.0-20200916080430-d45d9a37d28e
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/go-redis/redis/v8 v8.4.8
+	github.com/go-redis/redis/v8 v8.4.9
 	github.com/gorilla/handlers v1.5.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.9.0
