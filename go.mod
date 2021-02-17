@@ -18,7 +18,7 @@ require (
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.6
 	github.com/oxisto/go-httputil v0.3.7
-	github.com/sirupsen/logrus v1.7.1
+	github.com/sirupsen/logrus v1.8.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 )
