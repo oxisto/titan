@@ -3,7 +3,7 @@ module github.com/oxisto/titan
 go 1.14
 
 require (
-	github.com/antihax/goesi v0.0.0-20210219024247-94276e8529b3
+	github.com/antihax/goesi v0.0.0-20210220210702-d9b31cef35bd
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/static v0.0.0-20200916080430-d45d9a37d28e
@@ -13,7 +13,6 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/jmoiron/sqlx v1.3.1
 	github.com/lib/pq v1.9.0
-	github.com/mailru/easyjson v0.7.2 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.6
