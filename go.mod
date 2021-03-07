@@ -12,7 +12,7 @@ require (
 	github.com/go-redis/redis/v8 v8.7.1
 	github.com/gorilla/handlers v1.5.1
 	github.com/jmoiron/sqlx v1.3.1
-	github.com/lib/pq v1.9.0
+	github.com/lib/pq v1.10.0
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.6
