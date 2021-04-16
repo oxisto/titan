@@ -1,5 +1,6 @@
 name: build
-on: [push]
+on: 
+  push:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,25 +8,29 @@ jobs:
       - uses: actions/checkout@master
       - name: Build Docker Image
         run: |
-          export TAG=`expr substr $GITHUB_SHA 1 8`
-          export DOCKER_HUB_IMAGE=oxisto/titan
           echo "{\"version\": \"${TAG}\"}" > frontend/src/assets/config.json
-          docker build -t $DOCKER_HUB_IMAGE:$TAG .
+          docker build -t ${DOCKER_HUB_IMAGE}:${TAG} .
+        env:
+          DOCKER_HUB_IMAGE: oxisto/titan
+          TAG: ${{ github.sha }}
       - name: Push Docker Image
         run: |
-          export TAG=`expr substr $GITHUB_SHA 1 8`
-          export DOCKER_HUB_IMAGE=oxisto/titan
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker tag $DOCKER_HUB_IMAGE:$TAG $DOCKER_HUB_IMAGE 
-          docker push $DOCKER_HUB_IMAGE:$TAG
-          docker push $DOCKER_HUB_IMAGE
+          docker tag ${DOCKER_HUB_IMAGE}:${TAG} ${DOCKER_HUB_IMAGE} 
+          docker push ${DOCKER_HUB_IMAGE}:${TAG}
+          docker push ${DOCKER_HUB_IMAGE}
         if: github.ref == 'refs/heads/master'
+        env:
+          DOCKER_HUB_IMAGE: oxisto/titan
+          TAG: ${{ github.sha }}        
       - name: Deploy Kubernetes
         run: |
           curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl
           mkdir -p ~/.kube && echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-          export TAG=`expr substr $GITHUB_SHA 1 8`
           envsubst < kubernetes/postgres.yaml | kubectl apply -f -
           envsubst < kubernetes/redis.yaml | kubectl apply -f -
           envsubst < kubernetes/titan.yaml | kubectl apply -f -
         if: github.ref == 'refs/heads/master'
+        env:
+          DOCKER_HUB_IMAGE: oxisto/titan
+          TAG: ${{ github.sha }}
