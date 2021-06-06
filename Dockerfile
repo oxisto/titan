@@ -1,43 +1,13 @@
-FROM node AS build-frontend
-
-WORKDIR /tmp
-
-ADD frontend/*.json ./
-ADD frontend/*.lock ./
-RUN yarn install --ignore-optional
-
-ADD frontend/. .
-RUN yarn run lint
-RUN yarn run build --prod
-
-FROM golang AS build-server
-
-WORKDIR /build
-
-RUN apt update && apt -y install bzip2
-
-# copy SDE version and download EVE SDE
-COPY sde.* ./
-RUN ./sde.sh
-
-# copy dependency information and fetch them
-COPY go.mod ./
-RUN go mod download
-
-# copy sources
-COPY . .
-
-# build and install (without C-support, otherwise there issue because of the musl glibc replacement on Alpine)
-RUN CGO_ENABLED=0 GOOS=linux go build -a cmd/server/server.go
-
 FROM alpine
+
 # update CA certificates
 RUN apk update && apk add ca-certificates postgresql-client
 WORKDIR /usr/titan
-COPY --from=build-frontend /tmp/dist/titan-frontend ./frontend/dist
-COPY --from=build-server /build/server .
-COPY --from=build-server /build/sde.version .
-COPY --from=build-server /build/sde-* ./
+RUN mkdir -p frontend/dist/titan-frontend
+COPY frontend/dist/titan-frontend/* ./frontend/dist/titan-frontend/
+COPY server  .
+COPY sde.version .
+COPY sde-* ./
 ADD restore.sh .
 ADD docker-entrypoint.sh .
 ADD sql sql
