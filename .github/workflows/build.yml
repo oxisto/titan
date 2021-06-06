@@ -63,6 +63,7 @@ jobs:
           mkdir -p frontend/dist/titan-frontend
           mv download/server/server .
           mv download/frontend/* frontend/dist/titan-frontend/
+          chmod +x server
           ./sde.sh
       - name: Build Docker Image
         run: |
