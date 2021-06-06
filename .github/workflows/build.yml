@@ -14,7 +14,7 @@ jobs:
         uses: actions/setup-go@v2.1.3
         with:
           go-version: 1.16
-        run: |
+      - run: |
           CGO_ENABLED=0 GOOS=linux go build -a cmd/server/server.go
       - name: Archive titan-frontend
         uses: actions/upload-artifact@v2
