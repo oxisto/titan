@@ -98,13 +98,7 @@ func NewRouter(corporationId int32) *gin.Engine {
 }
 
 func CharacterRequired(c *gin.Context) {
-	token, ok := c.Value(auth.ClaimsContext).(*jwt.Token)
-	if !ok {
-		c.Abort()
-		return
-	}
-
-	claims, ok := token.Claims.(*model.APIClaims)
+	claims, ok := c.Value(auth.ClaimsContext).(*model.APIClaims)
 	if !ok {
 		c.Abort()
 		return
