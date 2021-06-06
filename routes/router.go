@@ -57,7 +57,7 @@ func NewRouter(corporationId int32) *gin.Engine {
 	handler := auth.NewHandler(options)
 
 	r := gin.Default()
-	r.Use(static.Serve("/", static.LocalFile("./frontend/dist", false)))
+	r.Use(static.Serve("/", static.LocalFile("./frontend/dist/titan-frontend", false)))
 
 	r.GET("/auth/login", Login)
 	r.GET("/auth/callback", Callback)
