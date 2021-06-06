@@ -29,12 +29,13 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: 14
-      - run: |
+      - name: Build
+        run: |
           echo "{\"version\": \"${TAG}\"}" > src/assets/config.json
 
           yarn install --ignore-optional
           yarn lint
-          yarn build --prod
+          yarn build --configuration production
         working-directory: frontend
         env:
           TAG: ${{ github.sha }}
@@ -52,9 +53,12 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/download-artifact@v2
         with:
-          path: .
-      - run: |
-          mv server/server . 
+          path: download
+      - name: Put artifacts in place
+        run: |
+          mkdir -p frontend/dist/titan-frontend
+          mv download/server/server .
+          mv download/frontend/* frontend/dist/titan-frontend/
           ls **
           ./sde.sh
       - name: Build Docker Image
