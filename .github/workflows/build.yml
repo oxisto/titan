@@ -30,14 +30,19 @@ jobs:
         with:
           node-version: 14
       - run: |
-          yarn install
-          yarn build
+          echo "{\"version\": \"${TAG}\"}" > src/assets/config.json
+
+          yarn install --ignore-optional
+          yarn lint
+          yarn build --prod
         working-directory: frontend
+        env:
+          TAG: ${{ github.sha }}
       - name: Archive titan-frontend
         uses: actions/upload-artifact@v2
         with:
           name: frontend
-          path: dist/frontend/titan-frontend
+          path: frontend/dist/titan-frontend
   build-docker:
     runs-on: ubuntu-latest
     needs:
@@ -49,10 +54,11 @@ jobs:
         with:
           path: .
       - run: |
+          mv server/server . 
           ls **
+          ./sde.sh
       - name: Build Docker Image
         run: |
-          echo "{\"version\": \"${TAG}\"}" > frontend/src/assets/config.json
           docker build -t ${DOCKER_HUB_IMAGE}:${TAG} .
         env:
           DOCKER_HUB_IMAGE: oxisto/titan
