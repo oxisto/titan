@@ -23,4 +23,4 @@ require (
 	github.com/spf13/viper v1.7.1
 )
 
-replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.0+incompatible
+replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.1+incompatible
