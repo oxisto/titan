@@ -22,8 +22,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
-
-	"github.com/oxisto/go-httputil"
 )
 
 func GetCorporation(c *gin.Context) {
@@ -32,5 +30,5 @@ func GetCorporation(c *gin.Context) {
 
 	err := cache.GetCorporation(character.CharacterID, character.CorporationID, corporation)
 
-	httputil.JSON(c, http.StatusOK, corporation, err)
+	JSON(c, http.StatusOK, corporation, err)
 }

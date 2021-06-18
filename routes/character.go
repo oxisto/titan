@@ -20,12 +20,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/oxisto/go-httputil"
 	"github.com/oxisto/titan/model"
 )
 
 func GetCharacter(c *gin.Context) {
 	character := c.Value(CharacterContext).(*model.Character)
 
-	httputil.JSON(c, http.StatusOK, character, nil)
+	JSON(c, http.StatusOK, character, nil)
 }

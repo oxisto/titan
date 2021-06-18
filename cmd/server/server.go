@@ -26,8 +26,6 @@ import (
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/routes"
 
-	"github.com/gorilla/handlers"
-	"github.com/oxisto/go-httputil"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -130,7 +128,7 @@ func doCmd(cmd *cobra.Command, args []string) {
 	go app.TransactionLoop()
 	//go ContractsLoop()
 
-	router := handlers.LoggingHandler(&httputil.LogWriter{Level: log.DebugLevel, Component: "http"}, routes.NewRouter(int32(viper.GetInt(CorporationIDFlag))))
+	router := routes.NewRouter(int32(viper.GetInt(CorporationIDFlag)))
 	err := http.ListenAndServe(viper.GetString(ListenFlag), router)
 
 	log.Errorf("An error occured: %v", err)

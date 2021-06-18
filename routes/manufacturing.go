@@ -25,8 +25,6 @@ import (
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
-
-	"github.com/oxisto/go-httputil"
 )
 
 const (
@@ -48,7 +46,7 @@ const (
 func GetManufacturingCategories(c *gin.Context) {
 	categories, err := db.GetCategories()
 
-	httputil.JSON(c, http.StatusOK, categories, err)
+	JSON(c, http.StatusOK, categories, err)
 }
 
 type ManufacturingResponse struct {
@@ -63,14 +61,14 @@ func GetManufacturing(c *gin.Context) {
 		err    error
 	)
 
-	ME, err := httputil.IntQuery(c, QueryParamME)
-	TE, err := httputil.IntQuery(c, QueryParamTE)
+	ME, err := IntQuery(c, QueryParamME)
+	TE, err := IntQuery(c, QueryParamTE)
 	facilityTax, err := strconv.ParseFloat(c.Query(QueryParamFacilityTax), 64)
 
 	character := c.Value(CharacterContext).(*model.Character)
 
-	if typeID, err = httputil.IntParam(c, "id"); err != nil {
-		httputil.JSON(c, http.StatusBadRequest, nil, err)
+	if typeID, err = IntParam(c, "id"); err != nil {
+		JSON(c, http.StatusBadRequest, nil, err)
 		return
 	}
 
@@ -84,7 +82,7 @@ func GetManufacturing(c *gin.Context) {
 		resp.Manufacturing = &m
 	}
 
-	httputil.JSON(c, http.StatusOK, m, err)
+	JSON(c, http.StatusOK, m, err)
 
 	m = model.Manufacturing{}
 	// calculate the manufacturing for the builder
@@ -110,7 +108,7 @@ func GetManufacturingProducts(c *gin.Context) {
 
 	options.NameFilter = c.Query(QueryParamNameFilter)
 	options.CategoryIDs = categoryIDs
-	options.MaxProductionCosts, _ = httputil.FloatQuery(c, QueryParamMaxProductionCosts)
+	options.MaxProductionCosts, _ = FloatQuery(c, QueryParamMaxProductionCosts)
 	options.HasRequiredSkillsOnly, _ = strconv.ParseBool(c.Query(QueryParamHasRequiredSkillsOnly))
 
 	if sortBy := c.Query(QueryParamSortBy); sortBy != "" {
@@ -126,5 +124,5 @@ func GetManufacturingProducts(c *gin.Context) {
 	//types, err := cache.GetProductTypes(options, *character)
 	types, err := db.GetProductTypes(options)
 
-	httputil.JSON(c, http.StatusOK, types, err)
+	JSON(c, http.StatusOK, types, err)
 }

@@ -18,13 +18,15 @@ package routes
 
 import (
 	"net/http"
+	"reflect"
+	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/oxisto/go-httputil/auth"
+	"github.com/golang-jwt/jwt"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
+	"github.com/oxisto/titan/routes/auth"
 
 	"github.com/sirupsen/logrus"
 )
@@ -115,4 +117,38 @@ func CharacterRequired(c *gin.Context) {
 
 	c.Set(CharacterContext, character)
 	c.Next()
+}
+
+func IntParam(c *gin.Context, key string) (i int64, err error) {
+	return strconv.ParseInt(c.Param(key), 10, 64)
+}
+
+func FloatParam(c *gin.Context, key string) (i float64, err error) {
+	return strconv.ParseFloat(c.Param(key), 64)
+}
+
+func IntQuery(c *gin.Context, key string) (i int64, err error) {
+	return strconv.ParseInt(c.Query(key), 10, 64)
+}
+
+func FloatQuery(c *gin.Context, key string) (i float64, err error) {
+	return strconv.ParseFloat(c.Query(key), 64)
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+func JSON(c *gin.Context, status int, value interface{}, err error) {
+	if err != nil {
+		logrus.Errorf("An error occurred during processing of a REST request: %s", err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{err.Error()})
+		return
+	}
+
+	if value == nil || (reflect.ValueOf(value).Kind() == reflect.Ptr && reflect.ValueOf(value).IsNil()) {
+		c.JSON(http.StatusNotFound, nil)
+	} else {
+		c.JSON(status, value)
+	}
 }
