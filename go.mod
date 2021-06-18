@@ -15,7 +15,7 @@ require (
 	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/onsi/gomega v1.13.0 // indirect
 	github.com/oxisto/bellows v1.0.0
-	github.com/oxisto/evesso v1.0.6
+	github.com/oxisto/evesso v1.0.7
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.8.0
