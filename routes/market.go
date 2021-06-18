@@ -24,14 +24,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/model"
 
-	"github.com/oxisto/go-httputil"
 	"github.com/oxisto/titan/cache"
 )
 
 func OpenMarketDetail(c *gin.Context) {
 	character := c.Value(CharacterContext).(*model.Character)
 
-	if typeID, err := httputil.IntParam(c, "id"); err == nil {
+	if typeID, err := IntParam(c, "id"); err == nil {
 		OpenMarket(character.ID(), int32(typeID), c)
 	}
 }
@@ -41,13 +40,13 @@ func OpenMarket(characterID int32, typeID int32, c *gin.Context) {
 	accessToken := model.AccessToken{}
 	err := cache.GetAccessToken(characterID, &accessToken)
 	if err != nil {
-		httputil.JSON(c, http.StatusNotFound, nil, err)
+		JSON(c, http.StatusNotFound, nil, err)
 		return
 	}
 
 	_, err = cache.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), typeID, nil)
 	if err != nil {
-		httputil.JSON(c, http.StatusNotFound, nil, err)
+		JSON(c, http.StatusNotFound, nil, err)
 		return
 	}
 }

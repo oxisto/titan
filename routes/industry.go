@@ -22,8 +22,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
-
-	"github.com/oxisto/go-httputil"
 )
 
 func GetIndustryJobs(c *gin.Context) {
@@ -32,5 +30,5 @@ func GetIndustryJobs(c *gin.Context) {
 
 	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
 
-	httputil.JSON(c, http.StatusOK, jobs, err)
+	JSON(c, http.StatusOK, jobs, err)
 }
