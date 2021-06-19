@@ -35,7 +35,7 @@ type IndustryJobs struct {
 
 type IndustryJob struct {
 	ActivityID       int32   `json:"activityID"`
-	Blueprint        Type    `json:"blueprint"`
+	Blueprint        *Type   `json:"blueprint"`
 	StartDate        int64   `json:"startDate"`
 	EndDate          int64   `json:"endDate"`
 	CompletedDate    int64   `json:"completedDate"`

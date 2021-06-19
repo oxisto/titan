@@ -491,18 +491,6 @@ func FetchCharacter(callerID int32, characterID int32, object model.CachedObject
 	return nil
 }
 
-func FetchType(callerID int32, typeID int32, object model.CachedObject) error {
-	t, ok := object.(*model.Type)
-	if !ok {
-		return errors.New("passing invalid type to FetchType function")
-	}
-
-	var err error
-	*t, err = db.GetType(typeID)
-
-	return err
-}
-
 func FetchSystemCostIndices() (indices map[int32]model.CachedObject, err error) {
 	indices = make(map[int32]model.CachedObject)
 

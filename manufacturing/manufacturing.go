@@ -17,6 +17,7 @@ limitations under the License.
 package manufacturing
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -33,8 +34,8 @@ const (
 )
 
 const (
-	ActivityManufacturing = 1
-	ActivityInvention     = 8
+	ActivityManufacturing = model.IndustryActivityID(1)
+	ActivityInvention     = model.IndustryActivityID(8)
 )
 
 var FacilityJobDurationBonuses = map[string]float64{
@@ -62,7 +63,7 @@ func CalculateModifier(modifiers map[string]float64) float64 {
 	return f
 }
 
-func NewManufacturing(builder *model.Character, productTypeID int32, ME int64, TE int64, facilityTax float64, object model.CachedObject) (err error) {
+func NewManufacturing(builder SkillHolder, productTypeID int32, ME int64, TE int64, facilityTax float64, object model.CachedObject) (err error) {
 	manufacturing, ok := object.(*model.Manufacturing)
 	if !ok {
 		return errors.New("passing invalid type to NewManufacturing function")
@@ -70,17 +71,17 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int64, T
 
 	manufacturing.ProductTypeID = productTypeID
 	if manufacturing.Product, err = db.GetType(productTypeID); err != nil {
-		return err
+		return fmt.Errorf("could not retrieve type: %w", err)
 	}
 
-	blueprint := db.GetBlueprint(productTypeID, ActivityManufacturing).Blueprint
+	blueprint := db.GetBlueprint(ActivityManufacturing, productTypeID).Blueprint
 
 	if blueprint.TypeID == 0 {
-		return errors.New("Item cannot be manufactured")
+		return errors.New("item cannot be manufactured")
 	}
 
 	if manufacturing.BlueprintType, err = db.GetType(blueprint.TypeID); err != nil {
-		return err
+		return fmt.Errorf("could not retrieve type: %w", err)
 	}
 
 	industrySkillLevel := 5
@@ -91,10 +92,10 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int64, T
 		advancedIndustrySkillLevel = builder.SkillLevel(SkillIdAdvancedIndustry)
 	}
 
-	if manufacturing.Product.MetaGroupID == 2 {
+	if manufacturing.Product.IsTechII() {
 		manufacturing.IsTech2 = true
 		if manufacturing.Invention, err = NewInvention(blueprint.TypeID, builder); err != nil {
-			return err
+			return fmt.Errorf("could not invent type: %w", err)
 		}
 		manufacturing.Runs = blueprint.MaxProductionLimit
 

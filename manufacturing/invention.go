@@ -37,8 +37,8 @@ type SkillHolder interface {
 	SkillLevel(TypeID int32) int
 }
 
-func NewInvention(blueprintTypeID int32, inventor SkillHolder) (invention *model.Invention, err error) {
-	blueprint := db.GetBlueprint(blueprintTypeID, ActivityInvention).Blueprint
+func NewInvention(productTypeID int32, inventor SkillHolder) (invention *model.Invention, err error) {
+	blueprint := db.GetBlueprint(ActivityInvention, productTypeID).Blueprint
 
 	invention = new(model.Invention)
 
@@ -95,9 +95,13 @@ func NewInvention(blueprintTypeID int32, inventor SkillHolder) (invention *model
 
 	// we just the the first product. the probability should be the same for all anyway
 	invention.SuccessProbabilityModifiers = map[string]float64{}
-	// TODO: we need a new call for this
-	//invention.SuccessProbabilityModifiers["Blueprint Base Probability"] = float64(blueprint.Activities.Invention.Products[0].Probability)
 
+	var result db.IndustryActivityProbabilityResult
+	if result, err = db.GetActivityProbablity(ActivityInvention, blueprint.TypeID, productTypeID); err != nil {
+		return nil, err
+	}
+
+	invention.SuccessProbabilityModifiers["Blueprint Base Probability"] = result.Probability
 	invention.SuccessProbabilityModifiers["Skills"] = 0
 	for _, skillMod := range skillMods {
 		invention.SuccessProbabilityModifiers["Skills"] += skillMod
