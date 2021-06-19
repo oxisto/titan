@@ -23,6 +23,7 @@ import (
 
 	"github.com/oxisto/titan"
 	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/datafetch"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/routes"
 
@@ -98,7 +99,7 @@ func initConfig() {
 }
 
 func doCmd(cmd *cobra.Command, args []string) {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true, ForceColors: true})
 	log.Info("Starting server...")
 
 	if !cache.InitSSO(
@@ -125,7 +126,18 @@ func doCmd(cmd *cobra.Command, args []string) {
 
 	go app.ServerLoop()
 	go app.JournalLoop()
-	go app.TransactionLoop()
+
+	var division int32
+
+	for division = 1; division <= 3; division++ {
+		transactionFetcher := datafetch.NewTransactionFetcher(app.CorporationID, division)
+		go transactionFetcher.StartLoop()
+	}
+
+	walletFetcher := datafetch.NewWallerFetcher(app.CorporationID, division)
+	go walletFetcher.StartLoop()
+
+	//go app.TransactionLoop()
 	//go ContractsLoop()
 
 	router := routes.NewRouter(int32(viper.GetInt(CorporationIDFlag)))

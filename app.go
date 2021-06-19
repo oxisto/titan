@@ -115,9 +115,9 @@ func (a App) ServerLoop() {
 
 		log.Printf("Trying to calculate profit for %d types...", len(productTypeIDs))
 
-		for _, typeID := range productTypeIDs {
-			/*go*/ a.UpdateProduct(typeID)
-		}
+		/*for _, typeID := range productTypeIDs {
+			go a.UpdateProduct(typeID)
+		}*/
 
 		time.Sleep(time.Duration(1) * time.Hour)
 	}
@@ -166,23 +166,6 @@ func (a App) JournalLoop() {
 
 		if err != nil {
 			log.Printf("An error occured while fetching journal: %v", err.Error())
-		}
-
-		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
-
-		time.Sleep(duration)
-	}
-}
-
-func (a App) TransactionLoop() {
-	for {
-		corporationID := a.CorporationID
-
-		log.Printf("Fetching transactions for corporation %d...", corporationID)
-		duration, err := finance.FetchTransations(corporationID, 1)
-
-		if err != nil {
-			log.Printf("An error occured while fetching transactions: %v", err.Error())
 		}
 
 		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())

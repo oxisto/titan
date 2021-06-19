@@ -13,6 +13,13 @@ services:
     volumes:
       - "redis_data:/data"
 
+  dgraph:
+    image: dgraph/standalone:v21.03.0
+    restart: "unless-stopped"
+    ports:
+      - 8080:8080
+      - 9080:9080
+
   postgres:
     image: postgres
     restart: "unless-stopped"

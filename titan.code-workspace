@@ -12,6 +12,9 @@
 		"editor.codeActionsOnSave": {
 			"source.organizeImports": true
 		},
+		"workbench.colorCustomizations": {
+			"debugConsole.errorForeground": "#a8a8a8"
+		},
 		"fileHeaderComment.parameter": {
 			"*": {
 				"name": "Christian Banse"

@@ -16,7 +16,12 @@ limitations under the License.
 
 package db
 
-import "github.com/oxisto/titan/model"
+import (
+	"database/sql"
+	"errors"
+
+	"github.com/oxisto/titan/model"
+)
 
 func GetJournalEntryIDs() ([]int64, error) {
 	journalIDs := []int64{}
@@ -27,7 +32,7 @@ func GetJournalEntryIDs() ([]int64, error) {
 }
 
 func InsertJournalEntry(entry model.JournalEntry) error {
-	_, err := pdb.Exec(`INSERT INTO journal VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
+	_, err := pdb.Exec(`INSERT INTO journal VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
 		entry.ID,
 		entry.Amount,
 		entry.Balance,
@@ -35,31 +40,37 @@ func InsertJournalEntry(entry model.JournalEntry) error {
 		entry.Description,
 		entry.FirstPartyID,
 		entry.RefType,
-		entry.SecondPartyID)
+		entry.SecondPartyID,
+		entry.CorporationID,
+		entry.Division,
+	)
 
 	return err
 }
 
-func GetLatestTransaction() (*model.Transaction, error) {
+func GetLatestTransaction(corporationID int32, division int32) (*model.Transaction, error) {
 	var transaction model.Transaction
 
-	if err := pdb.Get(&transaction, `SELECT * FROM transactions ORDER BY "transactionID" DESC`); err != nil {
+	err := pdb.Get(&transaction, `SELECT
+		*
+	FROM
+		transactions
+	WHERE
+		"corporationID"=$1
+		AND division=$2
+	ORDER BY "transactionID" DESC`, corporationID, division)
+
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
 	return &transaction, nil
 }
 
-func GetTransactionIDs() ([]int64, error) {
-	transactionIDs := []int64{}
-
-	err := pdb.Select(&transactionIDs, `SELECT "transactionID" from transactions ORDER BY "transactionID" DESC`)
-
-	return transactionIDs, err
-}
-
-func InsertTransaction(transaction model.Transaction) error {
-	_, err := pdb.Exec(`INSERT INTO transactions VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+func InsertTransaction(transaction *model.Transaction) error {
+	_, err := pdb.Exec(`INSERT INTO transactions VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT DO NOTHING`,
 		transaction.TransactionID,
 		transaction.ClientID,
 		transaction.Date,
@@ -68,7 +79,21 @@ func InsertTransaction(transaction model.Transaction) error {
 		transaction.LocationID,
 		transaction.Quantity,
 		transaction.TypeID,
-		transaction.UnitPrice)
+		transaction.UnitPrice,
+		transaction.CorporationID,
+		transaction.Division)
+
+	return err
+}
+
+func UpdateWallet(wallet *model.Wallet) error {
+	_, err := pdb.Exec(`INSERT INTO wallet ("corporationID", division, balance)
+	VALUES($1, $2, $3)
+	ON CONFLICT ("corporationID", division)
+	DO UPDATE SET balance = $3`,
+		wallet.CorporationID,
+		wallet.Division,
+		wallet.Balance)
 
 	return err
 }
