@@ -71,6 +71,13 @@ type IndustryActivitySkillResult struct {
 	model.ManufacturingSkill
 }
 
+type IndustryActivityProbabilityResult struct {
+	TypeID        int32   `json:"typeID" db:"typeID"`
+	ActivityID    int32   `json:"activityID" db:"activityID"`
+	ProductTypeID int32   `json:"productTypeID" db:"productTypeID"`
+	Probability   float64 `json:"probability" db:"probability"`
+}
+
 type BlueprintResult struct {
 	model.Blueprint
 }
@@ -115,7 +122,7 @@ func UpdateProfit(m model.Manufacturing) {
 	}
 }
 
-func GetMaterialTypeIDs(activityID int32) []int32 {
+func GetMaterialTypeIDs(activityID model.IndustryActivityID) []int32 {
 	typeIDs := []int32{}
 
 	pdb.Select(&typeIDs, `SELECT DISTINCT
@@ -129,7 +136,7 @@ WHERE
 	return typeIDs
 }
 
-func GetIndustryActivity(typeID int32, activityID int32) (IndustryActivityResult, error) {
+func GetIndustryActivity(typeID int32, activityID model.IndustryActivityID) (IndustryActivityResult, error) {
 	activity := IndustryActivityResult{}
 
 	// TODO: directly join materials?
@@ -160,7 +167,7 @@ WHERE
 	return categories, err
 }
 
-func GetActivityMaterials(activityID int32, blueprint model.Blueprint, runs int, materialModifier float64) ([]IndustryActivityMaterialResult, error) {
+func GetActivityMaterials(activityID model.IndustryActivityID, blueprint model.Blueprint, runs int, materialModifier float64) ([]IndustryActivityMaterialResult, error) {
 	materials := []IndustryActivityMaterialResult{}
 
 	err := pdb.Select(&materials, `SELECT
@@ -181,7 +188,34 @@ ORDER BY
 	return materials, err
 }
 
-func GetActivitySkills(activityID int32, blueprint model.Blueprint) ([]IndustryActivitySkillResult, error) {
+func GetActivityProbablitities(activityID model.IndustryActivityID, blueprintTypeID int32) ([]IndustryActivityProbabilityResult, error) {
+	var result = []IndustryActivityProbabilityResult{}
+
+	err := pdb.Select(&result, `SELECT * FROM 
+	evesde."industryActivityProbabilities"
+WHERE 
+	"typeID" = $1
+	AND	"activityID" = $2
+`, blueprintTypeID, activityID)
+
+	return result, err
+}
+
+func GetActivityProbablity(activityID model.IndustryActivityID, blueprintTypeID int32, productTypeID int32) (IndustryActivityProbabilityResult, error) {
+	var result = IndustryActivityProbabilityResult{}
+
+	err := pdb.Get(&result, `SELECT * FROM 
+	evesde."industryActivityProbabilities"
+WHERE 
+	"typeID" = $1
+	AND	"activityID" = $2
+	AND "productTypeID" = $3
+`, blueprintTypeID, activityID, productTypeID)
+
+	return result, err
+}
+
+func GetActivitySkills(activityID model.IndustryActivityID, blueprint model.Blueprint) ([]IndustryActivitySkillResult, error) {
 	skills := []IndustryActivitySkillResult{}
 
 	err := pdb.Select(&skills, `SELECT
@@ -201,7 +235,7 @@ ORDER BY
 	return skills, err
 }
 
-func GetBlueprint(productTypeID int32, activityID int32) BlueprintResult {
+func GetBlueprint(activityID model.IndustryActivityID, productTypeID int32) BlueprintResult {
 	blueprint := BlueprintResult{}
 
 	pdb.Get(&blueprint, `SELECT
@@ -217,21 +251,23 @@ WHERE
 	return blueprint
 }
 
-func GetType(typeID int32) (model.Type, error) {
+func GetType(typeID int32) (*model.Type, error) {
 	t := model.Type{}
 
 	err := pdb.Get(&t, `SELECT
     "invTypes".*,
     "invGroups"."categoryID",
-    "invGroups"."groupName"
+    "invGroups"."groupName",
+	"invMetaTypes"."metaGroupID"
 FROM
     evesde. "invTypes"
     JOIN evesde. "invGroups" USING ("groupID")
+	LEFT JOIN evesde. "invMetaTypes" USING ("typeID")
 WHERE
     "typeID" = $1
 `, typeID)
 
-	return t, err
+	return &t, err
 }
 
 func GetProductTypeIDs() ([]int32, error) {

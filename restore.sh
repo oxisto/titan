@@ -12,6 +12,7 @@ pg_restore -U $USER -h $HOST \
 -t industryBlueprints \
 -t industryActivity \
 -t industryActivityProducts \
+-t industryActivityProbabilities \
 -t industryActivitySkills \
 -t industryActivityMaterials \
 -d titan sde-$VERSION

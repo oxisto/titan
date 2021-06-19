@@ -23,15 +23,17 @@ type ManufacturingSkill struct {
 	HasLearned    bool   `json:"hasLearned" db:"hasLearned"`
 }
 
+type IndustryActivityID int32
+
 type IndustryActivity struct {
-	TypeID     int32 `json:"typeID" db:"typeID"`
-	Time       int   `json:"time"`
-	ActivityID int32 `json:"activityID" db:"activityID"`
+	TypeID     int32              `json:"typeID" db:"typeID"`
+	Time       int                `json:"time"`
+	ActivityID IndustryActivityID `json:"activityID" db:"activityID"`
 }
 
 type Manufacturing struct {
-	BlueprintType                Type                             `json:"blueprintType" bson:"blueprintType"`
-	Product                      Type                             `json:"product"`
+	BlueprintType                *Type                            `json:"blueprintType" bson:"blueprintType"`
+	Product                      *Type                            `json:"product"`
 	ProductTypeID                int32                            `json:"productTypeID"`
 	IsTech2                      bool                             `json:"isTech2" bson:"isTech2"`
 	Runs                         int                              `json:"runs"`
@@ -92,7 +94,7 @@ type ProfitValue struct {
 }
 
 type Invention struct {
-	BlueprintType               Type                             `json:"blueprintType" bson:"blueprintType"`
+	BlueprintType               *Type                            `json:"blueprintType" bson:"blueprintType"`
 	CostsPerInvention           int                              `json:"costsPerInvention" bson:"costsPerInvention"`
 	DecryptorTypeID             int32                            `json:"decryptorTypeID" bson:"decryptorTypeID"`
 	Materials                   map[string]ManufacturingMaterial `json:"materials"`

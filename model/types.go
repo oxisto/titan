@@ -27,23 +27,8 @@ import (
 type TypeIdentifier int32
 
 type Blueprint struct {
-	/*ObjectID   int32 `json:"typeID" db:"_id"`
-	Activities struct {
-		Copying          Activity `json:"activities"`
-		Invention        Activity `json:"invention"`
-		Manufacturing    Activity `json:"manufacturing"`
-		ResearchMaterial Activity `json:"researchMaterial"`
-		ResearchTime     Activity `json:"researchTime"`
-	} `json:"activities"`*/
 	TypeID             int32 `json:"typeID" db:"typeID" yaml:"blueprintTypeID"`
 	MaxProductionLimit int   `json:"maxProductionLimit" db:"maxProductionLimit" yaml:"maxProductionLimit"`
-}
-
-type Activity struct {
-	Time      int             `json:"time"`
-	Materials []Material      "materials,omitempty"
-	Products  []Product       "products,omitempty"
-	Skills    []RequiredSkill "skills,omitempty"
 }
 
 type Material struct {
@@ -75,7 +60,7 @@ type Type struct {
 	IconID        *int32  `json:"iconID" db:"iconID"`
 	SoundID       *int32  `json:"soundID" db:"soundID"`
 	GraphicID     int32   `json:"graphicID" db:"graphicID"`
-	MetaGroupID   int32   `json:"metaGroupID" db:"metaGroupID" yaml:"metaGroupID"`
+	MetaGroupID   *int32  `json:"metaGroupID" db:"metaGroupID" yaml:"metaGroupID"`
 	PortionSize   int     `json:"portionSize" db:"portionSize" yaml:"portionSize"`
 	Published     bool    `json:"published"`
 	RaceID        *int32  `json:"raceID" db:"raceID" yaml:"raceID"`
@@ -96,6 +81,10 @@ func (t Type) SetExpire(time *time.Time) {
 
 func (t Type) HashKey() string {
 	return fmt.Sprintf("type:%d", t.ID())
+}
+
+func (t Type) IsTechII() bool {
+	return t.MetaGroupID != nil && *t.MetaGroupID == 2
 }
 
 type Group struct {
