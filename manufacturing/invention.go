@@ -33,10 +33,14 @@ func init() {
 	log = logrus.WithField("component", "manufacturing")
 }
 
-func NewInvention(tech2Blueprint model.Blueprint, inventor *model.Character) (invention *model.Invention, err error) {
-	blueprint := db.GetBlueprint(tech2Blueprint.TypeID, ActivityInvention).Blueprint
+type SkillHolder interface {
+	SkillLevel(TypeID int32) int
+}
 
-	invention = &model.Invention{}
+func NewInvention(blueprintTypeID int32, inventor SkillHolder) (invention *model.Invention, err error) {
+	blueprint := db.GetBlueprint(blueprintTypeID, ActivityInvention).Blueprint
+
+	invention = new(model.Invention)
 
 	if invention.BlueprintType, err = db.GetType(blueprint.TypeID); err != nil {
 		return nil, err

@@ -93,7 +93,7 @@ func NewManufacturing(builder *model.Character, productTypeID int32, ME int64, T
 
 	if manufacturing.Product.MetaGroupID == 2 {
 		manufacturing.IsTech2 = true
-		if manufacturing.Invention, err = NewInvention(blueprint, builder); err != nil {
+		if manufacturing.Invention, err = NewInvention(blueprint.TypeID, builder); err != nil {
 			return err
 		}
 		manufacturing.Runs = blueprint.MaxProductionLimit
