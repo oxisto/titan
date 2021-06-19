@@ -5,6 +5,16 @@ CREATE TABLE profit (
     CONSTRAINT profit_pkey PRIMARY KEY ("typeID")
 );
 
+CREATE TABLE wallet (
+    "corporationID" bigint NOT NULL,
+    "division" integer NOT NULL,
+    balance double precision,
+    CONSTRAINT wallet_pkey PRIMARY KEY (
+        "corporationID",
+        "division"
+    )
+);
+
 CREATE TABLE journal (
     id bigint NOT NULL,
     amount double precision,
@@ -14,9 +24,11 @@ CREATE TABLE journal (
     "firstPartyID" integer,
     "refType" text COLLATE pg_catalog. "default",
     "secondPartyID" integer,
+    "corporationID" bigint NOT NULL,
+    "division" integer NOT NULL,
     CONSTRAINT journal_pkey PRIMARY KEY (
         id
-)
+    )
 );
 
 CREATE TABLE public.transactions (
@@ -29,7 +41,9 @@ CREATE TABLE public.transactions (
     quantity integer,
     "typeID" integer,
     "unitPrice" double precision,
+    "corporationID" bigint NOT NULL,
+    "division" integer NOT NULL,
     CONSTRAINT transactions_pkey PRIMARY KEY (
         "transactionID"
-)
+    )
 )

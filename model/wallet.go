@@ -2,6 +2,12 @@ package model
 
 import "time"
 
+type Wallet struct {
+	CorporationID int64 `json:"corporationID" db:"corporationID"`
+	Division      int32 `json:"division" db:"division"`
+	Balance       float64
+}
+
 type JournalEntry struct {
 	Amount        float64
 	Balance       float64
@@ -11,16 +17,20 @@ type JournalEntry struct {
 	ID            int64  `json:"id" db:"id"`
 	RefType       string `json:"refType" db:"refType"`
 	SecondPartyID int32  `json:"secondPartyID" db:"secondPartyID"`
+	CorporationID int64  `json:"corporationID" db:"corporationID"`
+	Division      int32  `json:"division" db:"division"`
 }
 
 type Transaction struct {
-	TransactionID int64 `json:"transactionID" db:"transactionID"`
-	ClientID      int32 `json:"clientID" db:"clientID"`
-	Date          time.Time
-	IsBuy         bool  `json:"isBuy" db:"isBuy"`
-	JournalRefID  int64 `json:"journalRefID" db:"journalRefID"`
-	LocationID    int64 `json:"locationID" db:"locationID"`
+	TransactionID int64     `json:"transactionID" db:"transactionID"`
+	ClientID      int32     `json:"clientID" db:"clientID"`
+	Date          time.Time `json:"date" db:"date"`
+	IsBuy         bool      `json:"isBuy" db:"isBuy"`
+	JournalRefID  int64     `json:"journalRefID" db:"journalRefID"`
+	LocationID    int64     `json:"locationID" db:"locationID"`
 	Quantity      int
 	TypeID        TypeIdentifier `json:"typeID" db:"typeID"`
 	UnitPrice     float64        `json:"unitPrice" db:"unitPrice"`
+	CorporationID int64          `json:"corporationID" db:"corporationID"`
+	Division      int32          `json:"division" db:"division"`
 }
