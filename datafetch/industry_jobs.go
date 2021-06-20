@@ -2,6 +2,7 @@ package datafetch
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/antihax/goesi"
@@ -14,73 +15,34 @@ import (
 )
 
 type industryJobsFetcher struct {
-	corporationID int32
-
-	log      *logrus.Entry
-	lastETag string
+	metadata
 }
 
-func NewIndustryJobsFetcher(corporationID int32) DataFetcher {
+func NewIndustryJobsFetcher() DataFetcher {
 	return &industryJobsFetcher{
-		corporationID: corporationID,
-		log: log.WithFields(logrus.Fields{
-			"data":          "industry-jobs",
-			"corporationID": corporationID,
-		}),
+		metadata: metadata{
+			dataType:     "industry-jobs",
+			maxCacheTime: time.Minute * 5,
+		},
 	}
 }
 
-func (i industryJobsFetcher) StartLoop() {
-	for {
-		i.log.Printf("Fetching industry jobs...")
-		duration, err := i.Fetch()
-
-		if err != nil {
-			i.log.Printf("An error occured while fetching jobs: %v", err)
-		}
-
-		if duration < 0 {
-			duration = i.MaxCacheTime()
-		}
-
-		i.log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
-
-		time.Sleep(duration)
-	}
-}
-
-func (i industryJobsFetcher) MaxCacheTime() time.Duration {
-	return time.Minute * 5
-}
-
-func (i *industryJobsFetcher) Fetch() (time.Duration, error) {
-	// find access token for corporation
-	accessToken := model.AccessToken{}
-	err := cache.GetAccessTokenForCorporation(i.corporationID, &accessToken)
-	if err != nil {
-		return i.MaxCacheTime(), err
-	}
-
+func (i *industryJobsFetcher) Fetch(ctx FetchContext) (*http.Response, error) {
 	var options esi.GetCorporationsCorporationIdIndustryJobsOpts
 	options.IncludeCompleted = optional.NewBool(true)
 
-	if i.lastETag != "" {
-		options.IfNoneMatch = optional.NewString(i.lastETag)
+	if ctx.lastETag != "" {
+		options.IfNoneMatch = optional.NewString(ctx.lastETag)
 	}
 
 	response, httpResponse, err := cache.ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(
 		context.WithValue(context.Background(),
 			goesi.ContextAccessToken,
-			accessToken.Token),
-		i.corporationID,
+			ctx.accessToken.Token),
+		ctx.corporationID,
 		&options)
 	if err != nil {
-		return i.MaxCacheTime(), err
-	}
-
-	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
-	if err != nil {
-		return i.MaxCacheTime(), err
+		return httpResponse, err
 	}
 
 	limitFields := logrus.Fields{
@@ -89,10 +51,7 @@ func (i *industryJobsFetcher) Fetch() (time.Duration, error) {
 	}
 
 	if httpResponse.StatusCode != 304 {
-		i.log.WithFields(limitFields).Infof("Retrieved %d industry jobs", len(response))
-
-		// store the ETag
-		i.lastETag = httpResponse.Header.Get("etag")
+		ctx.log.WithFields(limitFields).Infof("Retrieved %d industry jobs", len(response))
 
 		// loop through all jobs
 		for _, t := range response {
@@ -126,15 +85,15 @@ func (i *industryJobsFetcher) Fetch() (time.Duration, error) {
 				job.PauseDate = &t.PauseDate
 			}
 
-			i.log.Debugf("Discovered industry job %d (%d, %d)", job.JobID, job.ActivityID, job.BlueprintTypeID)
+			ctx.log.Debugf("Discovered industry job %d (%d, %d)", job.JobID, job.ActivityID, job.BlueprintTypeID)
 
 			if err := db.UpdateIndustryJob(&job); err != nil {
-				i.log.Printf("Could not update industry job ID %d: %v", job.JobID, err)
+				ctx.log.Errorf("Could not update industry job ID %d: %v", job.JobID, err)
 			}
 		}
 	} else {
-		i.log.WithFields(limitFields).Info("Industry jobs have not changed")
+		ctx.log.WithFields(limitFields).Info("Industry jobs have not changed")
 	}
 
-	return time.Until(t), nil
+	return httpResponse, nil
 }

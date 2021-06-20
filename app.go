@@ -26,7 +26,6 @@ import (
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/contracts"
 	"github.com/oxisto/titan/db"
-	"github.com/oxisto/titan/finance"
 	"github.com/oxisto/titan/manufacturing"
 	"github.com/oxisto/titan/model"
 
@@ -154,22 +153,5 @@ func (a App) UpdateProduct(typeID int32) {
 		db.UpdateProfit(m)
 	} else {
 		log.Printf("Error while manufacturing %s (%d): %v", m.Product.TypeName, typeID, err)
-	}
-}
-
-func (a App) JournalLoop() {
-	for {
-		corporationID := a.CorporationID
-
-		log.Printf("Fetching journal data for corporation %d...", corporationID)
-		duration, err := finance.FetchJournal(corporationID, 1)
-
-		if err != nil {
-			log.Printf("An error occured while fetching journal: %v", err.Error())
-		}
-
-		log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
-
-		time.Sleep(duration)
 	}
 }

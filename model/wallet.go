@@ -42,7 +42,7 @@ type JournalEntry struct {
 	ID            int64  `json:"id" db:"id"`
 	RefType       string `json:"refType" db:"refType"`
 	SecondPartyID int32  `json:"secondPartyID" db:"secondPartyID"`
-	CorporationID int64  `json:"corporationID" db:"corporationID"`
+	CorporationID int32  `json:"corporationID" db:"corporationID"`
 	Division      int32  `json:"division" db:"division"`
 }
 
@@ -56,6 +56,6 @@ type Transaction struct {
 	Quantity      int
 	TypeID        TypeIdentifier `json:"typeID" db:"typeID"`
 	UnitPrice     float64        `json:"unitPrice" db:"unitPrice"`
-	CorporationID int64          `json:"corporationID" db:"corporationID"`
+	CorporationID int32          `json:"corporationID" db:"corporationID"`
 	Division      int32          `json:"division" db:"division"`
 }
