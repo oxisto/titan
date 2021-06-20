@@ -32,7 +32,7 @@ func GetJournalEntryIDs() ([]int64, error) {
 }
 
 func InsertJournalEntry(entry model.JournalEntry) error {
-	_, err := pdb.Exec(`INSERT INTO journal VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+	_, err := pdb.Exec(`INSERT INTO journal VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT DO NOTHING`,
 		entry.ID,
 		entry.Amount,
 		entry.Balance,

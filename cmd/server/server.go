@@ -125,17 +125,19 @@ func doCmd(cmd *cobra.Command, args []string) {
 	app.ImportSDE()
 
 	go app.ServerLoop()
-	go app.JournalLoop()
 
 	var division int32
 
 	for division = 1; division <= 3; division++ {
-		transactionFetcher := datafetch.NewTransactionFetcher(app.CorporationID, division)
-		go transactionFetcher.StartLoop()
+		transactionService := datafetch.NewFetchService(app.CorporationID, datafetch.NewTransactionFetcher(division))
+		go transactionService.StartLoop()
+
+		journalService := datafetch.NewFetchService(app.CorporationID, datafetch.NewJournalFetcher(division))
+		go journalService.StartLoop()
 	}
 
-	jobsFetcher := datafetch.NewIndustryJobsFetcher(app.CorporationID)
-	go jobsFetcher.StartLoop()
+	jobsService := datafetch.NewFetchService(app.CorporationID, datafetch.NewIndustryJobsFetcher())
+	go jobsService.StartLoop()
 
 	//go app.TransactionLoop()
 	//go ContractsLoop()

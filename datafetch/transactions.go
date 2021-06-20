@@ -2,6 +2,7 @@ package datafetch
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/antihax/goesi"
@@ -14,75 +15,37 @@ import (
 )
 
 type transactionFetcher struct {
-	corporationID int32
-	division      int32
+	metadata
 
-	log      *logrus.Entry
-	lastETag string
+	division int32
 }
 
-func NewTransactionFetcher(corporationID int32, division int32) DataFetcher {
+func NewTransactionFetcher(division int32) DataFetcher {
 	return &transactionFetcher{
-		corporationID: corporationID,
-		division:      division,
-		log: log.WithFields(logrus.Fields{
-			"data":          "transactions",
-			"corporationID": corporationID,
-			"division":      division,
-		}),
+		division: division,
+		metadata: metadata{
+			dataType:         "transactions",
+			maxCacheTime:     time.Hour,
+			additionalFields: logrus.Fields{"division": division},
+		},
 	}
 }
 
-func (f transactionFetcher) StartLoop() {
-	for {
-		f.log.Printf("Fetching transactions...")
-		duration, err := f.Fetch()
-
-		if err != nil {
-			f.log.Printf("An error occured while fetching transactions: %v", err)
-		}
-
-		if duration < 0 {
-			duration = f.MaxCacheTime()
-		}
-
-		f.log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
-
-		time.Sleep(duration)
-	}
-}
-
-func (f transactionFetcher) MaxCacheTime() time.Duration {
-	return time.Duration(3600 * 1000 * 1000)
-}
-
-func (f *transactionFetcher) Fetch() (time.Duration, error) {
-	// find access token for corporation
-	accessToken := model.AccessToken{}
-	err := cache.GetAccessTokenForCorporation(f.corporationID, &accessToken)
-	if err != nil {
-		return f.MaxCacheTime(), err
-	}
-
+func (f *transactionFetcher) Fetch(ctx FetchContext) (*http.Response, error) {
 	var options esi.GetCorporationsCorporationIdWalletsDivisionTransactionsOpts
-	if f.lastETag != "" {
-		options.IfNoneMatch = optional.NewString(f.lastETag)
+	if ctx.lastETag != "" {
+		options.IfNoneMatch = optional.NewString(ctx.lastETag)
 	}
 
 	response, httpResponse, err := cache.ESI.WalletApi.GetCorporationsCorporationIdWalletsDivisionTransactions(
 		context.WithValue(context.Background(),
 			goesi.ContextAccessToken,
-			accessToken.Token),
-		f.corporationID,
+			ctx.accessToken.Token),
+		ctx.corporationID,
 		f.division,
 		&options)
 	if err != nil {
-		return f.MaxCacheTime(), err
-	}
-
-	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
-	if err != nil {
-		return time.Duration(3600 * 1000 * 1000), err
+		return httpResponse, err
 	}
 
 	limitFields := logrus.Fields{
@@ -91,16 +54,13 @@ func (f *transactionFetcher) Fetch() (time.Duration, error) {
 	}
 
 	if httpResponse.StatusCode != 304 {
-		f.log.WithFields(limitFields).Infof("Retrieved %d transactions", len(response))
-
-		// store the ETag
-		f.lastETag = httpResponse.Header.Get("etag")
+		ctx.log.WithFields(limitFields).Infof("Retrieved %d transactions", len(response))
 
 		// loop through all transactions
 		for _, t := range response {
 			transaction := model.Transaction{
 				TransactionID: t.TransactionId,
-				CorporationID: int64(f.corporationID),
+				CorporationID: ctx.corporationID,
 				Division:      f.division,
 				ClientID:      t.ClientId,
 				Date:          t.Date,
@@ -112,15 +72,15 @@ func (f *transactionFetcher) Fetch() (time.Duration, error) {
 				UnitPrice:     t.UnitPrice,
 			}
 
-			f.log.Printf("Discovered new transaction %d (%d, %d x %.2f ISK))", transaction.TransactionID, transaction.TypeID, transaction.Quantity, transaction.UnitPrice)
+			ctx.log.Debugf("Discovered new transaction %d (%d, %d x %.2f ISK))", transaction.TransactionID, transaction.TypeID, transaction.Quantity, transaction.UnitPrice)
 
 			if err := db.InsertTransaction(&transaction); err != nil {
-				f.log.Printf("Could not insert transaction with ID %d: %v", transaction.TransactionID, err.Error())
+				ctx.log.Errorf("Could not insert transaction with ID %d: %v", transaction.TransactionID, err.Error())
 			}
 		}
 	} else {
-		f.log.WithFields(limitFields).Info("Transactions have not changed")
+		ctx.log.WithFields(limitFields).Info("Transactions have not changed")
 	}
 
-	return time.Until(t), nil
+	return httpResponse, nil
 }
