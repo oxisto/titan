@@ -54,7 +54,7 @@ func (f *journalFechter) Fetch(ctx FetchContext) (*http.Response, error) {
 	}
 
 	if httpResponse.StatusCode != 304 {
-		ctx.log.WithFields(limitFields).Infof("Retrieved %d transactions", len(response))
+		ctx.log.WithFields(limitFields).Infof("Retrieved %d journal entries", len(response))
 
 		// loop through all journal entries
 		for _, journal := range response {

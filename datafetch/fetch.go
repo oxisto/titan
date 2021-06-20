@@ -89,6 +89,8 @@ func (service FetchService) StartLoop() {
 		}).WithFields(service.fetcher.LogFields()),
 	}
 
+	var backoffTime = time.Minute
+
 	for {
 		ctx.log.Printf("Fetching %s...", service.fetcher.DataType())
 
@@ -96,9 +98,14 @@ func (service FetchService) StartLoop() {
 		var accessToken model.AccessToken
 		err := cache.GetAccessTokenForCorporation(ctx.corporationID, &accessToken)
 		if err != nil {
-			ctx.log.Errorf("Could not find access token for %d. Trying again a little later", ctx.corporationID)
-			// TODO(oxisto): could introduce a little back-off time here
-			time.Sleep(time.Minute)
+			ctx.log.Errorf("Could not find access token for %d.", ctx.corporationID, backoffTime.Minutes())
+
+			// this error could occur, if no access tokens are ready yet. let's wait for a little bit
+			sleepWithPrint(ctx.log, backoffTime)
+
+			// increase the backoff time
+			backoffTime = backoffTime * 2
+
 			continue
 		}
 
@@ -111,7 +118,7 @@ func (service FetchService) StartLoop() {
 			ctx.log.Printf("An error occured while fetching %s: %v", service.fetcher.DataType(), err)
 
 			// just to be sure, we wait for the maximum time to not bother ESI too much
-			time.Sleep(service.fetcher.MaxCacheTime())
+			sleepWithPrint(ctx.log, service.fetcher.MaxCacheTime())
 			continue
 		}
 
@@ -121,11 +128,14 @@ func (service FetchService) StartLoop() {
 			ctx.log.Printf("An error occured while parsing the expires header: %v", err)
 
 			// just to be sure, we wait for the maximum time to not bother ESI too much
-			time.Sleep(service.fetcher.MaxCacheTime())
+			sleepWithPrint(ctx.log, service.fetcher.MaxCacheTime())
 			continue
 		}
 
 		// update the ETag for the next request
+		// TODO: Store ETag for requests in `datafetch` in REDIS
+		// BODY: We could store ETags for each datafetcher in REDIS, so that ETags are persistent across server restarts.
+		// Otherwise, the server will fetch a lot of unncessary information because the ETag state is lost.
 		ctx.lastETag = httpResponse.Header.Get("etag")
 
 		var duration = time.Until(expireTime)
@@ -136,8 +146,11 @@ func (service FetchService) StartLoop() {
 			duration = service.fetcher.MaxCacheTime()
 		}
 
-		ctx.log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
-
-		time.Sleep(duration)
+		sleepWithPrint(ctx.log, duration)
 	}
+}
+
+func sleepWithPrint(log *logrus.Entry, duration time.Duration) {
+	log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
+	time.Sleep(duration)
 }
