@@ -37,3 +37,30 @@ CREATE TABLE public.transactions (
         "transactionID"
     )
 )
+
+CREATE TABLE public."industryJobs" (
+    "jobID" integer NOT NULL,
+    "activityID" integer NOT NULL,
+	"completedCharacterID" integer NOT NULL,
+	"completedDate" timestamp WITH time zone,
+	"cost" double precision NOT NULL,
+	"duration" integer NOT NULL,
+	"endDate" timestamp WITH time zone NOT NULL,
+	"facilityID" bigint NOT NULL,
+	"installerID" integer NOT NULL,
+	"locationID" bigint NOT NULL,
+	"blueprintID" bigint NOT NULL,
+	"blueprintTypeID" integer NOT NULL,
+	"startDate" timestamp WITH time zone NOT NULL,
+	"pauseDate" timestamp WITH time zone,
+	"licensedRuns" integer NOT NULL,
+	"outputLocationID" bigint NOT NULL,
+	"probability" real NOT NULL,
+	"productTypeID" integer NOT NULL,
+	"runs" integer NOT NULL,
+	"succesfulRuns" integer NOT NULL,
+	"status" text COLLATE pg_catalog. "default" NOT NULL,
+    CONSTRAINT industrJobs_pkey PRIMARY KEY (
+        "jobID"
+    )
+)

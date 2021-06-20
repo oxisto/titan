@@ -20,15 +20,19 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/oxisto/titan/cache"
+	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/model"
 )
 
 func GetIndustryJobs(c *gin.Context) {
 	character := c.Value(CharacterContext).(*model.Character)
-	jobs := &model.IndustryJobs{}
 
-	err := cache.GetIndustryJobs(character.CharacterID, character.CorporationID, jobs)
+	jobList, err := db.GetIndustryJobs(character.CorporationID)
+
+	jobs := model.IndustryJobs{
+		CorporationID: character.CorporationID,
+		Jobs:          jobList,
+	}
 
 	JSON(c, http.StatusOK, jobs, err)
 }

@@ -134,6 +134,9 @@ func doCmd(cmd *cobra.Command, args []string) {
 		go transactionFetcher.StartLoop()
 	}
 
+	jobsFetcher := datafetch.NewIndustryJobsFetcher(app.CorporationID)
+	go jobsFetcher.StartLoop()
+
 	//go app.TransactionLoop()
 	//go ContractsLoop()
 

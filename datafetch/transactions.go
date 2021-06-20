@@ -6,6 +6,7 @@ import (
 
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/model"
@@ -16,7 +17,8 @@ type transactionFetcher struct {
 	corporationID int32
 	division      int32
 
-	log *logrus.Entry
+	log      *logrus.Entry
+	lastETag string
 }
 
 func NewTransactionFetcher(corporationID int32, division int32) DataFetcher {
@@ -54,7 +56,7 @@ func (f transactionFetcher) MaxCacheTime() time.Duration {
 	return time.Duration(3600 * 1000 * 1000)
 }
 
-func (f transactionFetcher) Fetch() (time.Duration, error) {
+func (f *transactionFetcher) Fetch() (time.Duration, error) {
 	// find access token for corporation
 	accessToken := model.AccessToken{}
 	err := cache.GetAccessTokenForCorporation(f.corporationID, &accessToken)
@@ -63,6 +65,9 @@ func (f transactionFetcher) Fetch() (time.Duration, error) {
 	}
 
 	var options esi.GetCorporationsCorporationIdWalletsDivisionTransactionsOpts
+	if f.lastETag != "" {
+		options.IfNoneMatch = optional.NewString(f.lastETag)
+	}
 
 	response, httpResponse, err := cache.ESI.WalletApi.GetCorporationsCorporationIdWalletsDivisionTransactions(
 		context.WithValue(context.Background(),
@@ -80,27 +85,41 @@ func (f transactionFetcher) Fetch() (time.Duration, error) {
 		return time.Duration(3600 * 1000 * 1000), err
 	}
 
-	// loop through all transactions
-	for _, t := range response {
-		transaction := model.Transaction{
-			TransactionID: t.TransactionId,
-			CorporationID: int64(f.corporationID),
-			Division:      f.division,
-			ClientID:      t.ClientId,
-			Date:          t.Date,
-			IsBuy:         t.IsBuy,
-			JournalRefID:  t.JournalRefId,
-			LocationID:    t.LocationId,
-			Quantity:      int(t.Quantity),
-			TypeID:        model.TypeIdentifier(t.TypeId),
-			UnitPrice:     t.UnitPrice,
-		}
+	limitFields := logrus.Fields{
+		"esi-err-remain": httpResponse.Header.Get("x-esi-error-limit-remain"),
+		"esi-err-reset":  httpResponse.Header.Get("x-esi-error-limit-reset"),
+	}
 
-		f.log.Printf("Discovered new transaction %d (%d, %d x %.2f ISK))", transaction.TransactionID, transaction.TypeID, transaction.Quantity, transaction.UnitPrice)
+	if httpResponse.StatusCode != 304 {
+		f.log.WithFields(limitFields).Infof("Retrieved %d transactions", len(response))
 
-		if err := db.InsertTransaction(&transaction); err != nil {
-			f.log.Printf("Could not insert transaction with ID %d: %v", transaction.TransactionID, err.Error())
+		// store the ETag
+		f.lastETag = httpResponse.Header.Get("etag")
+
+		// loop through all transactions
+		for _, t := range response {
+			transaction := model.Transaction{
+				TransactionID: t.TransactionId,
+				CorporationID: int64(f.corporationID),
+				Division:      f.division,
+				ClientID:      t.ClientId,
+				Date:          t.Date,
+				IsBuy:         t.IsBuy,
+				JournalRefID:  t.JournalRefId,
+				LocationID:    t.LocationId,
+				Quantity:      int(t.Quantity),
+				TypeID:        model.TypeIdentifier(t.TypeId),
+				UnitPrice:     t.UnitPrice,
+			}
+
+			f.log.Printf("Discovered new transaction %d (%d, %d x %.2f ISK))", transaction.TransactionID, transaction.TypeID, transaction.Quantity, transaction.UnitPrice)
+
+			if err := db.InsertTransaction(&transaction); err != nil {
+				f.log.Printf("Could not insert transaction with ID %d: %v", transaction.TransactionID, err.Error())
+			}
 		}
+	} else {
+		f.log.WithFields(limitFields).Info("Transactions have not changed")
 	}
 
 	return time.Until(t), nil
