@@ -32,3 +32,12 @@ func GetCorporation(c *gin.Context) {
 
 	JSON(c, http.StatusOK, corporation, err)
 }
+
+func GetCorporationWallets(c *gin.Context) {
+	character := c.Value(CharacterContext).(*model.Character)
+	wallets := &model.Wallets{}
+
+	err := cache.GetCorporationWallets(character.CharacterID, character.CorporationID, wallets)
+
+	JSON(c, http.StatusOK, wallets, err)
+}

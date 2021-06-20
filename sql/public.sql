@@ -5,16 +5,6 @@ CREATE TABLE profit (
     CONSTRAINT profit_pkey PRIMARY KEY ("typeID")
 );
 
-CREATE TABLE wallet (
-    "corporationID" bigint NOT NULL,
-    "division" integer NOT NULL,
-    balance double precision,
-    CONSTRAINT wallet_pkey PRIMARY KEY (
-        "corporationID",
-        "division"
-    )
-);
-
 CREATE TABLE journal (
     id bigint NOT NULL,
     amount double precision,

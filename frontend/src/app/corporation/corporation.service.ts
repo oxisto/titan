@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Corporation } from './corporation';
+import { Corporation, Wallets } from './corporation';
 
 @Injectable()
 export class CorporationService {
@@ -11,6 +11,10 @@ export class CorporationService {
 
   getCorporation(): Observable<Corporation> {
     return this.http.get<Corporation>('/api/corporation');
+  }
+
+  getCorporationWallets(): Observable<Wallets> {
+    return this.http.get<Wallets>('/api/corporation/wallets');
   }
 
   getCorporationLogo(corporationID: number) {

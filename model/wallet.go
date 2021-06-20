@@ -1,11 +1,36 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
+
+type Wallets struct {
+	expireDate *time.Time
+
+	CorporationID int32             `json:"corporationID"`
+	Divisions     map[string]Wallet `json:"divisions"`
+}
+
+func (w *Wallets) ID() int32 {
+	return w.CorporationID
+}
+
+func (w *Wallets) ExpiresOn() *time.Time {
+	return w.expireDate
+}
+
+func (w *Wallets) SetExpire(t *time.Time) {
+	w.expireDate = t
+}
+
+func (w *Wallets) HashKey() string {
+	return fmt.Sprintf("wallets:%d", w.ID())
+}
 
 type Wallet struct {
-	CorporationID int64 `json:"corporationID" db:"corporationID"`
-	Division      int32 `json:"division" db:"division"`
-	Balance       float64
+	Division int32   `json:"division"`
+	Balance  float64 `json:"balance"`
 }
 
 type JournalEntry struct {

@@ -21,3 +21,15 @@ export class Corporation {
   }
 
 }
+
+export class Wallets {
+
+  corporationID: number;
+  divisions: Array<Wallet>;
+
+}
+
+export class Wallet {
+  balance: number;
+  division: number;
+}
