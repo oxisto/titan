@@ -60,7 +60,7 @@ CREATE TABLE public."industryJobs" (
 	"runs" integer NOT NULL,
 	"succesfulRuns" integer NOT NULL,
 	"status" text COLLATE pg_catalog. "default" NOT NULL,
-    CONSTRAINT industrJobs_pkey PRIMARY KEY (
+    CONSTRAINT industryJobs_pkey PRIMARY KEY (
         "jobID"
     )
 )

@@ -59,4 +59,5 @@ type IndustryJob struct {
 type IndustryJobWithTypeNames struct {
 	*IndustryJob
 	BlueprintTypeName string `json:"blueprintTypeName" db:"blueprintTypeName"`
+	ProductTypeName   string `json:"productTypeName" db:"productTypeName"`
 }
