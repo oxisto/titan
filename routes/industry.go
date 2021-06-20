@@ -27,7 +27,12 @@ import (
 func GetIndustryJobs(c *gin.Context) {
 	character := c.Value(CharacterContext).(*model.Character)
 
-	jobs, err := db.GetIndustryJobs(character.CorporationID)
+	jobList, err := db.GetIndustryJobs(character.CorporationID)
+
+	jobs := model.IndustryJobs{
+		CorporationID: character.CorporationID,
+		Jobs:          jobList,
+	}
 
 	JSON(c, http.StatusOK, jobs, err)
 }

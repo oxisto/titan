@@ -2,8 +2,20 @@ package db
 
 import "github.com/oxisto/titan/model"
 
-func GetIndustryJobs(corporationID int32) ([]*model.IndustryJobs, error) {
-	return nil, nil
+func GetIndustryJobs(corporationID int32) ([]*model.IndustryJobWithTypeNames, error) {
+	jobs := []*model.IndustryJobWithTypeNames{}
+
+	err := pdb.Select(&jobs, `SELECT
+		"industryJobs".*,
+		"blueprintTypes"."typeName" AS "blueprintTypeName",
+		"productTypes"."typeName" AS "productTypeName"
+	FROM
+		"industryJobs"
+		LEFT JOIN evesde."invTypes" AS "blueprintTypes" ON ("blueprintTypes"."typeID" = "industryJobs"."blueprintTypeID")
+		LEFT JOIN evesde."invTypes" AS "productTypes" ON ("productTypes"."typeID" = "industryJobs"."productTypeID")
+	`)
+
+	return jobs, err
 }
 
 func UpdateIndustryJob(job *model.IndustryJob) error {

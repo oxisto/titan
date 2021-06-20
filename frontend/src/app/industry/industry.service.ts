@@ -18,10 +18,14 @@ export class IndustryService {
         jobs: new Map(Object.entries(data.jobs).map(entry => {
           entry[1] = Object.assign(new IndustryJob(), {
             ...entry[1],
-            endDate: new Date(entry[1].endDate * 1000),
-            startDate: new Date(entry[1].startDate * 1000),
-            completedDate: new Date(entry[1].completedDate * 1000),
-            pauseDate: new Date(entry[1].pauseDate * 1000)
+            endDate: Date.parse(entry[1].endDate),
+            startDate: Date.parse(entry[1].startDate),
+            completedDate: entry[1].completedDate != null ? Date.parse(entry[1].completedDate) : null,
+            pauseDate: entry[1].pauseDate != null ? Date.parse(entry[1].pauseDate) : null,
+            blueprint: {
+              typeID: entry[1].blueprintTypeID,
+              typeName: entry[1].blueprintTypeName,
+            }
           });
           return entry;
         }))
