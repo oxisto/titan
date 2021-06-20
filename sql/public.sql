@@ -36,7 +36,7 @@ CREATE TABLE public.transactions (
     CONSTRAINT transactions_pkey PRIMARY KEY (
         "transactionID"
     )
-)
+);
 
 CREATE TABLE public."industryJobs" (
     "jobID" integer NOT NULL,
