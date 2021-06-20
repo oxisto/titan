@@ -34,17 +34,27 @@ type IndustryJobs struct {
 }
 
 type IndustryJob struct {
-	ActivityID       int32   `json:"activityID"`
-	Blueprint        *Type   `json:"blueprint"`
-	StartDate        int64   `json:"startDate"`
-	EndDate          int64   `json:"endDate"`
-	CompletedDate    int64   `json:"completedDate"`
-	PauseDate        int64   `json:"pausedDate"`
-	LicensedRuns     int     `json:"licensedRuns"`
-	OutputLocationID int64   `json:"outputLocationID"`
-	Probability      float32 `json:"probability"`
-	SuccesfulRuns    int     `json:"succesfulRuns"`
-	Status           string  `json:"status"`
+	JobID                int32      `json:"jobID"`
+	ActivityID           int32      `json:"activityID"`
+	CompletedCharacterID int32      `json:"completedCharacterID"`
+	CompletedDate        *time.Time `json:"completedDate"`
+	Cost                 float64    `json:"cost"`
+	Duration             int32      `json:"duration"`
+	EndDate              time.Time  `json:"endDate"`
+	FacilityID           int64      `json:"facilityID"`
+	InstallerID          int32      `json:"installerID"`
+	LocationID           int64      `json:"locationID"`
+	BlueprintID          int64      `json:"blueprintID"`
+	BlueprintTypeID      int32      `json:"blueprintTypeID"`
+	StartDate            time.Time  `json:"startDate"`
+	PauseDate            *time.Time `json:"pausedDate"`
+	LicensedRuns         int32      `json:"licensedRuns"`
+	OutputLocationID     int64      `json:"outputLocationID"`
+	Probability          float32    `json:"probability"`
+	ProductTypeID        int32      `json:"productTypeID"`
+	Runs                 int32      `json:"runs"`
+	SuccesfulRuns        int32      `json:"succesfulRuns"`
+	Status               string     `json:"status"`
 }
 
 func (i *IndustryJobs) ID() int32 {

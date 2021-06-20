@@ -29,7 +29,6 @@ import (
 
 	"github.com/antihax/goesi/esi"
 
-	"github.com/oxisto/titan/db"
 	"github.com/oxisto/titan/model"
 
 	"github.com/antihax/goesi"
@@ -99,14 +98,7 @@ func ExpirySubscriber(ch <-chan *redis.Message) {
 			continue
 		}
 
-		// only refresh industry jobs
-		if typ == "industry-jobs" {
-			jobs := model.IndustryJobs{}
-			err := GetIndustryJobs(0, int32(corporationID), &jobs)
-			if err != nil {
-				log.Error(err)
-			}
-		} else if typ == "corporation-assets" {
+		if typ == "corporation-assets" {
 			assets := model.CorporationAssets{}
 			err := GetCorporationAssets(0, int32(corporationID), &assets)
 			if err != nil {
@@ -131,11 +123,6 @@ func GetCorporation(callerID int32, corporationID int32, corporation *model.Corp
 func GetCorporationWallets(callerID int32, corporationID int32, wallets *model.Wallets) error {
 	hashKey := fmt.Sprintf("wallets:%d", corporationID)
 	return GetCachedObject(hashKey, callerID, corporationID, wallets, FetchCorporationWallets)
-}
-
-func GetIndustryJobs(callerID int32, corporationID int32, jobs *model.IndustryJobs) error {
-	hashKey := fmt.Sprintf("industry-jobs:%d", corporationID)
-	return GetCachedObject(hashKey, callerID, corporationID, jobs, FetchCorporationIndustryJobs)
 }
 
 func GetCorporationAssets(callerID int32, corporationID int32, jobs *model.CorporationAssets) error {
@@ -292,56 +279,6 @@ func WriteCachedObject(object model.CachedObject) error {
 
 	if err != nil {
 		return fmt.Errorf("Error while writing to REDIS: %s", err)
-	}
-
-	return nil
-}
-
-func FetchCorporationIndustryJobs(callerID int32, corporationID int32, object model.CachedObject) error {
-	jobs, ok := object.(*model.IndustryJobs)
-	if !ok {
-		return errors.New("passing invalid type to FetchCorporationIndustryJobs function")
-	}
-
-	// find access token for corporation
-	accessToken := model.AccessToken{}
-	err := GetAccessTokenForCorporation(corporationID, &accessToken)
-	if err != nil {
-		return err
-	}
-
-	response, httpResponse, err := ESI.IndustryApi.GetCorporationsCorporationIdIndustryJobs(context.WithValue(context.Background(), goesi.ContextAccessToken, accessToken.Token), corporationID, nil)
-	if err != nil {
-		return err
-	}
-
-	t, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
-	if err != nil {
-		return err
-	}
-
-	jobs.SetExpire(&t)
-
-	jobs.CorporationID = corporationID
-
-	jobs.Jobs = map[string]model.IndustryJob{}
-
-	for _, v := range response {
-		job := model.IndustryJob{
-			ActivityID:       v.ActivityId,
-			LicensedRuns:     int(v.LicensedRuns),
-			SuccesfulRuns:    int(v.SuccessfulRuns),
-			Probability:      v.Probability,
-			OutputLocationID: v.OutputLocationId,
-			StartDate:        v.StartDate.Unix(),
-			EndDate:          v.EndDate.Unix(),
-			CompletedDate:    v.CompletedDate.Unix(),
-			PauseDate:        v.PauseDate.Unix(),
-			Status:           v.Status,
-		}
-		job.Blueprint, _ = db.GetType(v.BlueprintTypeId)
-
-		jobs.Jobs[strconv.Itoa(int(v.JobId))] = job
 	}
 
 	return nil
