@@ -85,15 +85,3 @@ func InsertTransaction(transaction *model.Transaction) error {
 
 	return err
 }
-
-func UpdateWallet(wallet *model.Wallet) error {
-	_, err := pdb.Exec(`INSERT INTO wallet ("corporationID", division, balance)
-	VALUES($1, $2, $3)
-	ON CONFLICT ("corporationID", division)
-	DO UPDATE SET balance = $3`,
-		wallet.CorporationID,
-		wallet.Division,
-		wallet.Balance)
-
-	return err
-}

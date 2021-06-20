@@ -134,9 +134,6 @@ func doCmd(cmd *cobra.Command, args []string) {
 		go transactionFetcher.StartLoop()
 	}
 
-	walletFetcher := datafetch.NewWallerFetcher(app.CorporationID, division)
-	go walletFetcher.StartLoop()
-
 	//go app.TransactionLoop()
 	//go ContractsLoop()
 

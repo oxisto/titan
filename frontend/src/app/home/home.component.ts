@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Corporation } from '../corporation/corporation';
+import { Corporation, Wallets } from '../corporation/corporation';
 import { CorporationService } from '../corporation/corporation.service';
 
 @Component({
@@ -9,6 +9,7 @@ import { CorporationService } from '../corporation/corporation.service';
 export class HomeComponent implements OnInit {
 
   corporation: Corporation;
+  wallets: Wallets;
   corporationLogo: string;
 
   constructor(private corporationService: CorporationService) {
@@ -19,6 +20,10 @@ export class HomeComponent implements OnInit {
     this.corporationService.getCorporation().subscribe(corporation => {
       this.corporation = corporation;
       this.corporationLogo = this.corporationService.getCorporationLogo(corporation.corporationID);
+    });
+
+    this.corporationService.getCorporationWallets().subscribe(wallets => {
+      this.wallets = wallets;
     });
   }
 

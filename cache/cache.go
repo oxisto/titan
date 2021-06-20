@@ -128,6 +128,11 @@ func GetCorporation(callerID int32, corporationID int32, corporation *model.Corp
 	return GetCachedObject(hashKey, callerID, corporationID, corporation, FetchCorporation)
 }
 
+func GetCorporationWallets(callerID int32, corporationID int32, wallets *model.Wallets) error {
+	hashKey := fmt.Sprintf("wallets:%d", corporationID)
+	return GetCachedObject(hashKey, callerID, corporationID, wallets, FetchCorporationWallets)
+}
+
 func GetIndustryJobs(callerID int32, corporationID int32, jobs *model.IndustryJobs) error {
 	hashKey := fmt.Sprintf("industry-jobs:%d", corporationID)
 	return GetCachedObject(hashKey, callerID, corporationID, jobs, FetchCorporationIndustryJobs)
@@ -380,6 +385,53 @@ func FetchCorporation(callerID int32, corporationID int32, object model.CachedOb
 	corporation.Members = map[string]int32{}
 	for _, v := range membersResponse {
 		corporation.Members[strconv.Itoa(int(v))] = v
+	}
+
+	return nil
+}
+
+func FetchCorporationWallets(callerID int32, corporationID int32, object model.CachedObject) error {
+	wallets, ok := object.(*model.Wallets)
+	if !ok {
+		return errors.New("passing invalid type to FetchCorporation function")
+	}
+
+	// find access token for corporation
+	accessToken := model.AccessToken{}
+	err := GetAccessTokenForCorporation(corporationID, &accessToken)
+	if err != nil {
+		return err
+	}
+
+	var options esi.GetCorporationsCorporationIdWalletsOpts
+
+	response, httpResponse, err := ESI.WalletApi.GetCorporationsCorporationIdWallets(
+		context.WithValue(context.Background(),
+			goesi.ContextAccessToken,
+			accessToken.Token),
+		corporationID,
+		&options)
+	if err != nil {
+		return err
+	}
+
+	expireTime, err := time.Parse(time.RFC1123, httpResponse.Header.Get("Expires"))
+	if err != nil {
+		return err
+	}
+	wallets.SetExpire(&expireTime)
+
+	wallets.Divisions = make(map[string]model.Wallet)
+	wallets.CorporationID = corporationID
+
+	// loop through all wallets
+	for _, t := range response {
+		wallet := model.Wallet{
+			Division: t.Division,
+			Balance:  t.Balance,
+		}
+
+		wallets.Divisions[strconv.Itoa(int(t.Division))] = wallet
 	}
 
 	return nil

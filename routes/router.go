@@ -76,6 +76,7 @@ func NewRouter(corporationId int32) *gin.Engine {
 		corporation := api.Group("/corporation")
 		{
 			corporation.GET("", GetCorporation)
+			corporation.GET("wallets", GetCorporationWallets)
 		}
 
 		manufacturing := api.Group("/manufacturing")

@@ -1,4 +1,4 @@
-<div class="card" *ngIf="corporation">
+<div class="card" *ngIf="corporation && wallets">
   <div class="card-header">
     {{ corporation.name }} ({{ corporation.ticker }})
   </div>
@@ -6,5 +6,7 @@
     <img [src]="corporationLogo">
 
     <p class="card-text">{{ corporation | json }}</p>
+
+    <p class="card-text">{{ wallets | json }}</p>
   </div>
 </div>
