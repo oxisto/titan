@@ -3,6 +3,7 @@ package datafetch
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -55,6 +56,27 @@ func init() {
 	log = logrus.WithField("component", "data-fetcher")
 }
 
+type CachedETag struct {
+	ETag string
+	Key  string
+}
+
+func (t CachedETag) ID() int32 {
+	return 0
+}
+
+func (t CachedETag) ExpiresOn() *time.Time {
+	return nil
+}
+
+func (t *CachedETag) SetExpire(time *time.Time) {
+
+}
+
+func (t CachedETag) HashKey() string {
+	return fmt.Sprintf("etag:%s", t.Key)
+}
+
 type metadata struct {
 	dataType         string
 	maxCacheTime     time.Duration
@@ -81,7 +103,16 @@ func NewFetchService(corporationID int32, fetcher DataFetcher) *FetchService {
 }
 
 func (service FetchService) StartLoop() {
-	ctx := FetchContext{
+	var (
+		backoffTime = time.Minute
+		etag        CachedETag
+		accessToken model.AccessToken
+		ctx         FetchContext
+		err         error
+	)
+
+	// create a new context
+	ctx = FetchContext{
 		corporationID: service.corporationID,
 		log: log.WithFields(logrus.Fields{
 			"data":          service.fetcher.DataType(),
@@ -89,14 +120,22 @@ func (service FetchService) StartLoop() {
 		}).WithFields(service.fetcher.LogFields()),
 	}
 
-	var backoffTime = time.Minute
-
 	for {
+		if ctx.lastETag == "" {
+			// check, if we have an ETag in our cache
+			_ = cache.ReadCachedObject(fmt.Sprintf("etag:%s", cacheKey(ctx, service.fetcher)), &etag)
+			if err != nil {
+				// just warn and ignore cache errors, because they do not influence our fetching
+				log.Warnf("Could not read ETag: %v", err)
+			} else {
+				ctx.lastETag = etag.ETag
+			}
+		}
+
 		ctx.log.Printf("Fetching %s...", service.fetcher.DataType())
 
 		// find access token for corporation
-		var accessToken model.AccessToken
-		err := cache.GetAccessTokenForCorporation(ctx.corporationID, &accessToken)
+		err = cache.GetAccessTokenForCorporation(ctx.corporationID, &accessToken)
 		if err != nil {
 			ctx.log.Errorf("Could not find access token for %d.", ctx.corporationID, backoffTime.Minutes())
 
@@ -132,11 +171,20 @@ func (service FetchService) StartLoop() {
 			continue
 		}
 
-		// update the ETag for the next request
-		// TODO: Store ETag for requests in `datafetch` in REDIS
-		// BODY: We could store ETags for each datafetcher in REDIS, so that ETags are persistent across server restarts.
-		// Otherwise, the server will fetch a lot of unncessary information because the ETag state is lost.
-		ctx.lastETag = httpResponse.Header.Get("etag")
+		etag = CachedETag{
+			ETag: httpResponse.Header.Get("etag"),
+			Key:  cacheKey(ctx, service.fetcher),
+		}
+
+		// update the ETag directly
+		ctx.lastETag = etag.ETag
+
+		// cache the ETag
+		err = cache.WriteCachedObject(&etag)
+		if err != nil {
+			// just warn and ignore cache errors, because they do not influence our fetching
+			log.Warnf("Could not cache ETag: %v", err)
+		}
 
 		var duration = time.Until(expireTime)
 
@@ -153,4 +201,8 @@ func (service FetchService) StartLoop() {
 func sleepWithPrint(log *logrus.Entry, duration time.Duration) {
 	log.Printf("Waiting for %.2f minutes until next fetch", duration.Minutes())
 	time.Sleep(duration)
+}
+
+func cacheKey(ctx FetchContext, fetcher DataFetcher) string {
+	return fmt.Sprintf("%s:%d:%v", fetcher.DataType(), ctx.corporationID, fetcher.LogFields())
 }
