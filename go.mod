@@ -19,5 +19,5 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.8.0
-	golang.org/x/oauth2 v0.0.0-20210622165204-14747e66f690
+	golang.org/x/oauth2 v0.0.0-20210622190553-bce0382f6c22
 )
