@@ -23,7 +23,7 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/oxisto/titan/cache"
 	"github.com/oxisto/titan/model"
 	"github.com/oxisto/titan/routes/auth"
