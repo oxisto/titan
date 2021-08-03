@@ -126,6 +126,8 @@ github.com/golang-jwt/jwt v3.2.1+incompatible h1:73Z+4BJcrTC+KczS6WvTPvRGOp1WmfE
 github.com/golang-jwt/jwt v3.2.1+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
+github.com/golang-jwt/jwt/v4 v4.0.0 h1:RAqyYixv1p7uEnocuy8P1nru5wprCh/MH2BIlW5z5/o=
+github.com/golang-jwt/jwt/v4 v4.0.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -306,6 +308,8 @@ github.com/oxisto/bellows v1.0.0 h1:jAdpd1NOn5WPEriDyTLoAa3DOqs16xCAGQL3EeD9FgI=
 github.com/oxisto/bellows v1.0.0/go.mod h1:thjHETVoiFyzH0m0Lj05DJOdj2BDF8jdvsN6WAxcZKY=
 github.com/oxisto/evesso v1.0.7 h1:sSpgXtxKualEVeBCC1Ow9EVC3A6lbJal2oc4t7N941Y=
 github.com/oxisto/evesso v1.0.7/go.mod h1:piTwmcOBZKMxfEI98H9MIrMij85qjVBkNLoKmjSEiSQ=
+github.com/oxisto/evesso v1.0.8 h1:Ip1EYdifpHSOeRF7J2oRBsvh03hbhLqvLhsTEzuw9Ns=
+github.com/oxisto/evesso v1.0.8/go.mod h1:mCLcnp0W7yank3zqWBF84yJf5sZb9jBIKAJ9NAVGy9s=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pelletier/go-toml v1.9.3 h1:zeC5b1GviRUyKYd6OJPvBU/mcVDVoL1OhT17FCt5dSQ=
