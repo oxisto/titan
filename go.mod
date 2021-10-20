@@ -18,6 +18,6 @@ require (
 	github.com/oxisto/evesso v1.0.8
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
-	github.com/spf13/viper v1.8.1
+	github.com/spf13/viper v1.9.0
 	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1
 )
