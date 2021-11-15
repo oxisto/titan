@@ -3,7 +3,7 @@ module github.com/oxisto/titan
 go 1.14
 
 require (
-	github.com/antihax/goesi v0.0.0-20211026213948-2c37cda65aec
+	github.com/antihax/goesi v0.0.0-20211028231550-640b98e35e09
 	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.4
@@ -19,5 +19,5 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
-	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1
+	golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5
 )
