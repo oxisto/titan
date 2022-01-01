@@ -64,6 +64,8 @@ github.com/antihax/goesi v0.0.0-20211026213948-2c37cda65aec h1:8V8MhOMebQ6Z7Mcdr
 github.com/antihax/goesi v0.0.0-20211026213948-2c37cda65aec/go.mod h1:65wJfPaqChIwfd5KMjA1+HLycgQA1bXyQykHFBT6dKw=
 github.com/antihax/goesi v0.0.0-20211028231550-640b98e35e09 h1:A/TvCo8kBl86DM0p+378EvWz6oZNgQl18GlcVm69eiM=
 github.com/antihax/goesi v0.0.0-20211028231550-640b98e35e09/go.mod h1:lE4ypnBF4TBofCxw60r/MV7HlrLyq2p7W5gHJKpMxPE=
+github.com/antihax/goesi v0.0.0-20220101205747-5b5f5d035aa4 h1:vYu11gZ1Dnh9EsQfqlNyyYbKWgoY9cs+U0+lljmlv2w=
+github.com/antihax/goesi v0.0.0-20220101205747-5b5f5d035aa4/go.mod h1:lE4ypnBF4TBofCxw60r/MV7HlrLyq2p7W5gHJKpMxPE=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
