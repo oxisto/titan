@@ -17,7 +17,7 @@ require (
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.8
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.10.1
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
