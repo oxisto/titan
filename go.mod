@@ -3,7 +3,7 @@ module github.com/oxisto/titan
 go 1.14
 
 require (
-	github.com/antihax/goesi v0.0.0-20220101205747-5b5f5d035aa4
+	github.com/antihax/goesi v0.0.0-20230122031109-2c5587c28863
 	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.7
