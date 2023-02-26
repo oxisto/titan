@@ -11,13 +11,13 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lib/pq v1.10.7
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.18.1 // indirect
 	github.com/oxisto/bellows v1.0.0
 	github.com/oxisto/evesso v1.0.8
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
-	github.com/spf13/viper v1.10.1
-	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
+	github.com/spf13/viper v1.15.0
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 )
