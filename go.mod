@@ -6,7 +6,7 @@ require (
 	github.com/antihax/goesi v0.0.0-20220101205747-5b5f5d035aa4
 	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/static v0.0.1
-	github.com/gin-gonic/gin v1.7.7
+	github.com/gin-gonic/gin v1.9.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/jmoiron/sqlx v1.3.4
